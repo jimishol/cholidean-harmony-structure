@@ -28,64 +28,51 @@ function sh:constructDefinesGlobal(dream)
 			vec2(-2, 1)
 		);
 		
-		float sampleShadowSun2Smooth(sampler2DShadow tex, vec3 shadowUV) {
+		float sampleShadowSun2Smooth(Image tex, vec2 shadowUV, float depth) {
 			float shadow = 0.0;
 			for (int i = 0; i < 17; ++i) {
-				shadow += texture(tex, shadowUV + vec3(sampleOffset[i], 0.0) * texelSize);
+				shadow += texture(tex, shadowUV + sampleOffset[i] * texelSize).x > depth ? 0.0588235 : 0.0;
 			}
-			return shadow / 17.0;
+			return shadow;
 		}
 		
-		float sampleShadowSunSmooth(vec3 vertexPos, mat4 sun_shadow_proj_1, mat4 sun_shadow_proj_2, mat4 sun_shadow_proj_3, sampler2DShadow sun_shadow_tex_1, sampler2DShadow sun_shadow_tex_2, sampler2DShadow sun_shadow_tex_3, vec3 bias) {
-			vec4 vertexPosShadow;
-			vec3 shadowUV;
+		float sampleShadowSunSmooth(vec3 vertexPos, mat4 sun_shadow_proj_1, mat4 sun_shadow_proj_2, mat4 sun_shadow_proj_3, Image sun_shadow_tex_1, Image sun_shadow_tex_2, Image sun_shadow_tex_3, vec3 bias) {
 			float dist = distance(vertexPos, viewPos) * shadowDistance;
-			
 			if (dist < 1.0) {
-				vertexPosShadow = sun_shadow_proj_1 * vec4(vertexPos + bias, 1.0);
-				shadowUV = vertexPosShadow.xyz;
-				return sampleShadowSun2Smooth(sun_shadow_tex_1, shadowUV * 0.5 + 0.5);
+				vec3 vertexPosShadow = (sun_shadow_proj_1 * vec4(vertexPos + bias, 1.0)).xyz;
+				return sampleShadowSun2Smooth(sun_shadow_tex_1, vertexPosShadow.xy * 0.5 + 0.5, vertexPosShadow.z);
 			} else if (dist < factor) {
-				vertexPosShadow = sun_shadow_proj_2 * vec4(vertexPos + bias * factor, 1.0);
-				shadowUV = vertexPosShadow.xyz;
-				return sampleShadowSun2Smooth(sun_shadow_tex_2, shadowUV * 0.5 + 0.5);
+				vec3 vertexPosShadow = (sun_shadow_proj_2 * vec4(vertexPos + bias * factor, 1.0)).xyz;
+				return sampleShadowSun2Smooth(sun_shadow_tex_2, vertexPosShadow.xy * 0.5 + 0.5, vertexPosShadow.z);
 			} else {
-				vertexPosShadow = sun_shadow_proj_3 * vec4(vertexPos + bias * factor * factor, 1.0);
-				shadowUV = vertexPosShadow.xyz;
-				return sampleShadowSun2Smooth(sun_shadow_tex_3, shadowUV * 0.5 + 0.5);
+				vec3 vertexPosShadow = (sun_shadow_proj_3 * vec4(vertexPos + bias * factor * factor, 1.0)).xyz;
+				return sampleShadowSun2Smooth(sun_shadow_tex_3, vertexPosShadow.xy * 0.5 + 0.5, vertexPosShadow.z);
 			}
 		}
 		
-		float sampleShadowSun2(sampler2DShadow tex, vec3 shadowUV) {
+		float sampleShadowSun2(Image tex, vec2 shadowUV, float depth) {
 			float ox = float(fract(love_PixelCoord.x * 0.5) > 0.25);
 			float oy = float(fract(love_PixelCoord.y * 0.5) > 0.25) + ox;
 			if (oy > 1.1) oy = 0.0;
 			
-			return (
-				texture(tex, shadowUV + vec3(-1.5 + ox, 0.5 + oy, 0.0) * texelSize) +
-				texture(tex, shadowUV + vec3(0.5 + ox, 0.5 + oy, 0.0) * texelSize) +
-				texture(tex, shadowUV + vec3(-1.5 + ox, -1.5 + oy, 0.0) * texelSize) +
-				texture(tex, shadowUV + vec3(0.5 + ox, -1.5 + oy, 0.0) * texelSize)
-			) * 0.25;
+			return
+				(texture(tex, shadowUV + vec2(-1.5 + ox, 0.5 + oy) * texelSize).x > depth ? 0.25 : 0.0) +
+				(texture(tex, shadowUV + vec2(0.5 + ox, 0.5 + oy) * texelSize).x > depth ? 0.25 : 0.0) +
+				(texture(tex, shadowUV + vec2(-1.5 + ox, -1.5 + oy) * texelSize).x > depth ? 0.25 : 0.0) +
+				(texture(tex, shadowUV + vec2(0.5 + ox, -1.5 + oy) * texelSize).x > depth ? 0.25 : 0.0);
 		}
 		
-		float sampleShadowSun(vec3 vertexPos, mat4 sun_shadow_proj_1, mat4 sun_shadow_proj_2, mat4 sun_shadow_proj_3, sampler2DShadow sun_shadow_tex_1, sampler2DShadow sun_shadow_tex_2, sampler2DShadow sun_shadow_tex_3, vec3 bias) {
-			vec4 vertexPosShadow;
-			vec3 shadowUV;
+		float sampleShadowSun(vec3 vertexPos, mat4 sun_shadow_proj_1, mat4 sun_shadow_proj_2, mat4 sun_shadow_proj_3, Image sun_shadow_tex_1, Image sun_shadow_tex_2, Image sun_shadow_tex_3, vec3 bias) {
 			float dist = distance(vertexPos, viewPos) * shadowDistance;
-			
 			if (dist < 1.0) {
-				vertexPosShadow = sun_shadow_proj_1 * vec4(vertexPos + bias, 1.0);
-				shadowUV = vertexPosShadow.xyz;
-				return sampleShadowSun2(sun_shadow_tex_1, shadowUV * 0.5 + 0.5);
+				vec3 vertexPosShadow = (sun_shadow_proj_1 * vec4(vertexPos + bias, 1.0)).xyz;
+				return sampleShadowSun2(sun_shadow_tex_1, vertexPosShadow.xy * 0.5 + 0.5, vertexPosShadow.z);
 			} else if (dist < factor) {
-				vertexPosShadow = sun_shadow_proj_2 * vec4(vertexPos + bias * factor, 1.0);
-				shadowUV = vertexPosShadow.xyz;
-				return sampleShadowSun2(sun_shadow_tex_2, shadowUV * 0.5 + 0.5);
+				vec3 vertexPosShadow = (sun_shadow_proj_2 * vec4(vertexPos + bias * factor, 1.0)).xyz;
+				return sampleShadowSun2(sun_shadow_tex_2, vertexPosShadow.xy * 0.5 + 0.5, vertexPosShadow.z);
 			} else {
-				vertexPosShadow = sun_shadow_proj_3 * vec4(vertexPos + bias * factor * factor, 1.0);
-				shadowUV = vertexPosShadow.xyz;
-				return sampleShadowSun2(sun_shadow_tex_3, shadowUV * 0.5 + 0.5);
+				vec3 vertexPosShadow = (sun_shadow_proj_3 * vec4(vertexPos + bias * factor * factor, 1.0)).xyz;
+				return sampleShadowSun2(sun_shadow_tex_3, vertexPosShadow.xy * 0.5 + 0.5, vertexPosShadow.z);
 			}
 		}
 	]]
@@ -97,9 +84,9 @@ function sh:constructDefines(dream, ID)
 		extern mat4 sun_shadow_proj_2_#ID#;
 		extern mat4 sun_shadow_proj_3_#ID#;
 		
-		extern sampler2DShadow sun_shadow_tex_1_#ID#;
-		extern sampler2DShadow sun_shadow_tex_2_#ID#;
-		extern sampler2DShadow sun_shadow_tex_3_#ID#;
+		extern Image sun_shadow_tex_1_#ID#;
+		extern Image sun_shadow_tex_2_#ID#;
+		extern Image sun_shadow_tex_3_#ID#;
 		
 		extern bool sun_shadow_smooth_#ID#;
 		extern vec3 sun_shadow_vec_#ID#;
@@ -164,9 +151,9 @@ function sh:sendUniforms(dream, shaderObject, light, ID)
 	local shader = shaderObject.shader
 	
 	if light.shadow.canvases and light.shadow.canvases[3] then
-		shader:send("sun_shadow_proj_1_" .. ID, light.shadow.transformation_1)
-		shader:send("sun_shadow_proj_2_" .. ID, light.shadow.transformation_2)
-		shader:send("sun_shadow_proj_3_" .. ID, light.shadow.transformation_3)
+		shader:send("sun_shadow_proj_1_" .. ID, light.shadow.cams[1].transformProj)
+		shader:send("sun_shadow_proj_2_" .. ID, light.shadow.cams[2].transformProj)
+		shader:send("sun_shadow_proj_3_" .. ID, light.shadow.cams[3].transformProj)
 		
 		shader:send("sun_shadow_tex_1_" .. ID, light.shadow.canvases[1])
 		shader:send("sun_shadow_tex_2_" .. ID, light.shadow.canvases[2])
