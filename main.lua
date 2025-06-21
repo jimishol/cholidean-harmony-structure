@@ -1,7 +1,7 @@
 local extra = {
   "./MidiModules/?.lua",
-  "./extensions/?.lua",
-  "./extensions/?/?.lua",
+  "./Extensions/?.lua",
+  "./Extensions/?/?.lua",
   "./src/?.lua",
   "./assets/?.lua"
 }
@@ -11,12 +11,6 @@ package.path = table.concat(extra, ";") .. ";" .. package.path
 local dream = require("3DreamEngine")
 local factory = require("factory")
 
-local light
-
-
-
-love.window.setTitle("Multiple Cameras")
-
 -- Use a fancy sky
 --local sky = require("extensions/sky")
 --dream:setSky(sky.render)
@@ -24,11 +18,8 @@ love.window.setTitle("Multiple Cameras")
 -- Create as sun
 local sun = dream:newLight("sun")
 
-
-
-
 function love.load()
-    dream:init( 1280,  720 )
+    dream:init()
 
 dream.camera:resetTransform()
 dream.camera:translate(0,0,40)
