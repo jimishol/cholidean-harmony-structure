@@ -14,6 +14,7 @@ package.path = table.concat(extra, ";") .. ";" .. package.path
 
 local dream = require("3DreamEngine")
 local scene, sun, camera  -- we'll store the scene, the sun light, and our camera module here
+local camera = require("src/camera")
 
 function love.load()
   love.window.setTitle("Cholidean harmony structure")
@@ -33,7 +34,6 @@ function love.load()
   sun:addNewShadow()
   
   -- Require and initialize our custom orbiting camera.
-  camera = require("src/camera")
   camera:init(dream)
 end
 
