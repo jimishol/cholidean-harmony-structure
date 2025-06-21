@@ -12,17 +12,19 @@ local dream = require("3DreamEngine")
 local factory = require("factory")
 
 -- Use a fancy sky
---local sky = require("extensions/sky")
+--local sky = require("Extensions/sky")
 --dream:setSky(sky.render)
 
 -- Create as sun
 local sun = dream:newLight("sun")
 
+local camera = require("src/camera")
+
 function love.load()
     dream:init()
-
-dream.camera:resetTransform()
-dream.camera:translate(0,0,40)
+camera:init(dream)
+-- dream.camera:resetTransform()
+-- dream.camera:translate(0,0,40)
 
 
 
