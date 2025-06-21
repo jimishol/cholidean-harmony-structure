@@ -1,52 +1,50 @@
--- don’t re-require 3DreamEngine.init!
--- instead expect main.lua to pass you the one-and-only `dream` instance
-local cameraController = require("extensions/utils/cameraController")
-local scene            -- you’ll load your scene here
-local sun
 
+-- src/camera.lua
+
+-- We use the cameraController module provided by 3DreamEngine
+local cameraController = require("extensions/utils/cameraController")
 local M = {}
 
+-- Orbit parameters for an automatic, continuously orbiting camera.
+local orbit = {
+  angle  = 0,             -- current orbit angle in radians
+  radius = 10,            -- distance from the scene center (adjust for zoom)
+  height = 3,             -- vertical offset of the camera
+  speed  = math.pi / 4,   -- orbit rotation speed (45° per second)
+}
+
+-- Initialize the camera controller.
 function M:init(dream)
-  -- stash the engine
   self.dream = dream
-
-  -- set up fog / sky / sun only once, here
-  dream:setFogHeight(0.0, 150.0)
-
-  local sky = require("extensions/sky")
-  dream:setSky(sky.render)
-
-  sun = dream:newLight("sun")
-  sun:addNewShadow()
-
-  dream:loadMaterialLibrary("examples/firstpersongame/materials")
-  scene = dream:loadObject    ("examples/firstpersongame/objects/scene")
-
-  cameraController.x =  8
-  cameraController.y = 10
-  cameraController.z =  2
+  
+  -- Set an initial position for the camera using the orbit parameters.
+  cameraController.x = math.sin(orbit.angle) * orbit.radius
+  cameraController.y = orbit.height
+  cameraController.z = math.cos(orbit.angle) * orbit.radius
 end
 
+-- Update the orbit camera position.
 function M:update(dt)
+  -- Increment the orbit angle over time.
+  orbit.angle = orbit.angle + orbit.speed * dt
+  
+  -- Compute new camera position along a circular orbit.
+  local x = math.sin(orbit.angle) * orbit.radius
+  local z = math.cos(orbit.angle) * orbit.radius
+  local y = orbit.height
+  
+  -- Update the built-in cameraController's position parameters.
+  cameraController.x = x
+  cameraController.y = y
+  cameraController.z = z
+  
+  -- (Optional) the cameraController may use dt to update internal smoothing or inertia.
   cameraController:update(dt)
-  -- animate time/weather if you want …
 end
 
-function M:draw()
-  local dream = self.dream
-
-  cameraController:setCamera(dream.camera)
-
-  dream:addLight(sun)
-  if love.mouse.isDown(1) then
-    dream:addNewLight("point",
-      dream.camera.pos + dream.camera.normal,
-      dream.vec3(1.0, 0.75, 0.1),
-      5.0 + love.math.noise(love.timer.getTime()*2)
-    )
-  end
-
-  dream:draw(scene)
+-- Apply the updated camera settings to the engine's camera.
+function M:apply()
+  cameraController:setCamera(self.dream.camera)
 end
 
 return M
