@@ -52,9 +52,9 @@ function M:update(dt)
   end
 
   -- If no manual input detected via keyboard, allow auto orbit.
-  if not manualInput then
-    orbit.angle = orbit.angle + orbit.speed * dt
-  end
+  -- if not manualInput then
+  --   orbit.angle = orbit.angle + orbit.speed * dt
+  -- end
 
   -- Compute new camera position from orbit parameters.
   local x = math.sin(orbit.angle) * orbit.radius
