@@ -2,29 +2,30 @@
 -- src/camera.lua
 
 local cameraController = require("extensions/utils/cameraController")
+local cons = require("src/constants")  -- read all constants
 local M = {}
 
 -- Orbit parameters for automatic and manual control.
 local orbit = {
-  angle  = 0,             -- current orbit angle in radians
-  radius = 10,            -- distance from the scene center (for zoom)
-  height = 3,             -- vertical offset of the camera
-  speed  = math.pi / 4,   -- automatic orbit speed (45° per second)
+  angle  = cons.orbit.initial_angle,    -- current orbit angle in radians
+  radius = cons.orbit.initial_radius,     -- distance from the scene center (for zoom)
+  height = cons.orbit.initial_height,     -- vertical offset of the camera
+  speed  = cons.orbit.orbit_speed,         -- automatic orbit speed (45° per second)
 }
 
 -- Mouse sensitivity parameters.
 local MOUSE_SENS = {
-  angle  = 0.005,   -- horizontal mouse drag → orbit angle adjustment
-  height = 0.05,    -- vertical mouse drag → orbit height adjustment
+  angle  = cons.sensitivity.mouse_angle,   -- horizontal mouse drag → orbit angle adjustment
+  height = cons.sensitivity.mouse_height,    -- vertical mouse drag → orbit height adjustment
 }
-local MOUSE_ZOOM_SPEED = 0.1  -- mouse zoom (MMB vertical drag)
+local MOUSE_ZOOM_SPEED = cons.sensitivity.mouse_zoom  -- mouse zoom (MMB vertical drag)
 
 -- Keyboard sensitivity parameters.
 local KEYBOARD_SENS = {
-  angle  = 0.05,    -- keyboard left/right → orbit angle adjustment
-  height = 0.5,     -- keyboard up/down (without shift) → orbit height adjustment
+  angle  = cons.sensitivity.keyboard_angle,  -- keyboard left/right → orbit angle adjustment
+  height = cons.sensitivity.keyboard_height,   -- keyboard up/down (without shift) → orbit height adjustment
 }
-local KEYBOARD_ZOOM_SPEED = 1.0  -- keyboard zoom speed (for shift+up/down)
+local KEYBOARD_ZOOM_SPEED = cons.sensitivity.keyboard_zoom  -- keyboard zoom speed (for shift+up/down)
 
 function M:init(dream)
   self.dream = dream

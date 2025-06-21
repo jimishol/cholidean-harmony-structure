@@ -1,40 +1,72 @@
+
 --- Various constants or options.
--- This module provides various settings that can be used across the project.
--- It includes constants for tuning numerical values such as scaling, offsets, or any
--- other purpose as required.
+-- This module provides settings used across the project.
+-- Adjust parameters below to tweak behavior in one central location.
+-- Old parameters from previous "tries" have been retained as comments where they might still be useful.
 -- @module constants
 
 local M = {}
 
---- Torus options
--- Constant used for defining the 'radius' of the torus.
-M.torusRadius = 7
--- Constant used for defining the 'width' of the torus.
-M.torusWidth = 3
--- Steps constant used for defining the smoothness of the torus.
-M.steps = 16 -- steps of each segment of a perfect fifth
+----------------------------------------
+-- Torus options
+----------------------------------------
+M.torusRadius = 7           -- Constant for the torus 'radius'.
+M.torusWidth = 3            -- Constant for the torus 'width'.
+M.steps = 16                -- Steps of each segment (used in some experiments).
 
---- Tones as ball options
---- Constant used for defining the radius of ball for each tone
-M.ballRadius = 1.5
+----------------------------------------
+-- Tones as Ball options
+----------------------------------------
+M.ballRadius = 1.5          -- Radius of the ball representing each tone.
 
---- Spiral of Fifths options
-M.rope_radius = 0.12   -- radious of the closed 'rope' that forms the 3D Spiral of Fifths
-M.rope_sides  = 6    -- >=3 'sides' of the closed 'rope' that forms the 3D Spiral of Fifths
+----------------------------------------
+-- Spiral of Fifths options
+----------------------------------------
+M.rope_radius = 0.12        -- Radius of the closed 'rope' that forms the 3D Spiral of Fifths.
+M.rope_sides  = 6           -- Number of sides (>=3) of the closed 'rope'.
 M.monoSegment = true
 M.monoSegmentColor = { r = 255, g = 255, b = 255 }  -- default color (white)
-M.glassAlpha = 0.3 -- Fixed alpha for a glass-like transparent appearance.
+M.glassAlpha = 0.3          -- Fixed alpha for a glass-like transparent appearance.
 
---- Camera options
-M.distance  = 16   -- How far the camera is from the origin (R).
-M.elevation = 73   -- Elevation in degrees.
-M.azimuth   = 22   -- Azimuth in degrees.
-M.fov       = math.pi/2    -- Field of View, and is an angle in radians specifying how "wide" your camera is
-M.nearClip = 0.01  -- denoting how far your Near Clipping Plane is from your camera's position.
-M.farClip = 1000   -- denoting how far your Far Clipping Plane is from your camera's position.
-M.up_unit_vector = {0, -1, 0} -- represents which way up is.
-M.xAt	    = 0	   -- the x coordinate of the position where the camera look.
-M.yAt	    = 0	   -- the y coordinate of the position where the camera look.
-M.zAt	    = 0	   -- the z coordinate of the position where the camera look.
+----------------------------------------
+-- Camera options (for 3DreamEngine)
+----------------------------------------
+M.distance  = 16            -- How far the camera is from the origin (R).
+M.elevation = 73            -- Elevation in degrees.
+M.azimuth   = 22            -- Azimuth in degrees.
+M.fov       = math.pi/2     -- Field Of View (in radians).
+M.nearClip  = 0.01          -- Near clipping plane distance.
+M.farClip   = 1000          -- Far clipping plane distance.
+M.up_unit_vector = {0, -1, 0} -- Defines which direction is 'up'.
+M.xAt = 0                   -- X coordinate where the camera looks at.
+M.yAt = 0                   -- Y coordinate where the camera looks at.
+M.zAt = 0                   -- Z coordinate where the camera looks at.
+
+----------------------------------------
+-- Orbit Camera Control settings (NEW)
+----------------------------------------
+M.orbit = {
+  initial_angle  = 0,        -- Initial orbit angle in radians.
+  initial_radius = 10,       -- Initial distance from the scene center (zoom level).
+  initial_height = 3,        -- Initial vertical offset of the camera.
+  orbit_speed    = math.pi / 4, -- Automatic orbit speed (45° per second).
+  -- Old value (trial): speed = 0.1
+}
+
+----------------------------------------
+-- Input Sensitivity settings (NEW)
+----------------------------------------
+M.sensitivity = {
+  -- Mouse sensitivity parameters (for relative mouse motion)
+  mouse_angle  = 0.005,      -- Mouse horizontal sensitivity for orbit angle adjustment.
+  mouse_height = 0.05,       -- Mouse vertical sensitivity for orbit height adjustment.
+  mouse_zoom   = 0.1,        -- Mouse zoom speed (when using MMB drag).
+  
+  -- Keyboard sensitivity parameters (for digital input via keys)
+  keyboard_angle  = 0.05,    -- Keyboard left/right sensitivity for orbit angle adjustment.
+  keyboard_height = 0.5,     -- Keyboard up/down sensitivity (without shift) for orbit height.
+  keyboard_zoom   = 1.0,     -- Keyboard zoom sensitivity (when shift is held with up/down).
+  -- Old attempts (trial values): angle = 0.01, height = 0.1, zoom = 0.5
+}
 
 return M
