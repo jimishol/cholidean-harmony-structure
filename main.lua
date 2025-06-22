@@ -8,13 +8,14 @@ local extra = {
   "./extensions/?/?.lua",
   "./src/?.lua",
   "./assets/?.lua",
-  "./examples/blacksmith/?.lua",  -- for Blacksmith demo assets
+  "./materials/?.lua"
+--  "./examples/blacksmith/?.lua",  -- for Blacksmith demo assets
 }
 package.path = table.concat(extra, ";") .. ";" .. package.path
 
 local dream = require("3DreamEngine")
 local scene, sun, camera  -- we'll store the scene, the sun light, and our camera module here
-camera = require("src/camera")
+camera = require("camera")
 
 -- Variables to track window dimensions
 local lastW, lastH = love.graphics.getDimensions()
@@ -30,7 +31,7 @@ function love.load()
   dream:setSky(sky.render)
   
   -- Load the scene (the single object) from the Blacksmith example.
-  scene = dream:loadObject("assets/cube")
+  scene = dream:loadObject("assets/models/cube")
   
   -- Create a sun light and enable shadow casting.
   sun = dream:newLight("sun")
