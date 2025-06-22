@@ -38,7 +38,7 @@ M.farClip  = 1000         -- Far plane distance
 M.initialCameraPosition = {
   x = 0,
   y = 0,
-  z = 10
+  z = 5
 }
 
 -- Target point (kept for completeness; not actively used by free mode)
@@ -46,7 +46,8 @@ M.xAt = 0
 M.yAt = 0
 M.zAt = 0
 
-----------------------------------------
+M.resetDuration = 0.5    -- Duration (in seconds) for camera orientation reset when pressing space.
+
 -- Input Sensitivity Settings
 ----------------------------------------
 M.sensitivity = {

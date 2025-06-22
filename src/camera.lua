@@ -1,100 +1,203 @@
+
 -- src/camera.lua
 
-local cons = require("src/constants")  -- load constants
+local cons = require("constants")  -- using your working module require
 local M = {}
 
--- Sensitivity settings for free movement.
-local freeMoveSpeed  = cons.sensitivity.free_move  or 5.0
-local freeMouseSpeed = cons.sensitivity.free_mouse or 0.1
-local KEYBOARD_FOV_SPEED = cons.sensitivity.keyboard_fov or 30.0 -- degrees per second
-local current_fov = cons.fov or 60
+-- Sensitivity parameters for rotation and translation.
+local keyboard_angle = cons.sensitivity.keyboard_angle or 0.18
+local mouse_angle    = cons.sensitivity.mouse_angle    or 0.005
+local current_fov    = cons.fov or 45
+local freeMoveSpeed  = cons.sensitivity.free_move or 5.0
 
+----------------------------------------------------------
+-- Fixed camera position (from your constants; updated by translation)
+----------------------------------------------------------
+local currentPos = {
+  x = cons.initialCameraPosition and cons.initialCameraPosition.x or 0,
+  y = cons.initialCameraPosition and cons.initialCameraPosition.y or 0,
+  z = cons.initialCameraPosition and cons.initialCameraPosition.z or 5
+}
+
+----------------------------------------------------------
+-- Orientation state (Euler angles in radians)
+--
+-- We use the following convention so that with zero rotation (yaw=0, pitch=0)
+-- the camera’s forward vector becomes (0, 0, -1) (i.e. the cube is visible).
+----------------------------------------------------------
+local currentYaw   = 0
+local currentPitch = 0
+
+----------------------------------------------------------
+-- Tweening variables for the orientation reset (space key)
+----------------------------------------------------------
+local isResettingOrientation = false
+local resetTimer = 0
+local resetDuration = cons.resetDuration or 0.5
+
+local startYaw, startPitch = 0, 0
+local targetYaw, targetPitch = 0, 0
+
+----------------------------------------------------------
+-- Helper functions for interpolation.
+----------------------------------------------------------
+local function lerp(a, b, t)
+  return a + (b - a) * t
+end
+
+local function lerpAngle(a, b, t)
+  local diff = b - a
+  while diff > math.pi do diff = diff - 2 * math.pi end
+  while diff < -math.pi do diff = diff + 2 * math.pi end
+  return a + diff * t
+end
+
+----------------------------------------------------------
+-- Compute the full forward vector from the current yaw and pitch.
+-- With our convention, for yaw=0 and pitch=0:
+--    forward = ( sin(0)*cos(0), sin(0), -cos(0)*cos(0) ) = (0, 0, -1)
+----------------------------------------------------------
+local function getForwardVector()
+  local cosPitch = math.cos(currentPitch)
+  local sinPitch = math.sin(currentPitch)
+  local cosYaw   = math.cos(currentYaw)
+  local sinYaw   = math.sin(currentYaw)
+  local fx = sinYaw * cosPitch       -- note: for positive yaw, fx will be positive
+  local fy = sinPitch
+  local fz = -cosYaw * cosPitch
+  return fx, fy, fz
+end
+
+----------------------------------------------------------
+-- (Previously we had a helper that removed the Y component, but now we want the full vector.)
+-- Therefore, in movement (Shift and MMB drag) we will use getForwardVector() directly.
+----------------------------------------------------------
+
+----------------------------------------------------------
+-- Rebuild the camera's transform using the fixed position and the current orientation.
+----------------------------------------------------------
+local function updateOrientation(camera)
+  camera:resetTransform()
+  camera:translate(currentPos.x, currentPos.y, currentPos.z)
+  camera:rotateY(currentYaw)
+  camera:rotateX(currentPitch)
+end
+
+----------------------------------------------------------
+-- Initialize the camera.
+----------------------------------------------------------
 function M:init(dream)
   self.dream = dream
-  -- Reset the camera's transformation and set an initial position.
+
+  -- Set initial camera transformation using values from constants.
   self.dream.camera:resetTransform()
-local pos = cons.initialCameraPosition or { x = 0, y = 0, z = 10 }
-self.dream.camera:translate(pos.x, pos.y, pos.z)
-
-  -- Synchronize the current FOV from the camera.
+  local initPos = cons.initialCameraPosition or { x = 0, y = 0, z = 5 }
+  currentPos.x, currentPos.y, currentPos.z = initPos.x, initPos.y, initPos.z
+  self.dream.camera:translate(currentPos.x, currentPos.y, currentPos.z)
+  
+  -- Start with no rotation.
+  currentYaw = 0
+  currentPitch = 0
+  updateOrientation(self.dream.camera)
+  
   current_fov = self.dream.camera:getFov() or current_fov
-
-  -- Initially, let the OS control the mouse.
+  
   love.mouse.setRelativeMode(false)
   love.mouse.setGrabbed(false)
-
-  -- Hook mouse movement events.
+  
   love.mousemoved = function(_, _, dx, dy)
     self:mousemoved(dx, dy)
   end
-
+  
   love.keypressed = function(key)
-    if key == "q" then love.event.quit() end
+    if key == "q" then 
+      love.event.quit()
+    elseif key == "space" and not isResettingOrientation then
+      -- Begin tweening to reset the orientation so the camera "looks at" the origin.
+      isResettingOrientation = true
+      resetTimer = 0
+      startYaw = currentYaw
+      startPitch = currentPitch
+      
+      local d = math.sqrt(currentPos.x^2 + currentPos.y^2 + currentPos.z^2)
+      if d > 0 then
+        -- Compute the normalized forward vector from current position toward the origin.
+        local fwd = {
+          x = -currentPos.x / d,
+          y = -currentPos.y / d,
+          z = -currentPos.z / d
+        }
+        -- Convert the forward vector to Euler angles:
+        targetPitch = math.asin(fwd.y)
+        targetYaw   = math.atan2(fwd.x, -fwd.z)
+      else
+        targetPitch = 0
+        targetYaw = 0
+      end
+    end
   end
 end
 
+----------------------------------------------------------
+-- Update the camera every frame.
+----------------------------------------------------------
 function M:update(dt)
+  if isResettingOrientation then
+    resetTimer = resetTimer + dt
+    local t = math.min(resetTimer / resetDuration, 1)
+    currentYaw   = lerpAngle(startYaw, targetYaw, t)
+    currentPitch = lerp(startPitch, targetPitch, t)
+    updateOrientation(self.dream.camera)
+    if t >= 1 then isResettingOrientation = false end
+    return -- Skip further input during tween.
+  end
+
   local ctrlDown  = love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")
   local shiftDown = love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")
-
+  
   if ctrlDown then
-    -- When Ctrl is held:
-    -- Left/right keys do nothing.
-    -- Up/down control the FOV ONLY if one (or both) of them is pressed.
-    local upPressed = love.keyboard.isDown("up")
+    -- With CTRL held, up/down adjust the field-of-view.
+    local upPressed   = love.keyboard.isDown("up")
     local downPressed = love.keyboard.isDown("down")
-    if upPressed then
-      current_fov = current_fov - KEYBOARD_FOV_SPEED * dt
-    end
-    if downPressed then
-      current_fov = current_fov + KEYBOARD_FOV_SPEED * dt
-    end
+    if upPressed then current_fov = current_fov - cons.sensitivity.keyboard_fov * dt end
+    if downPressed then current_fov = current_fov + cons.sensitivity.keyboard_fov * dt end
     if upPressed or downPressed then
       self.dream.camera:setFov(current_fov)
     end
+    
+  elseif shiftDown then
+    -- With SHIFT held:
+    -- Disable left/right arrow keys.
+    -- Up/down moves the camera forward/backward along the complete local forward.
+    local move = 0
+    if love.keyboard.isDown("up") then move = move + 1 end
+    if love.keyboard.isDown("down") then move = move - 1 end
+    if move ~= 0 then
+      local fx, fy, fz = getForwardVector()  -- use the full forward, including Y
+      local dist = freeMoveSpeed * dt * move
+      currentPos.x = currentPos.x + fx * dist
+      currentPos.y = currentPos.y + fy * dist
+      currentPos.z = currentPos.z + fz * dist
+      updateOrientation(self.dream.camera)
+    end
+    
   else
-    -- When Ctrl is NOT held, process free movement.
-    local tx, ty, tz = 0, 0, 0
-
-    if shiftDown then
-      -- With Shift (and no Ctrl):
-      -- Left/right are disabled.
-      -- Up/down control local Z with reversed directions:
-      if love.keyboard.isDown("up") then
-        tz = -1   -- Shift+up results in -local Z translation.
-      end
-      if love.keyboard.isDown("down") then
-        tz = 1    -- Shift+down results in +local Z translation.
-      end
-    else
-      -- With no modifiers:
-      -- Left/right control local X (unchanged):
-      if love.keyboard.isDown("left") then
-        tx = -1
-      end
-      if love.keyboard.isDown("right") then
-        tx = 1
-      end
-      -- Up/down control local Y with reversed directions:
-      if love.keyboard.isDown("up") then
-        ty = 1    -- Up arrow produces +local Y.
-      end
-      if love.keyboard.isDown("down") then
-        ty = -1   -- Down arrow produces -local Y.
-      end
+    -- Normal free-look mode: arrow keys adjust view angles.
+    if love.keyboard.isDown("left") then
+      currentYaw = currentYaw - keyboard_angle * dt
     end
-
-    -- Normalize translation vector to avoid faster diagonal movement.
-    local magnitude = math.sqrt(tx * tx + ty * ty + tz * tz)
-    if magnitude > 0 then
-      tx, ty, tz = tx / magnitude, ty / magnitude, tz / magnitude
-      self.dream.camera:translate(tx * freeMoveSpeed * dt,
-                                   ty * freeMoveSpeed * dt,
-                                   tz * freeMoveSpeed * dt)
+    if love.keyboard.isDown("right") then
+      currentYaw = currentYaw + keyboard_angle * dt
     end
+    if love.keyboard.isDown("up") then
+      currentPitch = currentPitch + keyboard_angle * dt
+    end
+    if love.keyboard.isDown("down") then
+      currentPitch = currentPitch - keyboard_angle * dt
+    end
+    updateOrientation(self.dream.camera)
   end
-
-  -- Toggle relative mouse mode only when RMB or MMB are held.
+  
   local usingMouse = love.mouse.isDown(2) or love.mouse.isDown(3)
   if usingMouse and not love.mouse.getRelativeMode() then
     love.mouse.setRelativeMode(true)
@@ -105,28 +208,37 @@ function M:update(dt)
   end
 end
 
+----------------------------------------------------------
+-- Apply camera settings (no extra code is necessary).
+----------------------------------------------------------
 function M:apply()
-  -- In free movement mode, the camera's transform has already been updated.
-  -- Nothing further is necessary here.
+  -- The camera's transform is updated in M:update().
 end
 
+----------------------------------------------------------
+-- Process mouse movement.
+----------------------------------------------------------
 function M:mousemoved(dx, dy)
+  if isResettingOrientation then return end
   if cons.sensitivity.invert_mouse then
     dx = -dx
     dy = -dy
   end
 
   if love.mouse.isDown(2) then
-    -- RMB drag moves along local X and Y.
-    -- Reverse the horizontal component (left/right) by using -dx;
-    -- keep the vertical component unchanged.
-    self.dream.camera:translate( dx * freeMouseSpeed,
-                                -dy * freeMouseSpeed,
-                                 0)
+    -- Right Mouse Button drag adjusts the view angles.
+    currentYaw   = currentYaw + dx * mouse_angle
+    currentPitch = currentPitch - dy * mouse_angle
+    updateOrientation(self.dream.camera)
+    
   elseif love.mouse.isDown(3) then
-    -- MMB drag moves along local Z.
-    -- Reverse the vertical component by using dy (instead of -dy).
-    self.dream.camera:translate(0, 0, dy * freeMouseSpeed)
+    -- Middle Mouse Button drag moves the camera forward/backward along the complete local forward.
+    local fx, fy, fz = getForwardVector()  -- use full vector so vertical component is included
+    local moveDist = -dy * freeMoveSpeed * 0.01  -- adjust sensitivity as needed
+    currentPos.x = currentPos.x + fx * moveDist
+    currentPos.y = currentPos.y + fy * moveDist
+    currentPos.z = currentPos.z + fz * moveDist
+    updateOrientation(self.dream.camera)
   end
 end
 
