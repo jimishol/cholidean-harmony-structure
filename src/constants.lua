@@ -36,8 +36,8 @@ M.farClip  = 1000         -- Far plane distance
 -- Initial Camera Transform (Free Movement Mode)
 ----------------------------------------
 M.initialCameraPosition = {
-  x = 0,
-  y = 0,
+  x = 5,
+  y = 5,
   z = 5
 }
 

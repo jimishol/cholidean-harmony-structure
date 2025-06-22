@@ -69,11 +69,6 @@ local function getForwardVector()
 end
 
 ----------------------------------------------------------
--- (Previously we had a helper that removed the Y component, but now we want the full vector.)
--- Therefore, in movement (Shift and MMB drag) we will use getForwardVector() directly.
-----------------------------------------------------------
-
-----------------------------------------------------------
 -- Rebuild the camera's transform using the fixed position and the current orientation.
 ----------------------------------------------------------
 local function updateOrientation(camera)
@@ -95,9 +90,23 @@ function M:init(dream)
   currentPos.x, currentPos.y, currentPos.z = initPos.x, initPos.y, initPos.z
   self.dream.camera:translate(currentPos.x, currentPos.y, currentPos.z)
   
-  -- Start with no rotation.
-  currentYaw = 0
-  currentPitch = 0
+  -- Compute the vector from the camera position to the origin.
+  local d = math.sqrt(currentPos.x^2 + currentPos.y^2 + currentPos.z^2)
+  if d > 0 then
+    local vx = -currentPos.x / d
+    local vy = -currentPos.y / d
+    local vz = -currentPos.z / d
+    -- Our desired equations:
+    --   sin(pitch) = vy  => currentPitch = asin(vy)
+    -- and
+    --   currentYaw = atan2(vx, -vz)
+    currentPitch = math.asin(vy)
+    currentYaw   = math.atan2(vx, -vz)
+  else
+    currentPitch = 0
+    currentYaw = 0
+  end
+  
   updateOrientation(self.dream.camera)
   
   current_fov = self.dream.camera:getFov() or current_fov
@@ -113,7 +122,7 @@ function M:init(dream)
     if key == "q" then 
       love.event.quit()
     elseif key == "space" and not isResettingOrientation then
-      -- Begin tweening to reset the orientation so the camera "looks at" the origin.
+      -- Begin tweening to reset the orientation (this routine remains unchanged)
       isResettingOrientation = true
       resetTimer = 0
       startYaw = currentYaw
@@ -121,13 +130,11 @@ function M:init(dream)
       
       local d = math.sqrt(currentPos.x^2 + currentPos.y^2 + currentPos.z^2)
       if d > 0 then
-        -- Compute the normalized forward vector from current position toward the origin.
         local fwd = {
           x = -currentPos.x / d,
           y = -currentPos.y / d,
           z = -currentPos.z / d
         }
-        -- Convert the forward vector to Euler angles:
         targetPitch = math.asin(fwd.y)
         targetYaw   = math.atan2(fwd.x, -fwd.z)
       else
