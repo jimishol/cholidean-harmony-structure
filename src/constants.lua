@@ -21,7 +21,7 @@ M.ballRadius = 1.5
 ----------------------------------------
 M.rope_radius      = 0.12
 M.rope_sides       = 6
-M.monoSegment      = true
+M.monoSegment      = false
 M.monoSegmentColor = { r = 255, g = 255, b = 255 }
 M.glassAlpha       = 0.3
 
@@ -41,7 +41,7 @@ M.initialCameraPosition = {
   z = 5
 }
 
--- Target point (kept for completeness; not actively used by free mode)
+-- Target point (for completeness; not actively used in free mode)
 M.xAt = 0
 M.yAt = 0
 M.zAt = 0

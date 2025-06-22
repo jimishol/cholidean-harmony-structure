@@ -16,6 +16,9 @@ local dream = require("3DreamEngine")
 local scene, sun, camera  -- we'll store the scene, the sun light, and our camera module here
 camera = require("src/camera")
 
+-- Variables to track window dimensions
+local lastW, lastH = love.graphics.getDimensions()
+
 function love.load()
   love.window.setTitle("Cholidean harmony structure")
   
@@ -38,6 +41,16 @@ function love.load()
 end
 
 function love.update(dt)
+  -- Poll window dimensions; if they've changed, issue a resize command.
+  local w, h = love.graphics.getDimensions()
+  if w ~= lastW or h ~= lastH then
+    lastW, lastH = w, h
+    -- Force the engine to update its projection parameters.
+    if dream.resize then
+      dream:resize(w, h)
+    end
+  end
+  
   -- Update the engine’s internal logic.
   dream:update()
   
