@@ -1,139 +1,132 @@
 -- src/camera.lua
 
-local cameraController = require("extensions/utils/cameraController")
 local cons = require("src/constants")  -- load constants
 local M = {}
 
--- Orbit parameters for automatic and manual control.
-local orbit = {
-  angle  = cons.orbit.initial_angle,   -- current orbit angle in radians.
-  radius = cons.distance,              -- distance from the scene center (for zoom) is now M.distance.
-  height = cons.orbit.initial_height,   -- vertical offset of the camera.
-  speed  = cons.orbit.orbit_speed,       -- automatic orbit speed.
-}
-
--- Mouse sensitivity parameters.
-local MOUSE_SENS = {
-  angle  = cons.sensitivity.mouse_angle,  -- horizontal mouse drag sensitivity.
-  height = cons.sensitivity.mouse_height,   -- vertical mouse drag sensitivity.
-}
-local MOUSE_ZOOM_SPEED = cons.sensitivity.mouse_zoom  -- mouse zoom speed (MMB vertical drag).
-
--- Keyboard sensitivity parameters.
-local KEYBOARD_SENS = {
-  angle  = cons.sensitivity.keyboard_angle, -- keyboard left/right sensitivity for orbit angle.
-  height = cons.sensitivity.keyboard_height,  -- keyboard up/down sensitivity for orbit height.
-}
-local KEYBOARD_ZOOM_SPEED = cons.sensitivity.keyboard_zoom  -- keyboard zoom speed (when Shift is held).
-
--- Additional keyboard sensitivity for FOV adjustments.
-local KEYBOARD_FOV_SPEED = cons.sensitivity.keyboard_fov  -- degrees per second adjustment.
-
--- Holds the current FOV; starts at the value defined in constants (in degrees).
-local current_fov = cons.fov
+-- Sensitivity settings for free movement.
+local freeMoveSpeed  = cons.sensitivity.free_move  or 5.0
+local freeMouseSpeed = cons.sensitivity.free_mouse or 0.1
+local KEYBOARD_FOV_SPEED = cons.sensitivity.keyboard_fov or 30.0 -- degrees per second
+local current_fov = cons.fov or 60
 
 function M:init(dream)
   self.dream = dream
-  -- Set the initial camera position using the orbit parameters.
-  cameraController.x = math.sin(orbit.angle) * orbit.radius
-  cameraController.y = orbit.height
-  cameraController.z = math.cos(orbit.angle) * orbit.radius
+  -- Reset the camera's transformation and set an initial position.
+  self.dream.camera:resetTransform()
+local pos = cons.initialCameraPosition or { x = 0, y = 0, z = 10 }
+self.dream.camera:translate(pos.x, pos.y, pos.z)
 
-  -- Enable relative mouse mode.
-  love.mouse.setRelativeMode(true)
-  
-  -- Route mouse movement events.
-  love.mousemoved = function(_, _, x, y)
-    self:mousemoved(x, y)
+  -- Synchronize the current FOV from the camera.
+  current_fov = self.dream.camera:getFov() or current_fov
+
+  -- Initially, let the OS control the mouse.
+  love.mouse.setRelativeMode(false)
+  love.mouse.setGrabbed(false)
+
+  -- Hook mouse movement events.
+  love.mousemoved = function(_, _, dx, dy)
+    self:mousemoved(dx, dy)
   end
-  
-  -- Define keypressed action: 'q' quits.
+
   love.keypressed = function(key)
-    if key == "q" then
-      love.event.quit()
-    end
+    if key == "q" then love.event.quit() end
   end
 end
 
 function M:update(dt)
-  -- Toggle relative mouse mode and grabbing if RMB or MMB is held.
-  local anyDown = love.mouse.isDown(2) or love.mouse.isDown(3)
-  if anyDown and not love.mouse.getRelativeMode() then
+  local ctrlDown  = love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")
+  local shiftDown = love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")
+
+  if ctrlDown then
+    -- When Ctrl is held:
+    -- Left/right keys do nothing.
+    -- Up/down control the FOV ONLY if one (or both) of them is pressed.
+    local upPressed = love.keyboard.isDown("up")
+    local downPressed = love.keyboard.isDown("down")
+    if upPressed then
+      current_fov = current_fov - KEYBOARD_FOV_SPEED * dt
+    end
+    if downPressed then
+      current_fov = current_fov + KEYBOARD_FOV_SPEED * dt
+    end
+    if upPressed or downPressed then
+      self.dream.camera:setFov(current_fov)
+    end
+  else
+    -- When Ctrl is NOT held, process free movement.
+    local tx, ty, tz = 0, 0, 0
+
+    if shiftDown then
+      -- With Shift (and no Ctrl):
+      -- Left/right are disabled.
+      -- Up/down control local Z with reversed directions:
+      if love.keyboard.isDown("up") then
+        tz = -1   -- Shift+up results in -local Z translation.
+      end
+      if love.keyboard.isDown("down") then
+        tz = 1    -- Shift+down results in +local Z translation.
+      end
+    else
+      -- With no modifiers:
+      -- Left/right control local X (unchanged):
+      if love.keyboard.isDown("left") then
+        tx = -1
+      end
+      if love.keyboard.isDown("right") then
+        tx = 1
+      end
+      -- Up/down control local Y with reversed directions:
+      if love.keyboard.isDown("up") then
+        ty = 1    -- Up arrow produces +local Y.
+      end
+      if love.keyboard.isDown("down") then
+        ty = -1   -- Down arrow produces -local Y.
+      end
+    end
+
+    -- Normalize translation vector to avoid faster diagonal movement.
+    local magnitude = math.sqrt(tx * tx + ty * ty + tz * tz)
+    if magnitude > 0 then
+      tx, ty, tz = tx / magnitude, ty / magnitude, tz / magnitude
+      self.dream.camera:translate(tx * freeMoveSpeed * dt,
+                                   ty * freeMoveSpeed * dt,
+                                   tz * freeMoveSpeed * dt)
+    end
+  end
+
+  -- Toggle relative mouse mode only when RMB or MMB are held.
+  local usingMouse = love.mouse.isDown(2) or love.mouse.isDown(3)
+  if usingMouse and not love.mouse.getRelativeMode() then
     love.mouse.setRelativeMode(true)
     love.mouse.setGrabbed(true)
-  elseif not anyDown and love.mouse.getRelativeMode() then
+  elseif not usingMouse and love.mouse.getRelativeMode() then
     love.mouse.setRelativeMode(false)
     love.mouse.setGrabbed(false)
   end
-
-  local ctrlDown = love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")
-  local shiftDown = love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")
-
-  -- Up/Down keys: disable if Ctrl is held.
-  if not ctrlDown then
-    if shiftDown then
-      -- With Shift: Up/Down adjust orbit.radius (zoom).
-      if love.keyboard.isDown("up") then
-        orbit.radius = math.max(2, orbit.radius - KEYBOARD_ZOOM_SPEED * dt)
-      elseif love.keyboard.isDown("down") then
-        orbit.radius = orbit.radius + KEYBOARD_ZOOM_SPEED * dt
-      end
-    else
-      -- Without Shift: Up/Down adjust orbit.height (vertical movement).
-      if love.keyboard.isDown("up") then
-        orbit.height = orbit.height + KEYBOARD_SENS.height * dt
-      elseif love.keyboard.isDown("down") then
-        orbit.height = orbit.height - KEYBOARD_SENS.height * dt
-      end
-    end
-  end
-
-  -- Left/Right keys: disable if Shift is held.
-  if not shiftDown then
-    if ctrlDown then
-      -- With Control: Left/Right adjust the field of view.
-      if love.keyboard.isDown("left") then
-        current_fov = math.max(15, current_fov - KEYBOARD_FOV_SPEED * dt)
-      elseif love.keyboard.isDown("right") then
-        current_fov = current_fov + KEYBOARD_FOV_SPEED * dt
-      end
-    else
-      -- Without Control: Left/Right adjust orbit.angle (horizontal rotation).
-      if love.keyboard.isDown("left") then
-        orbit.angle = orbit.angle - KEYBOARD_SENS.angle * dt
-      elseif love.keyboard.isDown("right") then
-        orbit.angle = orbit.angle + KEYBOARD_SENS.angle * dt
-      end
-    end
-  end
-
-  -- Update the camera controller with the modified orbit parameters.
-  cameraController.x = math.sin(orbit.angle) * orbit.radius
-  cameraController.y = orbit.height
-  cameraController.z = math.cos(orbit.angle) * orbit.radius
-  cameraController:update(dt)
 end
 
 function M:apply()
-  -- Apply the updated orbit parameters to the 3DreamEngine camera.
-  cameraController:setCamera(self.dream.camera)
-  -- Set the Field of View using current_fov (in degrees).
-  self.dream.camera:setFov(current_fov)
+  -- In free movement mode, the camera's transform has already been updated.
+  -- Nothing further is necessary here.
 end
 
 function M:mousemoved(dx, dy)
-  -- Revert mouse movement if invert_mouse is enabled.
   if cons.sensitivity.invert_mouse then
     dx = -dx
     dy = -dy
   end
-  -- With RMB for orbit controls:
+
   if love.mouse.isDown(2) then
-    orbit.angle  = orbit.angle  + dx * MOUSE_SENS.angle
-    orbit.height = orbit.height - dy * MOUSE_SENS.height
-  -- With MMB for zoom:
+    -- RMB drag moves along local X and Y.
+    -- Reverse the horizontal component (left/right) by using -dx;
+    -- keep the vertical component unchanged.
+    self.dream.camera:translate( dx * freeMouseSpeed,
+                                -dy * freeMouseSpeed,
+                                 0)
   elseif love.mouse.isDown(3) then
-    orbit.radius = math.max(2, orbit.radius + dy * MOUSE_ZOOM_SPEED)
+    -- MMB drag moves along local Z.
+    -- Reverse the vertical component by using dy (instead of -dy).
+    self.dream.camera:translate(0, 0, dy * freeMouseSpeed)
   end
 end
 

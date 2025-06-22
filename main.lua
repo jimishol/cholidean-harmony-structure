@@ -27,7 +27,7 @@ function love.load()
   dream:setSky(sky.render)
   
   -- Load the scene (the single object) from the Blacksmith example.
-  scene = dream:loadObject("assets/sphere64")
+  scene = dream:loadObject("assets/cube")
   
   -- Create a sun light and enable shadow casting.
   sun = dream:newLight("sun")
