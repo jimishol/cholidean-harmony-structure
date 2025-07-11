@@ -114,8 +114,9 @@ function M:init(dream)
   end
   
   updateOrientation(self.dream.camera)
-  current_fov = self.dream.camera:getFov() or current_fov
-  
+  current_fov = current_fov or self.dream.camera:getFov()
+  self.dream.camera:setFov(current_fov)
+
   love.mouse.setRelativeMode(false)
   love.mouse.setGrabbed(false)
   
