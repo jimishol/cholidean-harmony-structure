@@ -38,7 +38,7 @@ function love.load()
   scene = dream:loadObject("assets/models/cholideanScene")
 
 -- Load joint_09 separately
- testJoint = dream:loadObject("assets/models/joints/joint_09")
+ testJoint = dream:loadObject("assets/models/joints/joint_04")
 
   -- Create and configure sun light
   sun = dream:newLight("sun")
