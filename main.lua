@@ -16,8 +16,9 @@ local extra = {
 package.path = table.concat(extra, ";") .. ";" .. package.path
 
 local dream = require("3DreamEngine")
-local scene, sun, camera
+local scene, sun, camera, testJoint
 camera = require("camera")
+
 
 -- Track last window dimensions for resize logic
 local lastW, lastH = love.graphics.getDimensions()
@@ -35,6 +36,9 @@ function love.load()
 
   -- Load the cholidean structure scene
   scene = dream:loadObject("assets/models/cholideanScene")
+
+-- Load joint_09 separately
+ testJoint = dream:loadObject("assets/models/joints/joint_09")
 
   -- Create and configure sun light
   sun = dream:newLight("sun")
@@ -67,6 +71,10 @@ function love.draw()
   camera:apply()
   dream:addLight(sun)
   dream:draw(scene)
+
+-- Load joint_09 separately
+ dream:draw(testJoint)
+
   dream:present()
 end
 
