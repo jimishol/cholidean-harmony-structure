@@ -29,7 +29,7 @@ M.glassAlpha       = 0.3
 -- Camera Projection Settings (3DreamEngine)
 ----------------------------------------
 -- Field-of-view based on 50 mm lens, 35 mm sensor (vertical)
-M.fov      = 2 * math.deg(math.atan((24 * 0.5) / 50))  -- ≃ 26.8°.
+M.fov      = 2 * math.deg(math.atan((24 * 0.5) / 35))  -- ≃ 26.8°.
 M.nearClip = 0.01         -- Near plane distance
 M.farClip  = 1000         -- Far plane distance
 
