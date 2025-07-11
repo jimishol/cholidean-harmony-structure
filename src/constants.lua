@@ -28,7 +28,8 @@ M.glassAlpha       = 0.3
 ----------------------------------------
 -- Camera Projection Settings (3DreamEngine)
 ----------------------------------------
-M.fov      = 45           -- Initial field of view (degrees)
+-- Field-of-view based on 50 mm lens, 35 mm sensor (vertical)
+M.fov      = 2 * math.deg(math.atan((24 * 0.5) / 50))  -- ≃ 26.8°.
 M.nearClip = 0.01         -- Near plane distance
 M.farClip  = 1000         -- Far plane distance
 
@@ -36,9 +37,17 @@ M.farClip  = 1000         -- Far plane distance
 -- Initial Camera Transform (Free Movement Mode)
 ----------------------------------------
 M.initialCameraPosition = {
-  x = 5,
-  y = 5,
-  z = 5
+  x = -15,
+  y =  25,
+  z =  23
+}
+
+-- Exact Blender camera rotation, as a quaternion (x, y, z, w)
+M.initialCameraRotation = {
+  0.2584960162639618,
+  0.1216428130865097,
+ -0.40803834795951843,
+ -0.8671144843101501
 }
 
 -- Target point (for completeness; not actively used in free mode)
