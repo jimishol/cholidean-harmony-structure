@@ -1,7 +1,9 @@
 
--- main.lua
+--- Entry point for the Cholidean Harmony Structure viewer.
+-- Initializes 3DreamEngine, sets up scene, camera, lighting, and rendering flow.
+-- @module main
 
--- Extend package search paths so that modules and assets are found.
+-- Extend package search paths for custom modules and assets
 local extra = {
   "./MidiModules/?.lua",
   "./extensions/?.lua",
@@ -14,69 +16,63 @@ local extra = {
 package.path = table.concat(extra, ";") .. ";" .. package.path
 
 local dream = require("3DreamEngine")
-local scene, sun, camera  -- we'll store the scene, the sun light, and our camera module here
+local scene, sun, camera
 camera = require("camera")
 
--- Variables to track window dimensions
+-- Track last window dimensions for resize logic
 local lastW, lastH = love.graphics.getDimensions()
 
+--- LOVE callback: triggered once at application startup.
+-- Initializes 3DreamEngine, sets title, loads assets, and sets up camera.
 function love.load()
   love.window.setTitle("Cholidean harmony structure")
-  
-  -- Initialize the engine, letting it pick up the window dimensions from conf.lua.
+
   dream:init()
-  
-  -- (Optional) Set a sky using the built-in sky renderer.
+
+  -- Set optional sky renderer
   local sky = require("extensions/sky")
   dream:setSky(sky.render)
-  
-  -- Load the scene (the single object) from the Blacksmith example.
+
+  -- Load the cholidean structure scene
   scene = dream:loadObject("assets/models/cholideanScene")
-  
-  -- Create a sun light and enable shadow casting.
+
+  -- Create and configure sun light
   sun = dream:newLight("sun")
   sun:addNewShadow()
-  
-  -- Require and initialize our custom orbiting camera.
+
+  -- Initialize camera controller
   camera:init(dream)
 end
 
+--- LOVE callback: updates every frame.
+-- Handles window resizing, engine updates, and camera logic.
+-- @param dt Delta time (in seconds)
 function love.update(dt)
-  -- Poll window dimensions; if they've changed, issue a resize command.
   local w, h = love.graphics.getDimensions()
   if w ~= lastW or h ~= lastH then
     lastW, lastH = w, h
-    -- Force the engine to update its projection parameters.
     if dream.resize then
       dream:resize(w, h)
     end
   end
-  
-  -- Update the engine’s internal logic.
+
   dream:update()
-  
-  -- Update our custom orbit camera.
   camera:update(dt)
 end
 
+--- LOVE callback: draws each frame.
+-- Prepares scene, applies lighting and camera, renders model.
 function love.draw()
-  -- Prepare the frame, which clears buffers, sets up render targets, etc.
   dream:prepare()
-  
-  -- Apply our camera controller’s settings to the engine’s camera.
   camera:apply()
-  
-  -- Add our light so that the scene is illuminated.
   dream:addLight(sun)
-  
-  -- Draw the loaded scene.
   dream:draw(scene)
-  
-  -- Present the final rendered frame on screen.
   dream:present()
 end
 
--- Optional: handle window resizing.
+--- LOVE callback: handles manual window resizing.
+-- @param w New window width
+-- @param h New window height
 function love.resize(w, h)
   if dream.resize then
     dream:resize(w, h)
