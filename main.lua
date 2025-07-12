@@ -16,7 +16,7 @@ local extra = {
 package.path = table.concat(extra, ";") .. ";" .. package.path
 
 local dream = require("3DreamEngine")
-local sceneData, sun, camera
+local sceneData, camera
 camera = require("camera")
 sceneData = require("scene")  -- Loads from src/scene.lua
 
@@ -41,8 +41,8 @@ function love.load()
   sceneData.load()
 
   -- Create and configure sun light
-  sun = dream:newLight("sun")
-  sun:addNewShadow()
+--  sun = dream:newLight("sun")
+--  sun:addNewShadow()
 
   -- Initialize camera controller
   camera:init(dream)
@@ -69,7 +69,7 @@ end
 function love.draw()
   dream:prepare()
   camera:apply()
-  dream:addLight(sun)
+--  dream:addLight(sun)
   sceneData.draw()
 
   dream:present()
