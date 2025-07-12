@@ -1,3 +1,4 @@
+-- src/scene.lua
 local dream = require("3DreamEngine")
 local lfs = love.filesystem
 
@@ -5,15 +6,20 @@ local scene = {}
 scene.joints = {}
 
 function scene.load()
-  -- List files inside joints folder
-  local files = love.filesystem.getDirectoryItems("assets/models/joints")
+  local basePath = "assets/models/joints/"
+  local files = lfs.getDirectoryItems(basePath)
 
   for _, file in ipairs(files) do
     if file:match("%.obj$") then
-      local path = "assets/models/joints/" .. file
-      local name = file:match("(.+)%.obj")  -- strip '.obj' extension
-      local object = dream:loadObject(path, name)
-      table.insert(scene.joints, object)
+      local name = file:match("(.+)%.obj")  -- Strip extension
+      local success, object = pcall(function()
+        return dream:loadObject(basePath .. name)
+      end)
+      if success and object then
+        table.insert(scene.joints, object)
+      else
+        print("⚠️ Failed to load:", name)
+      end
     end
   end
 end
