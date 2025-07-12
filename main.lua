@@ -19,10 +19,6 @@ local sceneData, camera
 camera = require("camera")
 sceneData = require("scene")  -- Loads from src/scene.lua
 
-local hdrImg = love.graphics.newImage("assets/sky/DaySkyHDRI021A_4K.hdr")
-hdrImg:setFilter("linear", "linear")
-hdrImg:setWrap("clamp", "clamp")
-
 -- Track last window dimensions for resize logic
 local lastW, lastH = love.graphics.getDimensions()
 
@@ -32,14 +28,7 @@ function love.load()
   love.window.setTitle("Cholidean harmony structure")
   dream:init()
 
-  -- Set optional sky renderer
-  local sky = require("extensions/sky")
-
   sceneData.load()
-
-  -- Create and configure sun light
---  sun = dream:newLight("sun")
---  sun:addNewShadow()
 
   -- Initialize camera controller
   camera:init(dream)
