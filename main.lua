@@ -1,4 +1,3 @@
-
 --- Entry point for the Cholidean Harmony Structure viewer.
 -- Initializes 3DreamEngine, sets up scene, camera, lighting, and rendering flow.
 -- @module main
@@ -31,8 +30,6 @@ local lastW, lastH = love.graphics.getDimensions()
 -- Initializes 3DreamEngine, sets title, loads assets, and sets up camera.
 function love.load()
   love.window.setTitle("Cholidean harmony structure")
-    dream:setSky(hdrImg, 2.0)  -- tweak the second param for exposure
-
   dream:init()
 
   -- Set optional sky renderer
@@ -62,6 +59,7 @@ function love.update(dt)
 
   dream:update()
   camera:update(dt)
+  sceneData.update(dt)
 end
 
 --- LOVE callback: draws each frame.
