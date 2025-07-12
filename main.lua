@@ -49,6 +49,7 @@ function love.update(dt)
   dream:update()
   camera:update(dt)
   sceneData.update(dt)
+
 end
 
 --- LOVE callback: draws each frame.
