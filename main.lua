@@ -20,6 +20,10 @@ local sceneData, sun, camera
 camera = require("camera")
 sceneData = require("scene")  -- Loads from src/scene.lua
 
+local hdrImg = love.graphics.newImage("assets/sky/DaySkyHDRI021A_4K.hdr")
+hdrImg:setFilter("linear", "linear")
+hdrImg:setWrap("clamp", "clamp")
+
 -- Track last window dimensions for resize logic
 local lastW, lastH = love.graphics.getDimensions()
 
@@ -27,12 +31,12 @@ local lastW, lastH = love.graphics.getDimensions()
 -- Initializes 3DreamEngine, sets title, loads assets, and sets up camera.
 function love.load()
   love.window.setTitle("Cholidean harmony structure")
+    dream:setSky(hdrImg, 2.0)  -- tweak the second param for exposure
 
   dream:init()
 
   -- Set optional sky renderer
   local sky = require("extensions/sky")
-  dream:setSky(sky.render)
 
   sceneData.load()
 
