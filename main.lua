@@ -1,69 +1,48 @@
---- Entry point for the Cholidean Harmony Structure viewer.
--- Initializes 3DreamEngine, sets up scene, camera, lighting, and rendering flow.
--- @module main
+-- main.lua
 
--- Extend package search paths for custom modules and assets
-local extra = {
-  "./MidiModules/?.lua",
-  "./extensions/?.lua",
-  "./extensions/?/?.lua",
+-- 1) Extend Lua’s search paths so `require("3DreamEngine")` finds ./3DreamEngine/init.lua
+package.path = table.concat({
+  "./?.lua",               -- so require("foo") -> ./foo.lua
+  "./?/init.lua",          --    and require("foo") -> ./foo/init.lua
+  "./3DreamEngine/?.lua",  -- so require("3DreamEngine.bar") -> ./3DreamEngine/bar.lua
+  "./3DreamEngine/?/init.lua", -- and require("3DreamEngine") -> ./3DreamEngine/init.lua
   "./src/?.lua",
+  "./src/?/init.lua",
+  "./extensions/?.lua",
+  "./extensions/?/init.lua",
   "./assets/?.lua",
-  "./materials/?.lua"
---  "./examples/blacksmith/?.lua",  -- for Blacksmith demo assets
-}
-package.path = table.concat(extra, ";") .. ";" .. package.path
+}, ";") .. ";" .. package.path
 
-local dream = require("3DreamEngine")
-local sceneData, camera
-camera = require("camera")
-sceneData = require("scene")  -- Loads from src/scene.lua
+-- 2) Require & instantiate 3DreamEngine
+local Engine = require("3DreamEngine")
+local dream  = (type(Engine) == "function" and Engine() or Engine)
 
--- Track last window dimensions for resize logic
-local lastW, lastH = love.graphics.getDimensions()
+-- 3) Pull in your scene & camera modules
+local scene  = require("scene")   -- src/scene.lua must return a table with :load, :update, :draw
+local camera = require("camera")  -- src/camera.lua must return a table with :init, :update, :apply
 
---- LOVE callback: triggered once at application startup.
--- Initializes 3DreamEngine, sets title, loads assets, and sets up camera.
+-- 4) LOVE2D callbacks
+
 function love.load()
-  love.window.setTitle("Cholidean harmony structure")
-  dream:init()
-
-  sceneData.load()
-  camera:init(dream)
+  love.window.setTitle("Cholidean Harmony Structure")
+  dream:init()         -- initialize engine (shaders, loader, IBL, etc.)
+  scene:load(dream)    -- set up HDR sky + load models
+  camera:init(dream)   -- set up camera
 end
 
---- LOVE callback: updates every frame.
--- Handles window resizing, engine updates, and camera logic.
--- @param dt Delta time (in seconds)
 function love.update(dt)
-  local w, h = love.graphics.getDimensions()
-  if w ~= lastW or h ~= lastH then
-    lastW, lastH = w, h
-    if dream.resize then
-      dream:resize(w, h)
-    end
-  end
-  dream:update()
-  camera:update(dt)
-  sceneData.update(dt)
+  dream:update(dt)     -- engine tick
+  camera:update(dt)    -- camera logic
+  scene:update(dt)     -- exposure tweaks, animations, etc.
 end
 
---- LOVE callback: draws each frame.
--- Prepares scene, applies lighting and camera, renders model.
 function love.draw()
-  dream:prepare()
-  camera:apply()
-  sceneData.draw()
-  dream:present()
+  dream:prepare()      -- clears/depth‐prepares, sets up render target
+  camera:apply()       -- pushes view/proj matrices
+  scene:draw(dream)    -- draws HDRI sky + your meshes
+  dream:present()      -- post‐process & swap buffers
 end
 
---- LOVE callback: handles manual window resizing.
--- @param w New window width
--- @param h New window height
 function love.resize(w, h)
-  if dream.resize then
-    dream:resize(w, h)
-  else
-    print("Window resized to", w, h)
-  end
+  if dream.resize then dream:resize(w, h) end
 end
