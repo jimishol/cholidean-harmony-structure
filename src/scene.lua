@@ -32,10 +32,7 @@ local function loadCategory(folder, targetTable)
   end
 end
 
-
 function scene.load()
-
--- configure sky uniforms
   hdrImg:setFilter("linear", "linear")
   hdrImg:setWrap("clamp", "clamp")
   dream:setSky(hdrImg,scene.environmentBrightness)

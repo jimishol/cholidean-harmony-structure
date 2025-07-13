@@ -29,8 +29,6 @@ function love.load()
   dream:init()
 
   sceneData.load()
-
-  -- Initialize camera controller
   camera:init(dream)
 end
 
@@ -45,11 +43,9 @@ function love.update(dt)
       dream:resize(w, h)
     end
   end
-
   dream:update()
   camera:update(dt)
   sceneData.update(dt)
-
 end
 
 --- LOVE callback: draws each frame.
@@ -57,9 +53,7 @@ end
 function love.draw()
   dream:prepare()
   camera:apply()
---  dream:addLight(sun)
   sceneData.draw()
-
   dream:present()
 end
 
