@@ -3,6 +3,9 @@ local dream = require("3DreamEngine")
 local lfs = love.filesystem
 local skyExt = require("extensions/sky")
 
+local skyShader = love.graphics.newShader("shaders/skyShader.frag")
+dream:registerShader(skyShader, "customSky")  -- optional tag if you want to reuse later
+
 local scene = {}
 scene.joints = {}
 scene.edges = {}
@@ -55,6 +58,16 @@ function scene.update(dt)
 end
 
 function scene.draw()
+
+  skyShader:send("uSkyTexture", hdrImg)
+  skyShader:send("uTintColor", {1.0, 0.9, 0.7})
+  skyShader:send("uBrightness", scene.environmentBrightness)
+  skyShader:send("uIsGlossyRay", false)
+
+  love.graphics.setShader(skyShader)
+  love.graphics.draw(hdrImg, 0, 0)
+  love.graphics.setShader()
+
   for _, obj in ipairs(scene.joints) do
     dream:draw(obj)
   end
