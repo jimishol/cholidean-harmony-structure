@@ -10,15 +10,16 @@ local M = {}
 function M.computeDaycycle(dayTime)
   -- wrap into [0,24)
   local h = dayTime % 24
+  local sunFactor
 
-  -- 1) skyExt wants 0 @ 06:00, 0.5 @ 18:00, etc.
-  --    shift so 6:00 → 0, then normalize
-  local shifted = (h - 6 + 24) % 24
-  local sunFactor = shifted / 24
+  if h >= 5 and h <= 21 then
+     local angle = math.pi * (h - 5) / 16
+     sunFactor = math.sin(angle)
+    else
+     sunFactor = 0
+  end
 
-  -- 2) brightness: 0 @ midnight, peak @ noon, back to 0 @ next midnight
-  --    sin(π * h/24) does exactly that
-  local envBright = constants.maxBright * math.sin(math.pi * h / 24)
+  local envBright = constants.maxBright * sunFactor
 
   return sunFactor, envBright
 end
