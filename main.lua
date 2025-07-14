@@ -41,6 +41,7 @@ function love.draw()
   camera:apply()       -- pushes view/proj matrices
   scene:draw(dream)    -- draws HDRI sky + your meshes
   dream:present()      -- post‐process & swap buffers
+  camera:apply()       -- needed in order to display debug informations	
 end
 
 function love.resize(w, h)

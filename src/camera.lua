@@ -1,10 +1,11 @@
-
 --- Camera module for Cholidean harmony structure viewer.
 -- Handles position, yaw/pitch orientation, movement, tween resets, and input bindings.
 -- @module camera
 
 local cons = require("constants")
 local M = {}
+
+local showDebug = true
 
 -- Sensitivity parameters pulled from constants
 local keyboard_angle = cons.sensitivity.keyboard_angle or 0.18
@@ -119,13 +120,14 @@ function M:init(dream)
         computedPitch = math.asin(vy)
         computedYaw   = math.atan2(vx, -vz)
       end
-
       startYaw = normalizeAngle(currentYaw)
       targetYaw = normalizeAngle(computedYaw)
       startPitch = currentPitch
       targetPitch = computedPitch
       isResettingOrientation = true
       resetTimer = 0
+    elseif key == "d" then
+      showDebug = not showDebug
     end
   end
 end
@@ -187,7 +189,14 @@ end
 
 --- Apply camera state (called during draw phase)
 function M:apply()
-  -- Transform is already applied in update
+    if not showDebug then return end
+
+    -- Draw FPS
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
+
+    -- Draw camera position
+    love.graphics.print(string.format("Camera Pos: (%.2f, %.2f, %.2f)", currentPos.x, currentPos.y, currentPos.z), 10, 30)
 end
 
 --- Handle mouse movement for view rotation or camera motion
