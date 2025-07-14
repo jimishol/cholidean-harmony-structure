@@ -18,7 +18,6 @@ scene.joints = {}
 scene.edges = {}
 scene.curves = {}
 scene.surfaces = {}
-
 hdrImg = love.graphics.newImage("assets/sky/DaySkyHDRI021A_4K.hdr")
 
 local function loadCategory(folder, targetTable)
@@ -42,8 +41,8 @@ end
 
 function scene.load()
   local sunFactor, envBright = daycycle.computeDaycycle(dayTime)
-  dream:setSky(hdrImg, envBright)
-  dream:setSky(skyExt.render)
+--  dream:setSky(hdrImg, envBright)
+--  dream:setSky(skyExt.render)
   sun:setBrightness(sunFactor)
 
   loadCategory("joints", scene.joints)
@@ -55,9 +54,9 @@ end
 function scene.update(dt)
   -- bump dayTime with +/– as before
   if love.keyboard.isDown("+","=") then
-    dayTime = dayTime + 0.1
+    dayTime = dayTime + constants.day_night_speed
   elseif love.keyboard.isDown("-") then
-    dayTime = dayTime - 0.1
+    dayTime = dayTime - constants.day_night_speed
   end
 end
 
@@ -65,9 +64,7 @@ function scene.draw()
   dream:addLight(sun)
   local sunFactor, envBright = daycycle.computeDaycycle(dayTime)
   skyExt:setDaytime(sun, sunFactor)
-  sun:setBrightness(sunFactor)
   dream:setSky(hdrImg, envBright)
-  dream:setSky(skyExt.render)
 
   for _, obj in ipairs(scene.joints) do
     dream:draw(obj)
