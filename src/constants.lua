@@ -5,7 +5,8 @@
 
 local M = {}
 
-M.brightness  = 0.5 -- background environment brightness
+M.day_night   = 8  -- Hour (float) 0:00-24:0.05
+M.maxBright   = 2.5 -- maximum acceptable background brightness
 M.scaleFactor = 1.6
 M.surfAlpha   = 0.17
 M.threshold   = 0.5

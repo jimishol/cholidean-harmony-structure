@@ -5,8 +5,12 @@ local lfs = love.filesystem
 --dream:registerShader(skyShader, "customSky")  -- optional tag if you want to reuse later
 
 local skyExt = require("extensions/sky")
---sun
 local sun = dream:newLight("sun")
+
+local constants = require("constants")
+local daycycle = require("utils.daycycle")
+local dayTime  = constants.day_night  -- your starting hour
+
 
 local scene = {}
 scene.joints = {}
@@ -14,11 +18,9 @@ scene.edges = {}
 scene.curves = {}
 scene.surfaces = {}
 
---local hdrImg = nil
-scene.environmentBrightness = require("constants").brightness
-local bright = scene.environmentBrightness
 hdrImg = love.graphics.newImage("assets/sky/DaySkyHDRI021A_4K.hdr")
-dream:setSky(hdrImg, bright)
+local sunFactor, envBright = daycycle.computeDaycycle(dayTime)
+dream:setSky(hdrImg, envBright)
 
 local function loadCategory(folder, targetTable)
   local basePath = "assets/models/" .. folder .. "/"
@@ -41,7 +43,7 @@ end
 
 function scene.load()
 --dream:setSky(skyExt.render)
-dream:setSky(hdrImg, bright)
+dream:setSky(hdrImg, envBright)
 
 sun:addNewShadow()
 --  hdrImg:setFilter("linear", "linear")
@@ -55,16 +57,24 @@ sun:addNewShadow()
 end
 
 function scene.update(dt)
-
-  if love.keyboard.isDown("+") or love.keyboard.isDown("=") then
-    bright = math.min(bright + 0.1, 2.5)
+  -- bump dayTime with +/– as before
+  if love.keyboard.isDown("+","=") then
+    dayTime = math.min(dayTime + 0.5, 24)
   elseif love.keyboard.isDown("-") then
-    bright = math.max(bright - 0.1, 0.0)
+    dayTime = math.max(dayTime - 0.5, 0)
   end
-  skyExt:setDaytime(sun, bright/2.5)
-dream:setSky(hdrImg, bright)
 
--- You can also inspect dream.exposure each frame if you want to display it
+  -- get the two values
+  sunFactor, envBright = daycycle.computeDaycycle(dayTime)
+
+  -- apply them
+  skyExt:setDaytime(sun, sunFactor)
+  dream:setSky(hdrImg, envBright)
+
+  print(string.format(
+    "Hour %.2f → sun=%.3f env=%.2f",
+    dayTime, sunFactor, envBright
+  ))
 end
 
 function scene.draw()
