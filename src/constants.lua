@@ -5,7 +5,7 @@
 
 local M = {}
 
-M.brightness  = 1.0 -- background environment brightness
+M.brightness  = 0.5 -- background environment brightness
 M.scaleFactor = 1.6
 M.surfAlpha   = 0.17
 M.threshold   = 0.5

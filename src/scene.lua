@@ -1,10 +1,12 @@
 -- src/scene.lua
 local dream = require("3DreamEngine")
 local lfs = love.filesystem
-local skyExt = require("extensions/sky")
+--local skyShader = love.graphics.newShader("shaders/skyShader.frag")
+--dream:registerShader(skyShader, "customSky")  -- optional tag if you want to reuse later
 
-local skyShader = love.graphics.newShader("shaders/skyShader.frag")
-dream:registerShader(skyShader, "customSky")  -- optional tag if you want to reuse later
+local skyExt = require("extensions/sky")
+--sun
+local sun = dream:newLight("sun")
 
 local scene = {}
 scene.joints = {}
@@ -12,9 +14,11 @@ scene.edges = {}
 scene.curves = {}
 scene.surfaces = {}
 
-local hdrImg = nil
+--local hdrImg = nil
 scene.environmentBrightness = require("constants").brightness
+local bright = scene.environmentBrightness
 hdrImg = love.graphics.newImage("assets/sky/DaySkyHDRI021A_4K.hdr")
+dream:setSky(hdrImg, bright)
 
 local function loadCategory(folder, targetTable)
   local basePath = "assets/models/" .. folder .. "/"
@@ -36,9 +40,13 @@ local function loadCategory(folder, targetTable)
 end
 
 function scene.load()
-  hdrImg:setFilter("linear", "linear")
-  hdrImg:setWrap("clamp", "clamp")
-  dream:setSky(hdrImg,scene.environmentBrightness)
+--dream:setSky(skyExt.render)
+dream:setSky(hdrImg, bright)
+
+sun:addNewShadow()
+--  hdrImg:setFilter("linear", "linear")
+--  hdrImg:setWrap("clamp", "clamp")
+--  dream:setSky(hdrImg,bright, "customSky")
 
   loadCategory("joints", scene.joints)
   loadCategory("edges", scene.edges)
@@ -47,26 +55,25 @@ function scene.load()
 end
 
 function scene.update(dt)
-  dream:setSky(hdrImg, scene.environmentBrightness)
 
   if love.keyboard.isDown("+") or love.keyboard.isDown("=") then
-    scene.environmentBrightness = math.min(scene.environmentBrightness + 0.03, 2.4)
+    bright = math.min(bright + 0.1, 2.5)
   elseif love.keyboard.isDown("-") then
-    scene.environmentBrightness = math.max(scene.environmentBrightness - 0.03, 0.0)
+    bright = math.max(bright - 0.1, 0.0)
   end
+  skyExt:setDaytime(sun, bright/2.5)
+dream:setSky(hdrImg, bright)
 
+-- You can also inspect dream.exposure each frame if you want to display it
 end
 
 function scene.draw()
 
-  skyShader:send("uSkyTexture", hdrImg)
-  skyShader:send("uTintColor", {1.0, 0.9, 0.7})
-  skyShader:send("uBrightness", scene.environmentBrightness)
-  skyShader:send("uIsGlossyRay", false)
-
-  love.graphics.setShader(skyShader)
-  love.graphics.draw(hdrImg, 0, 0)
-  love.graphics.setShader()
+  dream:addLight(sun)
+  -- skyShader:send("uSkyTexture", hdrImg)
+  -- skyShader:send("uTintColor", {1.0, 0.9, 0.7})
+  -- skyShader:send("uBrightness", bright)
+  -- skyShader:send("uIsGlossyRay", false)
 
   for _, obj in ipairs(scene.joints) do
     dream:draw(obj)
