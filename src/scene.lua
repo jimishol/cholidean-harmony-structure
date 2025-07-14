@@ -3,7 +3,8 @@ local dream = require("3DreamEngine")
 local lfs = love.filesystem
 
 local skyExt = require("extensions/sky")
-dream:setSky(skyExt.render)
+--dream:setSky(skyExt.render)
+--dream:setSky(hdrImg, envBright)
 local sun = dream:newLight("sun")
 sun:addNewShadow()
 
@@ -41,7 +42,7 @@ end
 
 function scene.load()
   local sunFactor, envBright = daycycle.computeDaycycle(dayTime)
---  dream:setSky(hdrImg, envBright)
+  dream:setSky(hdrImg, envBright)
   dream:setSky(skyExt.render)
   sun:setBrightness(sunFactor)
 
@@ -65,7 +66,7 @@ function scene.draw()
   local sunFactor, envBright = daycycle.computeDaycycle(dayTime)
   skyExt:setDaytime(sun, sunFactor)
   sun:setBrightness(sunFactor)
---  dream:setSky(hdrImg, envBright)
+  dream:setSky(hdrImg, envBright)
   dream:setSky(skyExt.render)
 
   for _, obj in ipairs(scene.joints) do

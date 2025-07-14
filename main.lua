@@ -44,6 +44,5 @@ function love.draw()
 end
 
 function love.resize(w, h)
-  if dream.resize then dream:resize(w, h) end
   dream:init()
 end
