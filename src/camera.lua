@@ -5,7 +5,7 @@
 local cons = require("constants")
 local M = {}
 
-local showDebug = true
+local showDebug = false
 
 -- Sensitivity parameters pulled from constants
 local keyboard_angle = cons.sensitivity.keyboard_angle or 0.18
