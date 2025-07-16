@@ -16,7 +16,7 @@ package.path = table.concat({
 -- 2) Require & instantiate 3DreamEngine
 local Engine = require("3DreamEngine")
 local dream  = (type(Engine) == "function" and Engine() or Engine)
-
+local labels = require("src.labels")
 -- 3) Pull in your scene & camera modules
 local scene  = require("scene")   -- src/scene.lua must return a table with :load, :update, :draw
 local camera = require("camera")  -- src/camera.lua must return a table with :init, :update, :apply
@@ -42,6 +42,15 @@ function love.draw()
   scene:draw(dream)    -- draws HDRI sky + your meshes
   dream:present()      -- post‐process & swap buffers
   camera:apply()       -- needed in order to display debug informations	
+ -- Draw labels as 2D overlay
+  for i, label in ipairs(labels.get()) do
+    love.graphics.setColor(1, 1, 1, 1)  -- Optional: ensure white color
+    love.graphics.print(label, 100 + i * 40, 300)
+  end
+end
+
+function love.keypressed(key)
+    labels.update(key)
 end
 
 function love.resize(w, h)
