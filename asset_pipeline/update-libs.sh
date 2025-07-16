@@ -37,14 +37,4 @@ echo "- 📌 Commit: $HASH ($DATE)" >> "$OUT"
 echo "- 🗂️ Path: 3DreamEngine/extensions/" >> "$OUT"
 echo "" >> "$OUT"
 
-# lunajson
-echo "→ lunajson"
-git fetch lunajson
-git subtree pull --prefix=lunajson lunajson master --squash
-HASH=$(git log -1 --pretty=format:"%h" lunajson)
-echo "## lunajson" >> "$OUT"
-echo "- 📌 Commit: $HASH ($DATE)" >> "$OUT"
-echo "- 🗂️ Path: lunajson/" >> "$OUT"
-echo "" >> "$OUT"
-
 echo "✅ All subtrees updated and version log written to $OUT"

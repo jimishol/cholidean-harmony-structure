@@ -112,22 +112,6 @@ git commit -m "Import 3DreamEngine extensions into root/Extensions/"
 git fetch 3DreamEngine
 git subtree pull --prefix=3DreamEngine/extensions 3DreamEngine master --squash
 ```
-### 3. lunajson
-
-🗂️ Path: lunajson/
-
-**Initial Integration**
-```
-git remote add -f lunajson https://github.com/grafi-tt/lunajson.git
-git merge -s ours --no-commit --allow-unrelated-histories lunajson/master
-git read-tree --prefix=lunajson -u lunajson/master
-git commit -m "Merge in lunajson as subtree"
-```
-**Update**
-```
-git fetch lunajson
-git subtree pull --prefix=lunajson lunajson master --squash
-```
 
 🧰 Tips for Development & Branching
 

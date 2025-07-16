@@ -12,8 +12,3 @@ Last updated: 2025-07-16
 ## 3DreamEngine (Extensions)
 - 📌 Commit:  (2025-07-16)
 - 🗂️ Path: 3DreamEngine/extensions/
-
-## lunajson
-- 📌 Commit:  (2025-07-16)
-- 🗂️ Path: lunajson/
-
