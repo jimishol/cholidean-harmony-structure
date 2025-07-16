@@ -1,0 +1,23 @@
+<!DOCTYPE FilterScript>
+<FilterScript>
+ <filter name="Merge Close Vertices">
+  <Param type="RichAbsPerc" name="Threshold" value="0.00099276" description="Merging distance" max="0.0992756" min="0" tooltip="All the vertices that closer than this threshold are merged together. Use very small values, default values is 1/10000 of bounding box diagonal. "/>
+ </filter>
+ <filter name="Compute Geometric Measures"/>
+ <filter name="Re-Compute Vertex Normals">
+  <Param enum_val0="Simple Average" type="RichEnum" name="weightMode" enum_val2="By Angle" value="2" description="Weighting Mode:" enum_val3="As defined by N. Max" enum_val1="By Area" tooltip="" enum_cardinality="4"/>
+ </filter>
+ <filter name="Remove Zero Area Faces"/>
+ <filter name="Remove Duplicate Faces"/>
+ <filter name="Repair non Manifold Edges">
+  <Param enum_val0="Remove Faces" type="RichEnum" name="method" value="0" description="Method" enum_val1="Split Vertices" tooltip="Selects whether to remove non manifold edges by removing faces or by splitting vertices." enum_cardinality="2"/>
+ </filter>
+ <filter name="Close Holes">
+  <Param type="RichInt" name="MaxHoleSize" value="30" description="Max size to be closed " tooltip="The size is expressed as number of edges composing the hole boundary"/>
+  <Param type="RichBool" name="Selected" value="false" description="Close holes with selected faces" tooltip="Only the holes with at least one of the boundary faces selected are closed"/>
+  <Param type="RichBool" name="NewFaceSelected" value="true" description="Select the newly created faces" tooltip="After closing a hole the faces that have been created are left selected. Any previous selection is lost. Useful for example for smoothing the newly created holes."/>
+  <Param type="RichBool" name="SelfIntersection" value="true" description="Prevent creation of selfIntersecting faces" tooltip="When closing an holes it tries to prevent the creation of faces that intersect faces adjacent to the boundary of the hole. It is an heuristic, non intersetcting hole filling can be NP-complete."/>
+  <Param type="RichBool" name="RefineHole" value="false" description="Refine Filled Hole" tooltip="After closing the hole it will refine the newly created triangles to make the surface more smooth and the triangulation more evenly spaced"/>
+  <Param type="RichAbsPerc" name="RefineHoleEdgeLen" value="0.297827" description="Hole Refinement Edge Len" max="9.92756" min="0" tooltip="The target edge lenght of the triangulation inside the filled hole."/>
+ </filter>
+</FilterScript>
