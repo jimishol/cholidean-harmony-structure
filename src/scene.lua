@@ -18,7 +18,7 @@ scene.joints = {}
 scene.edges = {}
 scene.curves = {}
 scene.surfaces = {}
-hdrImg = love.graphics.newImage("assets/sky/DaySkyHDRI021A_4K.hdr")
+hdrImg = love.graphics.newImage(constants.bck_image)
 
 local function loadCategory(folder, targetTable)
   local basePath = "assets/models/" .. folder .. "/"

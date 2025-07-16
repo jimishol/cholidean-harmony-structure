@@ -4,7 +4,7 @@
 -- @module constants
 
 local M = {}
-
+M.bck_image	  = "assets/sky/DaySkyHDRI021A_4K.hdr"
 M.day_night       = 8  -- Hour (float) 0:00-24:0.05
 M.day_night_speed = 0.15 -- greater value faster change of background brightness by +/- keys
 M.maxBright       = 1.5 -- maximum acceptable background brightness
