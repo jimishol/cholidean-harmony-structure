@@ -49,6 +49,9 @@ function scene.load()
   loadCategory("edges", scene.edges)
   loadCategory("curves", scene.curves)
   loadCategory("surfaces", scene.surfaces)
+
+  local JointLayout = require("src.utils.joint_layout")
+  local jointPos = JointLayout.getJointPositions()
 end
 
 function scene.update(dt)

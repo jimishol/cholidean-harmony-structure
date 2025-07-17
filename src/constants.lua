@@ -1,4 +1,3 @@
-
 -- src/constants.lua
 -- Centralized configuration constants for the structure viewer project.
 -- @module constants
