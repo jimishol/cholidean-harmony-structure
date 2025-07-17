@@ -33,8 +33,8 @@ label_size   = 0.6;
 tube_radius  = 0.3;
 //tube_steps needs at least 12 to close circle of Fourths forming a "Penrose" square. More than 10 per station creates clear curvature. Better value multiple of 12. tube_steps × surf_sambles  < 4000 else goes beyond openscad's limits.
 tube_steps   = 120; 
-//Sambles per step. (By 1 a rail is constructed, not surface)
-surf_sambles     = 32;
+//Sambles per step.
+surf_sambles     = 2;
 //There are two vertical edges, an outer and an inner. It is more convenient to place the tonic (DesireNote) of major scales or relative major scales at upper end of the outer vertical edge.
 DesiredNote = "C";
 
@@ -107,22 +107,44 @@ module link(p1, p2, l_size, fn) {
 }
 
 module ribbonSurface(name, trim_h, trim_v) {
-    StartP1   = (note_index(name) +11) % 12; // Start of evolving P1P2
-    StartP2   = (note_index(name) +7) % 12;  // End of evolving P1P2
-    loop_start = (tube_steps / 12 * surf_sambles) * trim_h /2;
-    loop_end  = (tube_steps / 12 * surf_sambles) * (1 -trim_h / 2);
+    // compute ring parameters
+    StartP1   = (note_index(name) + 11) % 12;
+    StartP2   = (note_index(name) +  7) % 12;
+    steps     = tube_steps/12 * surf_sambles;
+
+    // force integer loop bounds
+    loop_start = floor(steps * trim_h/2);
+    loop_end   = ceil(steps * (1 - trim_h/2));
+
     union() {
-        for (s = [loop_start : loop_end]) {
-            du = s / (tube_steps / 12 * surf_sambles);
+        // subtract 1 so p3/p4 never go past the end
+        for (s = [loop_start : loop_end - 1]) {
+            // precalc
+            step_length = 1/steps;
+            du          = s/steps;
+            du_next     = (s + 1)/steps;
+
+            // sample four points
             p1 = SoFourths(StartP1 + du);
             p2 = SoFourths(StartP2 + du);
-            Vector1 = p1 + trim_v / 2 * (p2 -p1);
-            Vector2 = p1 + (1 - trim_v / 2) * (p2 -p1);
-            // each tiny link becomes one “slice” of your ribbon
-            link(Vector1, Vector2, surf_size, surf_fn);
+            p3 = SoFourths(StartP1 + du_next);
+            p4 = SoFourths(StartP2 + du_next);
+
+            // offset by trim_v
+            v1 = p1 + (trim_v/2)     * (p2 - p1);
+            v2 = p1 + (1 - trim_v/2) * (p2 - p1);
+            v3 = p3 + (trim_v/2)     * (p4 - p3);
+            v4 = p3 + (1 - trim_v/2) * (p4 - p3);
+
+            // correct hull syntax
+            hull() {
+                link(v1, v2, surf_size, surf_fn);
+                link(v3, v4, surf_size, surf_fn);
+            }
         }
     }
 }
+
 // ────────────────────────────────────────────────────────────────
 // 3) RENDER
 // ────────────────────────────────────────────────────────────────

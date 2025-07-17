@@ -43,8 +43,9 @@ function love.draw()
   dream:present()      -- post‐process & swap buffers
   camera:apply()       -- needed in order to display debug informations	
  -- Draw labels as 2D overlay
+  love.graphics.setFont(love.graphics.newFont(16))
+  love.graphics.setColor(1, 1, 1, 1)  -- Optional: ensure white color
   for i, label in ipairs(labels.get()) do
-    love.graphics.setColor(1, 1, 1, 1)  -- Optional: ensure white color
     love.graphics.print(label, 100 + i * 40, 300)
   end
 end
