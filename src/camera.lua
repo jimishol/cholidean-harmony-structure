@@ -1,49 +1,39 @@
---- Camera module for Cholidean harmony structure viewer.
+-- Camera module for Cholidean harmony structure viewer.
 -- Handles position, yaw/pitch orientation, movement, tween resets, and input bindings.
--- @module camera
 
 local cons = require("constants")
 local M = {}
 
 local showDebug = false
 
--- Sensitivity parameters pulled from constants
+-- Sensitivity parameters
 local keyboard_angle = cons.sensitivity.keyboard_angle or 0.18
 local mouse_angle    = cons.sensitivity.mouse_angle    or 0.005
 local current_fov    = cons.fov or 45
 local freeMoveSpeed  = cons.sensitivity.free_move or 5.0
 
--- Camera position in world space
+-- Camera position
 local currentPos = {
   x = cons.initialCameraPosition.x or 0,
   y = cons.initialCameraPosition.y or 0,
   z = cons.initialCameraPosition.z or 5
 }
 
--- Current orientation in Euler angles (radians)
+-- Orientation
 local currentYaw, currentPitch = 0, 0
 
--- Tweening state for orientation reset
+-- Tweening state
 local isResettingOrientation = false
 local resetTimer = 0
 local resetDuration = cons.resetDuration or 0.5
 local startYaw, startPitch = 0, 0
 local targetYaw, targetPitch = 0, 0
 
---- Linearly interpolate between two scalar values
--- @param a Start value
--- @param b End value
--- @param t Blend factor between 0 and 1
--- @return Interpolated value
+-- Helpers
 local function lerp(a, b, t)
   return a + (b - a) * t
 end
 
---- Interpolate angle with wrapping over π
--- @param a Start angle (radians)
--- @param b End angle (radians)
--- @param t Blend factor
--- @return Wrapped angle
 local function lerpAngle(a, b, t)
   local diff = b - a
   while diff > math.pi do diff = diff - 2 * math.pi end
@@ -51,17 +41,12 @@ local function lerpAngle(a, b, t)
   return a + diff * t
 end
 
---- Normalize angle to range [-π, π]
--- @param a Angle in radians
--- @return Normalized angle
 local function normalizeAngle(a)
   while a > math.pi do a = a - 2 * math.pi end
   while a < -math.pi do a = a + 2 * math.pi end
   return a
 end
 
---- Compute forward vector from current yaw/pitch
--- @return x, y, z components of forward direction
 local function getForwardVector()
   local cosPitch = math.cos(currentPitch)
   local sinPitch = math.sin(currentPitch)
@@ -70,8 +55,6 @@ local function getForwardVector()
   return sinYaw * cosPitch, sinPitch, -cosYaw * cosPitch
 end
 
---- Apply camera transform based on current position and angles
--- @param camera DreamEngine camera object
 local function updateOrientation(camera)
   camera:resetTransform()
   camera:translate(currentPos.x, currentPos.y, currentPos.z)
@@ -79,9 +62,7 @@ local function updateOrientation(camera)
   camera:rotateX(currentPitch)
 end
 
---- Initialize camera module and bind input events
--- Computes initial orientation based on position and sets FOV
--- @param dream DreamEngine context
+-- Initialization
 function M:init(dream)
   self.dream = dream
   local init = cons.initialCameraPosition
@@ -128,15 +109,13 @@ function M:init(dream)
       resetTimer = 0
     elseif key == "d" then
       showDebug = not showDebug
+    elseif key == "l" then
+      require("src.labels").update(key)
     end
-    -- forward keypress to labels module
-    require("src.labels").update(key)
   end
 end
 
---- Update camera each frame
--- Handles tweening, keyboard controls, and mouse state logic
--- @param dt Delta time (seconds)
+-- Update
 function M:update(dt)
   if isResettingOrientation then
     resetTimer = resetTimer + dt
@@ -189,23 +168,16 @@ function M:update(dt)
   end
 end
 
---- Apply camera state (called during draw phase)
+-- Apply camera state and show debug info
 function M:apply()
-    if not showDebug then return end
+  if not showDebug then return end
 
---    local debugLabels = require("tests.test_labels")
- --   debugLabels(self.dream)
-    -- Draw FPS
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
-
-    -- Draw camera position
-    love.graphics.print(string.format("Camera Pos: (%.2f, %.2f, %.2f)", currentPos.x, currentPos.y, currentPos.z), 10, 30)
+  love.graphics.setColor(1, 1, 1)
+  love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
+  love.graphics.print(string.format("Camera Pos: (%.2f, %.2f, %.2f)", currentPos.x, currentPos.y, currentPos.z), 10, 30)
 end
 
---- Handle mouse movement for view rotation or camera motion
--- @param dx Mouse delta X
--- @param dy Mouse delta Y
+-- Mouse movement
 function M:mousemoved(dx, dy)
   if isResettingOrientation then return end
   if cons.sensitivity.invert_mouse then
