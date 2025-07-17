@@ -12,6 +12,7 @@ local constants = require("constants")
 local daycycle = require("utils.daycycle")
 local dayTime  = constants.day_night  -- your starting hour
 
+local Labels = require("src.labels")
 
 local scene = {}
 scene.joints = {}
@@ -52,6 +53,31 @@ function scene.load()
 
   local JointLayout = require("src.utils.joint_layout")
   local jointPos = JointLayout.getJointPositions()
+
+    local JointLayout = require("src.utils.joint_layout")
+    local jointPos = JointLayout.getJointPositions()
+    local labelDistance = constants.label_distance or 1.0
+    local fontSize = constants.label_font_size or 18
+    local allLabels = Labels.get()
+
+    for id = 0, 11 do
+      local P = jointPos[id]
+      local vx, vy, vz = P[1], P[2], P[3]
+      local mag = math.sqrt(vx^2 + vy^2 + vz^2)
+      local ux, uy, uz = vx / mag, vy / mag, vz / mag
+
+      local labelPos = {
+	P[1] + labelDistance * ux,
+	P[2] + labelDistance * uy,
+	P[3] + labelDistance * uz
+      }
+
+      local label = allLabels[id + 1]
+      label.position = labelPos
+      label.name = string.format("Lbl%02d", id)
+      label.fontSize = fontSize
+      label.color = {1, 1, 0}  -- default visible yellow
+    end
 end
 
 function scene.update(dt)
@@ -81,6 +107,7 @@ function scene.draw()
   for _, obj in ipairs(scene.surfaces) do
     dream:draw(obj)
   end
+  Labels.draw3D(dream)
 end
 
 return scene

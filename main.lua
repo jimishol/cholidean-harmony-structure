@@ -42,7 +42,7 @@ function love.draw()
   scene:draw(dream)    -- draws HDRI sky + your meshes
   dream:present()      -- post‐process & swap buffers
   camera:apply()       -- needed in order to display debug informations	
-  require("src.labels").draw()
+  labels:draw3D()
 end
 
 function love.keypressed(key)
