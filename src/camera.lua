@@ -191,6 +191,8 @@ end
 function M:apply()
     if not showDebug then return end
 
+    local debugLabels = require("tests.test_labels")
+    debugLabels(self.dream)
     -- Draw FPS
     love.graphics.setColor(1, 1, 1)
     love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
