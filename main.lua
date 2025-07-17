@@ -42,19 +42,7 @@ function love.draw()
   scene:draw(dream)    -- draws HDRI sky + your meshes
   dream:present()      -- post‐process & swap buffers
   camera:apply()       -- needed in order to display debug informations	
-  -- in love.draw()
-  for i, label in ipairs(labels.get()) do
-    love.graphics.setColor(label.color)
-    local x = 100 + (i - 1) * 40
-    local y = 300
-    love.graphics.print(label.name, x, y)
-
-    -- highlight tonic with an underline or different font
-    if label.isTonic then
-      love.graphics.line(x, y + 18, x + 16, y + 18)
-    end
-  end
-  love.graphics.setColor(1,1,1) -- reset color
+  require("src.labels").draw()
 end
 
 function love.keypressed(key)

@@ -129,6 +129,8 @@ function M:init(dream)
     elseif key == "d" then
       showDebug = not showDebug
     end
+    -- forward keypress to labels module
+    require("src.labels").update(key)
   end
 end
 
