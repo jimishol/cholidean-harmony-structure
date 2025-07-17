@@ -1,19 +1,22 @@
+-- src/scene.lua
+
 local scene = {}
 scene.joints = {}
 scene.edges = {}
 scene.curves = {}
 scene.surfaces = {}
 
-local lfs = love.filesystem
-local skyExt = require("extensions/sky")
+local lfs       = love.filesystem
+local skyExt    = require("extensions/sky")
 local constants = require("constants")
-local daycycle = require("utils.daycycle")
-local Labels = require("src.labels")
+local daycycle  = require("utils.daycycle")
+local Labels    = require("src.labels")
+local JointLayout = require("src.utils.joint_layout")
 
 local dayTime = constants.day_night
-local hdrImg = love.graphics.newImage(constants.bck_image)
+local hdrImg  = love.graphics.newImage(constants.bck_image)
 
-local sun  -- declare sun at module level so it can be reused in draw()
+local sun  -- reusable light object
 
 function scene.load(dream)
   sun = dream:newLight("sun")
@@ -46,29 +49,28 @@ function scene.load(dream)
   loadCategory("curves", scene.curves)
   loadCategory("surfaces", scene.surfaces)
 
-  local JointLayout = require("src.utils.joint_layout")
-  local jointPos = JointLayout.getJointPositions()
-  local labelDistance = constants.label_distance or 1.0
-  local fontSize = constants.label_font_size or 18
-  local allLabels = Labels.get()
+  -- Label placement using triangle centers
+  local jointPos       = JointLayout.getJointPositions()
+  local triangleCenters = JointLayout.getTriangleCenters()
+  local labelDistance  = constants.label_distance or 1.0
+  local fontSize       = constants.label_font_size or 18
+  local allLabels      = Labels.get()
 
   for id = 0, 11 do
-    local P = jointPos[id]
-    local vx, vy, vz = P[1], P[2], P[3]
-    local mag = math.sqrt(vx^2 + vy^2 + vz^2)
-    local ux, uy, uz = vx / mag, vy / mag, vz / mag
+    local J = jointPos[id]
+    local C = triangleCenters[math.floor(id / 3) + 1]
 
     local labelPos = {
-      P[1] + labelDistance * ux,
-      P[2] + labelDistance * uy,
-      P[3] + labelDistance * uz
+      C[1] + (J[1] - C[1]) * labelDistance,
+      C[2] + (J[2] - C[2]) * labelDistance,
+      C[3] + (J[3] - C[3]) * labelDistance
     }
 
     local label = allLabels[id + 1]
     label.position = labelPos
-    label.name = string.format("Lbl%02d", id)
+    label.name     = string.format("Lbl%02d", id)
     label.fontSize = fontSize
-    label.color = {1, 1, 0}
+    label.color    = {1, 1, 0}
   end
 end
 
@@ -98,6 +100,7 @@ function scene.draw(dream)
   for _, obj in ipairs(scene.surfaces) do
     dream:draw(obj)
   end
+
   Labels.draw3D(dream)
 end
 
