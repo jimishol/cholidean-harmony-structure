@@ -1,39 +1,22 @@
-local constants = require("constants")
-
+-- JointLayout using hard-coded Blender origins mapped to 3DreamEngine space
 local JointLayout = {}
-
--- Parametric torus functions
-local function fx(u)
-  return math.sin(u) * (
-    constants.torusRadius +
-    math.cos(u / 3 + 2 * math.pi) +
-    constants.torusWidth * math.cos(u / 3 - math.pi)
-  )
-end
-
-local function fy(u)
-  return math.cos(u) * (
-    constants.torusRadius +
-    math.cos(u / 3 + 2 * math.pi) +
-    constants.torusWidth * math.cos(u / 3 - math.pi)
-  )
-end
-
-local function fz(u)
-  return math.sin(u / 3 + 2 * math.pi) +
-         constants.torusWidth * math.sin(u / 3 - math.pi)
-end
 
 --- Returns a table of 12 joint positions indexed by ID (0–11)
 function JointLayout.getJointPositions()
-  local jointPos = {}
-  local step = 2 * math.pi / 12
-
-  for i = 0, 11 do
-    local u = i * step
-    jointPos[i] = { -fy(u), fx(u), fz(u) }
-  end
-
+  local jointPos = {
+    [0]  = { -8.000000, 1.732000, -0.000000 },
+    [1]  = {  0.000000, 2.000000, -7.000000 },
+    [2]  = {  6.000000, 1.732000, -0.000000 },
+    [3]  = {  0.000000, 1.000000,  5.268000 },
+    [4]  = { -5.000000, 0.000000, -0.000000 },
+    [5]  = {  0.000000, -1.000000, -5.268000 },
+    [6]  = {  6.000000, -1.732000, -0.000000 },
+    [7]  = {  0.000000, -2.000000,  7.000000 },
+    [8]  = { -8.000000, -1.732000, -0.000000 },
+    [9]  = {  0.000000, -1.000000, -8.732000 },
+    [10] = {  9.000000, 0.000000, -0.000000 },
+    [11] = {  0.000000, 1.000000,  8.732000 },
+  }
   return jointPos
 end
 
