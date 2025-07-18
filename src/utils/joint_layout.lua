@@ -31,7 +31,7 @@ function JointLayout.getJointPositions()
 
   for i = 0, 11 do
     local u = i * step
-    jointPos[i] = { fx(u), fy(u), fz(u) }
+    jointPos[i] = { -fy(u), fx(u), fz(u) }
   end
 
   return jointPos

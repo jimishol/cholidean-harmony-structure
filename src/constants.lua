@@ -17,7 +17,7 @@ M.threshold       = 0.5
 -- @field steps Number of segment steps (for rendering resolution)
 M.torusRadius    = 7
 M.torusWidth     = 3
-M.label_distance = 1.05  -- factor the distance from center of augmented third triangles to respective joint
+M.label_distance = 1.15  -- factor the distance from center of augmented third triangles to respective joint
 M.label_font_size = 18  -- or adjust as needed
 
 -- Tone marker options
@@ -51,8 +51,8 @@ M.farClip  = 1000
 -- @field zAt Target point Z
 M.initialCameraPosition = {
   x = -18,
-  y = 32,
-  z = -18
+  y =  32,
+  z =  18
 }
 
 M.xAt = 0

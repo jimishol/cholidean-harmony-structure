@@ -58,7 +58,7 @@ function scene.load(dream)
 
   for id = 0, 11 do
     local J = jointPos[id]
-    local C = triangleCenters[math.floor(id / 3) + 1]
+    local C = triangleCenters[id % 4 + 1]
 
     local labelPos = {
       C[1] + (J[1] - C[1]) * labelDistance,
