@@ -58,6 +58,8 @@ function love.keypressed(key)
     camera:pressed("d")
   elseif labels.pressedAction(action) then
     scene.updateLabels()
+  elseif scene.pressedAction and scene.pressedAction(action) then
+    -- Optional: print("Scene visibility toggled")
   end
 end
 

@@ -1,5 +1,10 @@
 -- src/scene.lua
 
+local showJoints   = true
+local showEdges    = true
+local showCurves   = true
+local showSurfaces = true
+
 local scene = {}
 scene.joints = {}
 scene.edges = {}
@@ -12,6 +17,7 @@ local constants = require("constants")
 local daycycle  = require("utils.daycycle")
 local Labels    = require("src.labels")
 local JointLayout = require("src.utils.joint_layout")
+local A = require("src.input.actions")
 
 local dayTime = constants.day_night
 local hdrImg  = love.graphics.newImage(constants.bck_image)
@@ -67,17 +73,25 @@ function scene.draw(dream)
   skyExt:setDaytime(sun, sunFactor)
   dream:setSky(hdrImg, envBright)
 
-  for _, obj in ipairs(scene.joints) do
-    dream:draw(obj)
+  if showJoints then
+    for _, obj in ipairs(scene.joints) do
+      dream:draw(obj)
+    end
   end
-  for _, obj in ipairs(scene.edges) do
-    dream:draw(obj)
+  if showEdges then
+    for _, obj in ipairs(scene.edges) do
+      dream:draw(obj)
+    end
   end
-  for _, obj in ipairs(scene.curves) do
-    dream:draw(obj)
+  if showCurves then
+    for _, obj in ipairs(scene.curves) do
+      dream:draw(obj)
+    end
   end
-  for _, obj in ipairs(scene.surfaces) do
-    dream:draw(obj)
+  if showSurfaces then
+    for _, obj in ipairs(scene.surfaces) do
+      dream:draw(obj)
+    end
   end
 
   Labels.draw3D(dream)
@@ -106,6 +120,23 @@ function scene.updateLabels()
     label.fontSize = fontSize
     label.color    = {1, 1, 0}
   end
+end
+
+function scene.pressedAction(action)
+  if action == A.TOGGLE_JOINTS then
+    showJoints = not showJoints
+    return true
+  elseif action == A.TOGGLE_EDGES then
+    showEdges = not showEdges
+    return true
+  elseif action == A.TOGGLE_CURVES then
+    showCurves = not showCurves
+    return true
+  elseif action == A.TOGGLE_SURFACES then
+    showSurfaces = not showSurfaces
+    return true
+  end
+  return false
 end
 
 return scene

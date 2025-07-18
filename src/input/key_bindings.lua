@@ -10,6 +10,10 @@ M.bindings = {
   [A.RESET_VIEW]   = { "space" },
   [A.TOGGLE_DEBUG] = { "d" },
   [A.TOGGLE_LABELS]= { "l" },
+  [A.TOGGLE_JOINTS]   = { "j" },
+  [A.TOGGLE_EDGES]    = { "e" },
+  [A.TOGGLE_CURVES]   = { "c" },
+  [A.TOGGLE_SURFACES] = { "s" },
 }
 
 --- Returns the action string for the given key, or nil if none.

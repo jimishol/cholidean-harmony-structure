@@ -11,7 +11,11 @@ A.RESET_VIEW     = "reset_view"    -- reset camera orientation
 A.TOGGLE_DEBUG   = "toggle_debug"
 
 -- Label controls
-A.TOGGLE_LABELS  = "toggle_labels"
+A.TOGGLE_LABELS   = "toggle_labels"
+A.TOGGLE_JOINTS   = "toggle_joints"
+A.TOGGLE_EDGES    = "toggle_edges"
+A.TOGGLE_CURVES   = "toggle_curves"
+A.TOGGLE_SURFACES = "toggle_surfaces"
 
 -- Camera movement (continuous)
 A.MOVE_FORWARD   = "move_forward"
