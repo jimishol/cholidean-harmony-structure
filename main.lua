@@ -21,7 +21,8 @@ local dream  = (type(Engine) == "function" and Engine() or Engine)
 local labels = require("src.labels")
 local scene  = require("scene")
 local camera = require("camera")
-
+local Input = require("src.input")
+local A     = require("src.input.actions")
 -- 4) LOVE2D callbacks
 
 function love.load()
@@ -47,7 +48,17 @@ function love.draw()
 end
 
 function love.keypressed(key)
-  labels.update(key)
+  local action = Input:onKey(key)
+
+  if action == A.QUIT then
+    love.event.quit()
+  elseif action == A.RESET_VIEW then
+    camera:pressed("space")
+  elseif action == A.TOGGLE_DEBUG then
+    camera:pressed("d")
+  elseif labels.pressedAction(action) then
+    scene.updateLabels()
+  end
 end
 
 function love.resize(w, h)

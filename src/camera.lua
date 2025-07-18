@@ -87,32 +87,37 @@ function M:init(dream)
   love.mousemoved = function(_, _, dx, dy)
     self:mousemoved(dx, dy)
   end
+end
 
-  love.keypressed = function(key)
-    if key == "q" then
-      love.event.quit()
-    elseif key == "space" and not isResettingOrientation then
-      local d = math.sqrt(currentPos.x^2 + currentPos.y^2 + currentPos.z^2)
-      local computedPitch, computedYaw = 0, 0
-      if d > 0 then
-        local vx = -currentPos.x / d
-        local vy = -currentPos.y / d
-        local vz = -currentPos.z / d
-        computedPitch = math.asin(vy)
-        computedYaw   = math.atan2(vx, -vz)
-      end
-      startYaw = normalizeAngle(currentYaw)
-      targetYaw = normalizeAngle(computedYaw)
-      startPitch = currentPitch
-      targetPitch = computedPitch
-      isResettingOrientation = true
-      resetTimer = 0
-    elseif key == "d" then
-      showDebug = not showDebug
-    elseif key == "l" then
-      require("src.labels").update(key)
+function M:pressed(key)
+  if key == "q" then
+    love.event.quit()
+    return true
+
+  elseif key == "space" and not isResettingOrientation then
+    local d = math.sqrt(currentPos.x^2 + currentPos.y^2 + currentPos.z^2)
+    local computedPitch, computedYaw = 0, 0
+    if d > 0 then
+      local vx = -currentPos.x / d
+      local vy = -currentPos.y / d
+      local vz = -currentPos.z / d
+      computedPitch = math.asin(vy)
+      computedYaw   = math.atan2(vx, -vz)
     end
+    startYaw = normalizeAngle(currentYaw)
+    targetYaw = normalizeAngle(computedYaw)
+    startPitch = currentPitch
+    targetPitch = computedPitch
+    isResettingOrientation = true
+    resetTimer = 0
+    return true
+
+  elseif key == "d" then
+    showDebug = not showDebug
+    return true
   end
+
+  return false
 end
 
 -- Update

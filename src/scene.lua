@@ -49,29 +49,8 @@ function scene.load(dream)
   loadCategory("curves", scene.curves)
   loadCategory("surfaces", scene.surfaces)
 
-  -- Label placement using triangle centers
-  local jointPos       = JointLayout.getJointPositions()
-  local triangleCenters = JointLayout.getTriangleCenters()
-  local labelDistance  = constants.label_distance or 1.0
-  local fontSize       = constants.label_font_size or 18
-  local allLabels      = Labels.get()
+  scene.updateLabels()
 
-  for id = 0, 11 do
-    local J = jointPos[id]
-    local C = triangleCenters[id % 4 + 1]
-
-    local labelPos = {
-      C[1] + (J[1] - C[1]) * labelDistance,
-      C[2] + (J[2] - C[2]) * labelDistance,
-      C[3] + (J[3] - C[3]) * labelDistance
-    }
-
-    local label = allLabels[id + 1]
-    label.position = labelPos
-    label.name     = string.format("Lbl%02d", id)
-    label.fontSize = fontSize
-    label.color    = {1, 1, 0}
-  end
 end
 
 function scene.update(dt)
@@ -102,6 +81,31 @@ function scene.draw(dream)
   end
 
   Labels.draw3D(dream)
+end
+
+function scene.updateLabels()
+  local jointPos        = JointLayout.getJointPositions()
+  local triangleCenters = JointLayout.getTriangleCenters()
+  local labelDistance   = constants.label_distance or 1.0
+  local fontSize        = constants.label_font_size or 18
+  local allLabels       = Labels.get()
+
+  for id = 0, 11 do
+    local J = jointPos[id]
+    local C = triangleCenters[id % 4 + 1]
+
+    local labelPos = {
+      C[1] + (J[1] - C[1]) * labelDistance,
+      C[2] + (J[2] - C[2]) * labelDistance,
+      C[3] + (J[3] - C[3]) * labelDistance
+    }
+
+    local label = allLabels[id + 1]
+    label.position = labelPos
+    label.name     = string.format("Lbl%02d", id)
+    label.fontSize = fontSize
+    label.color    = {1, 1, 0}
+  end
 end
 
 return scene

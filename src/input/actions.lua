@@ -1,0 +1,32 @@
+-- src/input/actions.lua
+
+-- High‐level action constants for both keyboard & MIDI inputs.
+-- Mirror the keys & behaviors used in camera.lua (and beyond).
+
+local A = {}
+
+-- Application control
+A.QUIT           = "quit"
+A.RESET_VIEW     = "reset_view"    -- reset camera orientation
+A.TOGGLE_DEBUG   = "toggle_debug"
+
+-- Label controls
+A.TOGGLE_LABELS  = "toggle_labels"
+
+-- Camera movement (continuous)
+A.MOVE_FORWARD   = "move_forward"
+A.MOVE_BACKWARD  = "move_backward"
+A.STRAFE_LEFT    = "strafe_left"
+A.STRAFE_RIGHT   = "strafe_right"
+
+-- Camera rotation (continuous)
+A.ROTATE_LEFT    = "rotate_left"
+A.ROTATE_RIGHT   = "rotate_right"
+A.PITCH_UP       = "pitch_up"
+A.PITCH_DOWN     = "pitch_down"
+
+-- Zoom control
+A.ZOOM_IN        = "zoom_in"
+A.ZOOM_OUT       = "zoom_out"
+
+return A
