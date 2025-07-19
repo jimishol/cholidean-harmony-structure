@@ -90,4 +90,9 @@ M.sensitivity = {
   free_mouse = 0.1
 }
 
+M.NOTE_ORDER = {
+  "C", "F", "Bb", "Eb", "Ab", "Db",
+  "Gb", "B", "E", "A", "D", "G"
+}
+
 return M

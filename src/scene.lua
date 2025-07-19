@@ -1,5 +1,7 @@
 -- src/scene.lua
 
+local NoteSystem = require("src.systems.note_system")
+
 local showJoints   = true
 local showEdges    = true
 local showCurves   = true
@@ -42,6 +44,7 @@ function scene.load(dream)
           return dream:loadObject(basePath .. name)
         end)
         if success and object then
+	  object.id = name
           table.insert(targetTable, object)
         else
           print("⚠️ Failed to load " .. folder .. ": " .. name)
@@ -55,6 +58,7 @@ function scene.load(dream)
   loadCategory("curves", scene.curves)
   loadCategory("surfaces", scene.surfaces)
 
+  scene.noteSystem = NoteSystem:new(scene)
   scene.updateLabels()
 
 end
@@ -116,13 +120,24 @@ function scene.updateLabels()
 
     local label = allLabels[id + 1]
     label.position = labelPos
-    label.name     = string.format("Lbl%02d", id)
+    label.name = scene.noteSystem.notes[id+1].name
     label.fontSize = fontSize
     label.color    = {1, 1, 0}
   end
 end
 
 function scene.pressedAction(action)
+  -- handle note‐map shifts first
+  if action == A.ROTATE_CW then
+    scene.noteSystem:shift(1)
+    scene.updateLabels()
+    return true
+  elseif action == A.ROTATE_CCW then
+    scene.noteSystem:shift(-1)
+    scene.updateLabels()
+    return true
+  end
+
   if action == A.TOGGLE_JOINTS then
     showJoints = not showJoints
     return true

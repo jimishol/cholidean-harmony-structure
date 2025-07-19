@@ -17,6 +17,10 @@ A.TOGGLE_EDGES    = "toggle_edges"
 A.TOGGLE_CURVES   = "toggle_curves"
 A.TOGGLE_SURFACES = "toggle_surfaces"
 
+-- Shift-based rotation of the 12-note map
+A.ROTATE_CW      = "rotate_cw"
+A.ROTATE_CCW     = "rotate_ccw"
+
 -- Camera movement (continuous)
 A.MOVE_FORWARD   = "move_forward"
 A.MOVE_BACKWARD  = "move_backward"

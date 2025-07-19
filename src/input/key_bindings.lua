@@ -1,10 +1,6 @@
--- src/input/key_bindings.lua
-
 local A = require("src.input.actions")
 
---- Maps concrete key presses to high‐level actions.
 local M = {}
-
 M.bindings = {
   [A.QUIT]         = { "q" },
   [A.RESET_VIEW]   = { "space" },
@@ -18,6 +14,16 @@ M.bindings = {
 
 --- Returns the action string for the given key, or nil if none.
 function M:actionForKey(key)
+  -- 1) Catch Shift + Left/Right
+  local shiftDown = love.keyboard.isDown("lshift", "rshift")
+  if shiftDown and key == "left" then
+    return A.ROTATE_CW
+  end
+  if shiftDown and key == "right" then
+    return A.ROTATE_CCW
+  end
+
+  -- 2) Fallback to your normal single-key mappings
   for action, keys in pairs(self.bindings) do
     for _, k in ipairs(keys) do
       if k == key then
@@ -25,6 +31,7 @@ function M:actionForKey(key)
       end
     end
   end
+
   return nil
 end
 
