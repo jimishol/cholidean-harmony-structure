@@ -1,26 +1,51 @@
--- JointLayout using hard-coded Blender origins mapped to 3DreamEngine space
 local JointLayout = {}
+
+-- Geometric constants (as used in SoFourths)
+local torusRadius = 7
+local torusWidth = 3
+
+-- Degree conversion
+local function deg(a)
+  return a * math.pi / 180
+end
+
+-- Parametric spiral functions matching your structure
+local function x(u)
+  local a = u * 90
+  local b = u * 30
+  return math.sin(deg(a)) * (
+    torusRadius + math.cos(deg(b + 360)) + torusWidth * math.cos(deg(b - 180))
+  )
+end
+
+local function y(u)
+  local a = u * 90
+  local b = u * 30
+  return math.cos(deg(a)) * (
+    torusRadius + math.cos(deg(b + 360)) + torusWidth * math.cos(deg(b - 180))
+  )
+end
+
+local function z(u)
+  local b = u * 30
+  return math.sin(deg(b + 360)) + torusWidth * math.sin(deg(b - 180))
+end
 
 --- Returns a table of 12 joint positions indexed by ID (0–11)
 function JointLayout.getJointPositions()
-  local jointPos = {
-    [0]  = { -8.000000, 1.732000, -0.000000 },
-    [1]  = {  0.000000, 2.000000, -7.000000 },
-    [2]  = {  6.000000, 1.732000, -0.000000 },
-    [3]  = {  0.000000, 1.000000,  5.268000 },
-    [4]  = { -5.000000, 0.000000, -0.000000 },
-    [5]  = {  0.000000, -1.000000, -5.268000 },
-    [6]  = {  6.000000, -1.732000, -0.000000 },
-    [7]  = {  0.000000, -2.000000,  7.000000 },
-    [8]  = { -8.000000, -1.732000, -0.000000 },
-    [9]  = {  0.000000, -1.000000, -8.732000 },
-    [10] = {  9.000000, 0.000000, -0.000000 },
-    [11] = {  0.000000, 1.000000,  8.732000 },
-  }
+  local jointPos = {}
+  for i = 0, 11 do
+    local u = i - 1.5  -- aligns sampling with hardcoded spiral layout
+    jointPos[i] = {
+      x(u),
+      y(u),
+     -z(u)  -- 3DreamEngine axis adjustment (Z is flipped)
+    }
+  end
   return jointPos
 end
 
---- Returns a table of 4 triangle centers for augmented third triads
+--- Returns triangle centers for augmented third triads
 function JointLayout.getTriangleCenters()
   local jointPos = JointLayout.getJointPositions()
 
