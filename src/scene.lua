@@ -99,6 +99,7 @@ function scene.draw(dream)
   end
 
   Labels.draw3D(dream)
+
 end
 
 function scene.updateLabels()

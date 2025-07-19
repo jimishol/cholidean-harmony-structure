@@ -66,6 +66,7 @@ function NoteSystem:_applyToGeometry(i)
   local note   = self.notes[i]
   local suffix = string.format("%02d", i-1)
   local targets = {
+    "joint_"   .. suffix,
     "edge_"    .. suffix,
     "curve_"   .. suffix,
     "surface_" .. suffix,
