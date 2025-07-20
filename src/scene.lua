@@ -123,7 +123,6 @@ function scene.updateLabels()
     label.position = labelPos
     label.name = scene.noteSystem.notes[id+1].name
     label.fontSize = fontSize
-    label.color    = {1, 1, 0}
   end
 end
 
