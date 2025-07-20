@@ -29,9 +29,9 @@ function JointLayout.getJointPositions()
   local jointPos = {}
   for i = 0, 11 do
     jointPos[i] = {
-      -y(i+8),
-      z(i+8),
-      -x(i+8)
+      -y(i+7),
+      z(i+7),
+      -x(i+7)
     }
   end
 
