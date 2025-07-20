@@ -7,7 +7,7 @@ M.bck_image	  = "assets/sky/DaySkyHDRI021A_4K.hdr"
 M.day_night       = 8  -- Hour (float) 0:00-24:0.05
 M.day_night_speed = 0.15 -- greater value faster change of background brightness by +/- keys
 M.maxBright       = 1.5 -- maximum acceptable background brightness
-M.scaleFactor     = 1.6
+M.scaleFactor     = 1.6 -- scale ratio of active joints
 M.surfAlpha       = 0.17
 M.threshold       = 0.5
 
@@ -17,7 +17,7 @@ M.threshold       = 0.5
 -- @field steps Number of segment steps (for rendering resolution)
 M.torusRadius    = 7
 M.torusWidth     = 3
-M.label_distance = 1.5  -- factor the distance from center of augmented third triangles to respective joint
+M.label_distance = 1.7  -- factor the distance from center of augmented third triangles to respective joint
 M.label_font_size = 64  -- or adjust as needed
 
 -- Tone marker options
