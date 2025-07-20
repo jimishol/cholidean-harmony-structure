@@ -17,8 +17,8 @@ M.threshold       = 0.5
 -- @field steps Number of segment steps (for rendering resolution)
 M.torusRadius    = 7
 M.torusWidth     = 3
-M.label_distance = 1  -- factor the distance from center of augmented third triangles to respective joint
-M.label_font_size = 18  -- or adjust as needed
+M.label_distance = 1.35  -- factor the distance from center of augmented third triangles to respective joint
+M.label_font_size = 64  -- or adjust as needed
 
 -- Tone marker options
 -- @field ballRadius Radius of tone spheres placed on geometry
