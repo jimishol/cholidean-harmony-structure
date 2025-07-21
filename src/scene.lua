@@ -12,6 +12,8 @@ scene.joints = {}
 scene.edges = {}
 scene.curves = {}
 scene.surfaces = {}
+scene.labels = {}
+scene.labels = {}
 
 local lfs       = love.filesystem
 local skyExt    = require("extensions/sky")
@@ -57,6 +59,7 @@ function scene.load(dream)
   loadCategory("edges", scene.edges)
   loadCategory("curves", scene.curves)
   loadCategory("surfaces", scene.surfaces)
+  loadCategory("labels", scene.surfaces)
 
   scene.noteSystem = NoteSystem:new(scene)
   scene.updateLabels()
@@ -98,31 +101,53 @@ function scene.draw(dream)
     end
   end
 
-  Labels.draw3D(dream)
+  -- …inside scene.draw(dream) after surfaces…
+  if showLabels then
+    for _, lbl in ipairs(scene.activeLabels) do
+      local mesh = scene.labelModels[lbl.name]
+      if mesh then
+        local obj = dream:spawn(mesh)
+        local x,y,z = table.unpack(lbl.position)
+        local t = dream.mat4.getTranslate(x,y,z) * dream.mat4.getScale(0.01)
+        obj:setTransform(t)
+
+        local m = obj:getMaterial()
+        if lbl.color then
+          m:setColor(table.unpack(lbl.color))
+        end
+        m:setMetallic(1)
+        m:setRoughness(0.1)
+      end
+    end
+  end
 
 end
 
 function scene.updateLabels()
   local jointPos        = JointLayout.getJointPositions()
   local triangleCenters = JointLayout.getTriangleCenters()
-  local labelDistance   = constants.label_distance or 1.0
+  local dist            = constants.label_distance or 1.0
   local fontSize        = constants.label_font_size or 18
-  local allLabels       = Labels.get()
 
-  for id = 0, 11 do
-    local J = jointPos[id]
-    local C = triangleCenters[id % 4 + 1]
-
-    local labelPos = {
-      C[1] + (J[1] - C[1]) * labelDistance,
-      C[2] + (J[2] - C[2]) * labelDistance,
-      C[3] + (J[3] - C[3]) * labelDistance
+  -- gather 12 labels with name, color & position
+  scene.activeLabels = {}
+  for idx = 0, 11 do
+    local noteInfo = scene.noteSystem.notes[idx+1]
+    local J = jointPos[idx]
+    local C = triangleCenters[idx % 4 + 1]
+    local pos = {
+      C[1] + (J[1] - C[1]) * dist,
+      C[2] + (J[2] - C[2]) * dist,
+      C[3] + (J[3] - C[3]) * dist,
     }
 
-    local label = allLabels[id + 1]
-    label.position = labelPos
-    label.name = scene.noteSystem.notes[id+1].name
-    label.fontSize = fontSize
+    scene.activeLabels[idx+1] = {
+      name     = noteInfo.name,
+      color    = constants.COLOR_MAP[noteInfo.name],
+      position = pos,
+      isTonic  = (idx == 0),
+      fontSize = fontSize,
+    }
   end
 end
 

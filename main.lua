@@ -42,7 +42,6 @@ function love.draw()
   dream:prepare()
   camera:apply()
   scene.draw(dream)
-  labels.draw3D(dream)
   dream:present()
   camera:apply()
 end
