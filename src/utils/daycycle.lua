@@ -24,4 +24,14 @@ function M.computeDaycycle(dayTime)
   return sunFactor, envBright
 end
 
+--- Format dayTime float to HH:MM string
+-- @param dayTime number in 24h float format
+-- @return timeStr string like "09:05"
+function M.formatTime(dayTime)
+  local h24 = (dayTime % 24 + 24) % 24
+  local hours = math.floor(h24)
+  local minutes = math.floor((h24 - hours) * 60)
+  return string.format("%02d:%02d", hours, minutes)
+end
+
 return M

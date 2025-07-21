@@ -65,14 +65,17 @@ function scene.load(dream)
   -- Initialize note system & labels
   scene.noteSystem = NoteSystem:new(scene)
   scene.updateLabels()
+  scene.dayTime = dayTime
 end
 
 function scene.update(dt)
   -- Adjust dayTime via +/- keys
   if love.keyboard.isDown("+", "=") then
     dayTime = dayTime + constants.day_night_speed
+    scene.dayTime = dayTime % 24
   elseif love.keyboard.isDown("-") then
     dayTime = dayTime - constants.day_night_speed
+    scene.dayTime = dayTime % 24
   end
 end
 

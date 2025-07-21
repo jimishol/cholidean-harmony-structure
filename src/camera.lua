@@ -3,6 +3,8 @@
 
 local cons = require("constants")
 local A = require("src.input.actions")
+local scene = require("scene")
+local daycycle = require("src.utils.daycycle")
 
 local M = {}
 
@@ -181,7 +183,8 @@ function M:apply()
 
   love.graphics.setColor(1, 1, 1)
   love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
-  love.graphics.print(string.format("Camera Pos: (%.2f, %.2f, %.2f)", currentPos.x, currentPos.y, currentPos.z), 10, 30)
+  love.graphics.print("Day time: " .. daycycle.formatTime(scene.dayTime), 10, 40)
+  love.graphics.print(string.format("Camera Pos: (%.2f, %.2f, %.2f)", currentPos.x, currentPos.y, currentPos.z), 10, 60)
 end
 
 -- Mouse movement
