@@ -48,18 +48,27 @@ end
 
 function love.keypressed(key)
   local action = Input:onKey(key)
+  if not action then return end
 
   if action == A.QUIT then
     love.event.quit()
-  elseif action == A.RESET_VIEW then
-    camera:pressed("space")
-  elseif action == A.TOGGLE_DEBUG then
-    camera:pressed("d")
-  elseif labels.pressedAction(action) then
-    scene.updateLabels()
-  elseif scene.pressedAction and scene.pressedAction(action) then
-    -- Optional: print("Scene visibility toggled")
+    return
   end
+
+  -- 1) scene handles all its rotates/toggles
+  if scene.pressedAction and scene.pressedAction(action) then
+    if action == A.ROTATE_CW or action == A.ROTATE_CCW then
+      scene.updateLabels()
+    end
+    return
+  end
+
+  -- 2) camera handles reset‐view & debug (via our new pressedAction)
+  if camera.pressedAction and camera:pressedAction(action) then
+    return
+  end
+
+  -- 3) (optionally) other systems…
 end
 
 function love.resize(w, h)

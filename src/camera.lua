@@ -2,6 +2,8 @@
 -- Handles position, yaw/pitch orientation, movement, tween resets, and input bindings.
 
 local cons = require("constants")
+local A = require("src.input.actions")
+
 local M = {}
 
 local showDebug = false
@@ -203,6 +205,18 @@ function M:mousemoved(dx, dy)
     currentPos.z = currentPos.z + fz * dist
     updateOrientation(self.dream.camera)
   end
+end
+
+function M:pressedAction(action)
+  if action == A.RESET_VIEW then
+    -- fold RESET_VIEW back into space
+    return self:pressed("space")
+  end
+  if action == A.TOGGLE_DEBUG then
+    -- fold TOGGLE_DEBUG back into "d"
+    return self:pressed("d")
+  end
+  return false
 end
 
 return M
