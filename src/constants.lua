@@ -17,7 +17,7 @@ M.threshold       = 0.5
 -- @field steps Number of segment steps (for rendering resolution)
 M.torusRadius    = 7
 M.torusWidth     = 3
-M.label_distance = 1.7  -- factor the distance from center of augmented third triangles to respective joint
+M.label_distance = 1.6  -- factor the distance from center of augmented third triangles to respective joint
 M.label_font_size = 64  -- or adjust as needed
 
 -- Tone marker options
