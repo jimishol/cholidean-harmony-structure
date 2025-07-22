@@ -135,14 +135,16 @@ function scene.draw(dream)
 	local x,y,z     = table.unpack(lbl.position)
 	local transform = dream.mat4.getTranslate(x, y, z)
 
-	if constants.dynamicLabelFacing then
-	  local V = camera.View
+       if constants.dynamicLabelFacing then
 
-	  -- apply the opposite of camera pitch (X) then yaw (Y)
-	  transform = transform
-	    * dream.mat4.getRotateX(math.pi / 2 - V.pitch)
-	    * dream.mat4.getRotateZ(- V.yaw)
-	end
+         local V = camera.View
+	 local rot_offset = 0
+	 if V.Pos.z < 0 then rot_offset = - math.pi end
+         transform = transform
+           * dream.mat4.getRotateY( V.yaw )
+           * dream.mat4.getRotateY( rot_offset + math.pi / 2 + math.atan(-V.Pos.z, -V.Pos.x) )
+           * dream.mat4.getRotateX( math.pi / 2 + V.pitch )
+       end
 
 	dream:draw(mesh, transform * dream.mat4.getScale(1))
       end
@@ -192,6 +194,8 @@ function scene.apply()
   love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
   love.graphics.print("Day time: " .. daycycle.formatTime(scene.dayTime), 10, 40)
   love.graphics.print(string.format("Camera Pos: (%.2f, %.2f, %.2f)", V.Pos.x, V.Pos.y, V.Pos.z), 10, 60)
+  love.graphics.print(string.format("Camera yaw: (%.2f)", V.yaw), 10, 80)
+  love.graphics.print(string.format("Camera pitch: (%.2f)",  V.pitch), 10, 100)
 end
 
 return scene
