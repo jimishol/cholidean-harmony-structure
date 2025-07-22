@@ -51,8 +51,8 @@ M.farClip  = 1000
 -- @field yAt Target point Y
 -- @field zAt Target point Z
 M.initialCameraPosition = {
-  x = 0, ---15,
-  y =  28,
+  x = 25, ---15,
+  y = 0,
   z = 0, -- -25
 }
 

@@ -3,11 +3,8 @@
 
 local cons = require("constants")
 local A = require("src.input.actions")
-local daycycle = require("src.utils.daycycle")
 
 local M = {}
-
---local showDebug = false
 
 -- Sensitivity parameters
 local keyboard_angle = cons.sensitivity.keyboard_angle or 0.18
