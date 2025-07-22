@@ -40,10 +40,10 @@ end
 
 function love.draw()
   dream:prepare()
-  camera:apply()
+  scene.apply()
   scene.draw(dream)
   dream:present()
-  camera:apply()
+  scene.apply()
 end
 
 function love.keypressed(key)

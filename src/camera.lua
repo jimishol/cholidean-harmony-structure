@@ -3,12 +3,11 @@
 
 local cons = require("constants")
 local A = require("src.input.actions")
-local scene = require("scene")
 local daycycle = require("src.utils.daycycle")
 
 local M = {}
 
-local showDebug = false
+--local showDebug = false
 
 -- Sensitivity parameters
 local keyboard_angle = cons.sensitivity.keyboard_angle or 0.18
@@ -25,6 +24,12 @@ local currentPos = {
 
 -- Orientation
 local currentYaw, currentPitch = 0, 0
+
+M.View = {
+  yaw   = currentYaw,
+  pitch = currentPitch,
+  Pos   = currentPos
+}
 
 -- Tweening state
 local isResettingOrientation = false
@@ -115,12 +120,7 @@ function M:pressed(key)
     isResettingOrientation = true
     resetTimer = 0
     return true
-
-  elseif key == "d" then
-    showDebug = not showDebug
-    return true
   end
-
   return false
 end
 
@@ -175,16 +175,12 @@ function M:update(dt)
     love.mouse.setRelativeMode(false)
     love.mouse.setGrabbed(false)
   end
-end
 
--- Apply camera state and show debug info
-function M:apply()
-  if not showDebug then return end
-
-  love.graphics.setColor(1, 1, 1)
-  love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
-  love.graphics.print("Day time: " .. daycycle.formatTime(scene.dayTime), 10, 40)
-  love.graphics.print(string.format("Camera Pos: (%.2f, %.2f, %.2f)", currentPos.x, currentPos.y, currentPos.z), 10, 60)
+    M.View = {
+      yaw = currentYaw,
+      pitch = currentPitch,
+      Pos = currentPos
+    }
 end
 
 -- Mouse movement
@@ -214,10 +210,6 @@ function M:pressedAction(action)
   if action == A.RESET_VIEW then
     -- fold RESET_VIEW back into space
     return self:pressed("space")
-  end
-  if action == A.TOGGLE_DEBUG then
-    -- fold TOGGLE_DEBUG back into "d"
-    return self:pressed("d")
   end
   return false
 end

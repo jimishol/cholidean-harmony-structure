@@ -19,6 +19,7 @@ M.torusRadius    = 7
 M.torusWidth     = 3
 M.label_distance = 1.6  -- factor the distance from center of augmented third triangles to respective joint
 M.label_font_size = 64  -- or adjust as needed
+M.dynamicLabelFacing = true  -- whether labels rotate to face the camera
 
 -- Tone marker options
 -- @field ballRadius Radius of tone spheres placed on geometry
@@ -50,9 +51,9 @@ M.farClip  = 1000
 -- @field yAt Target point Y
 -- @field zAt Target point Z
 M.initialCameraPosition = {
-  x = -15,
+  x = 0, ---15,
   y =  28,
-  z = -25
+  z = 0, -- -25
 }
 
 M.xAt = 0

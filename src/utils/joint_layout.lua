@@ -58,4 +58,24 @@ function JointLayout.getTriangleCenters()
   }
 end
 
+--- Compute Euler rotation angles from joint to camera
+-- Returns yaw (Y), pitch (X), roll (Z)
+function JointLayout.getRotationToCamera(jointPos, cameraPos)
+  local dx = cameraPos.x - jointPos[1]
+  local dy = cameraPos.y - jointPos[2]
+  local dz = cameraPos.z - jointPos[3]
+
+  -- Compute Yaw (around Y axis — horizontal turn)
+  local yaw = math.atan(dx, -dz)
+
+  -- Compute Pitch (around X axis — vertical tilt)
+  local horizDist = math.sqrt(dx*dx + dz*dz)
+  local pitch = math.atan(dy, horizDist)
+
+  -- Roll is optional — only needed if labels bank or spin
+  local roll = 0  -- keep neutral unless you need artistic twist
+
+  return { x = pitch, y = yaw, z = roll }
+end
+
 return JointLayout

@@ -6,6 +6,7 @@ local constants     = require("constants")
 local daycycle      = require("utils.daycycle")
 local JointLayout   = require("src.utils.joint_layout")
 local NoteSystem    = require("src.systems.note_system")
+local camera        = require("camera")
 local A             = require("src.input.actions")
 
 local scene = {
@@ -21,6 +22,7 @@ local scene = {
 -- Visibility toggles
 local showJoints, showEdges, showCurves, showSurfaces = true, true, true, true
 local showLabels   = true
+local showDebug = false
 
 -- Time & lighting
 local dayTime = constants.day_night
@@ -100,22 +102,32 @@ function scene.draw(dream)
         print(("No label mesh for %s"):format(lbl.name))
       else
         -- build transform: translate out to `pos`, then scale small
-        local x,y,z = table.unpack(lbl.position)
-        local transform =
-          dream.mat4.getTranslate(x,y,z) *
-          dream.mat4.getScale(1)
+       local x, y, z = table.unpack(lbl.position)
+       local transform = dream.mat4.getTranslate(x, y, z)
 
-        -- tint & material
-    --    local mat = mesh:getMaterial()
-    --    mat:setColor(table.unpack(lbl.color))
-    --    mat:setMetallic(1)
-    --    mat:setRoughness(0.1)
+	    -- Optional: rotate label to face camera
+	    if constants.dynamicLabelFacing then
+	      -- use joint position (J) instead of label, for performance
+	      local J = JointLayout.getJointPositions()[i - 1]  -- same index as label
+	      local cameraPos = camera.View.Pos
 
-        -- draw exactly like your joints/edges/etc.
-        dream:draw(mesh, transform)
+	      -- compute full rotation: pitch (X), yaw (Y), roll (Z)
+	      local rot = JointLayout.getRotationToCamera(J, cameraPos)
+
+	      -- apply all three rotations in order: pitch → yaw → roll
+	      transform = transform
+		* dream.mat4.getRotateX(rot.x)
+		* dream.mat4.getRotateY(rot.y)
+		* dream.mat4.getRotateZ(rot.z)
+	    end
+
+       transform = transform * dream.mat4.getScale(1)
+       -- draw exactly like your joints/edges/etc.
+       dream:draw(mesh, transform)
       end
     end
   end
+
 end
 
 function scene.updateLabels()
@@ -164,7 +176,21 @@ function scene.pressedAction(action)
     return true
   end
 
+  if action == A.TOGGLE_DEBUG then
+    showDebug = not showDebug
+    return true
+  end
+
   return false
+end
+
+function scene.apply()
+  if not showDebug then return end
+    local pos = camera.View.Pos
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
+    love.graphics.print("Day time: " .. daycycle.formatTime(scene.dayTime), 10, 40)
+    love.graphics.print(string.format("Camera Pos: (%.2f, %.2f, %.2f)", pos.x, pos.y, pos.z), 10, 60)
 end
 
 return scene
