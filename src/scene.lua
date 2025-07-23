@@ -8,6 +8,7 @@ local JointLayout = require("src.utils.joint_layout")
 local NoteSystem  = require("src.systems.note_system")
 local camera      = require("camera")
 local A           = require("src.input.actions")
+local Colors = require("src.utils.colors")
 
 local scene = {
   -- geometry containers
@@ -105,7 +106,7 @@ function scene.updateLabels()
 
     table.insert(scene.activeLabels, {
       name     = noteInfo.name,
-      color    = constants.COLOR_MAP[noteInfo.name] or {1, 1, 1},
+      color = Colors.getNoteColor(noteInfo.index),
       position = pos,
     })
   end
