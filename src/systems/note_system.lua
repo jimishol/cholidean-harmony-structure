@@ -80,21 +80,32 @@ function NoteSystem:_applyToGeometry(i)
                            self.scene.curves,
                            self.scene.surfaces,
                            self.scene.joints } do
-      for _, obj in ipairs(list) do
-        if obj.id == name then
-          obj.noteName  = note.name
-          obj.noteIndex = note.index
-          obj.active    = note.active
-	  -- assign color based on note index
-	  local color = Colors.getNoteColor(note.index)
-	  obj.noteColor = color  -- store for reference
 
-	  if obj.material then
-	    obj.material:setColor(color)
-	    obj.material:setEmissionColor(color)
+	for _, obj in ipairs(list) do
+	  if obj.id == name then
+	    obj.noteName  = note.name
+	    obj.noteIndex = note.index
+	    obj.active    = note.active
+
+	    local shiftedIndex = note.index
+
+	    -- Apply shifted coloring logic based on mesh type
+	    if string.find(name, "^curve_") then
+	      shiftedIndex = ((note.index % 12) + 1)         -- Curve: +1
+	    elseif string.find(name, "^edge_") then
+	      shiftedIndex = ((note.index + 4 - 1) % 12) + 1 -- Edge: +4
+	    end
+
+	    -- assign color based on shifted index
+	    local color = Colors.getNoteColor(shiftedIndex)
+	    obj.noteColor = color  -- store for reference
+
+	    if obj.material then
+	      obj.material:setColor(color)
+	      obj.material:setEmissionColor(color)
+	    end
 	  end
-        end
-      end
+	end
     end
   end
 end
