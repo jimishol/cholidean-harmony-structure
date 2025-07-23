@@ -1,6 +1,7 @@
 -- src/systems/note_system.lua
 
 local constants = require("src.constants")
+local Colors = require("src.utils.colors")
 
 -- Single-note abstraction
 local Note = {}
@@ -84,6 +85,14 @@ function NoteSystem:_applyToGeometry(i)
           obj.noteName  = note.name
           obj.noteIndex = note.index
           obj.active    = note.active
+	  -- assign color based on note index
+	  local color = Colors.getNoteColor(note.index)
+	  obj.noteColor = color  -- store for reference
+
+	  if obj.material then
+	    obj.material:setColor(color)
+	    obj.material:setEmissionColor(color)
+	  end
         end
       end
     end
