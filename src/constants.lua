@@ -96,4 +96,19 @@ M.NOTE_ORDER = {
   "Gb", "B", "E", "A", "D", "G"
 }
 
+-- Emission strength when a note is active (0.0–1.0)
+M.activeEmission       = 0.75
+
+-- Choose DX‐style normals on Windows (true) or GL normals elsewhere (false)
+M.useDXNormals         = false
+
+-- Optional: per‐category emission multipliers
+M.categoryEmission = {
+  joints   = 1.0,  -- 1.0 × activeEmission
+  edges    = 0.6,  -- 0.6 × activeEmission
+  curves   = 0.6,
+  surfaces = 0.4,
+  labels   = 0.0,  -- labels never glow
+}
+
 return M

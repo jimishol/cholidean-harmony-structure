@@ -28,6 +28,7 @@ local A     = require("src.input.actions")
 function love.load()
   love.window.setTitle("Cholidean Harmony Structure")
   dream:init()
+  dream:loadMaterialLibrary("assets/materials")
   scene.load(dream)
   camera:init(dream)
 end

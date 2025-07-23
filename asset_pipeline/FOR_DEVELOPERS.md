@@ -38,6 +38,7 @@ This project visualizes harmonic relationships in 12-tone equal temperament (12E
      ...
      ```
      This mapping continues cyclically for all 12 tones, assigning suffixes `00–11` and preserving type prefixes (`joint_`, `edge_`, `curve_`, `surface_`).
+     Materials in textures/ subfolder of blender is copied in assets/materials/ subfolders and renamed accordingly with the exception that ...Color.png renamed as albedo.png
 
 5. 🎮 **Love2D + 3DreamEngine**  
    - Load processed models and render with real-time shading and interactive behavior.

@@ -9,6 +9,7 @@ local NoteSystem  = require("src.systems.note_system")
 local camera      = require("camera")
 local A           = require("src.input.actions")
 local Colors = require("src.utils.colors")
+local materials = require("src.utils.materials")
 
 local scene = {
   -- geometry containers
@@ -72,6 +73,9 @@ function scene.load(dream)
   for _, mesh in ipairs(scene.labels) do
     scene.labelModels[mesh.id] = mesh
   end
+
+--  Assign materials (Onyx for joints/labels; Metal for others)
+materials.assignAll(dream, scene)
 
   -- initialize note system & labels
   scene.noteSystem = NoteSystem:new(scene)
