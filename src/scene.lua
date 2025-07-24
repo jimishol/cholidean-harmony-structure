@@ -110,7 +110,7 @@ function scene.updateLabels()
 
     table.insert(scene.activeLabels, {
       name     = noteInfo.name,
-      color = Colors.getNoteColor(noteInfo.index),
+      color = Colors.getNoteColor(noteInfo.index, dream),
       position = pos,
     })
   end

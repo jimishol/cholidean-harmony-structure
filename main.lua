@@ -22,6 +22,7 @@ local scene  = require("scene")
 local camera = require("camera")
 local Input  = require("src.input")
 local A      = require("src.input.actions")
+local Colors = require("src.utils.colors")
 
 function love.load()
   love.window.setTitle("Cholidean Harmony Structure")
@@ -30,8 +31,9 @@ function love.load()
   dream:loadMaterialLibrary("assets/materials")
   dream:setAutoExposure(true)
   dream:init()
+  Colors.init(dream)
 
-    -- 5) Only now that the engine is initialized and textures are loaded do we load the scene & camera
+  -- 5) Only now that the engine is initialized and textures are loaded do we load the scene & camera
   scene.load(dream)
   camera:init(dream)
 end
