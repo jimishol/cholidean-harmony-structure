@@ -17,18 +17,22 @@ package.path = table.concat({
 local Engine = require("3DreamEngine")
 local dream  = (type(Engine) == "function" and Engine() or Engine)
 
--- 3) Require modules
+-- 3) Require your modules
 local labels = require("src.labels")
 local scene  = require("scene")
 local camera = require("camera")
-local Input = require("src.input")
-local A     = require("src.input.actions")
--- 4) LOVE2D callbacks
+local Input  = require("src.input")
+local A      = require("src.input.actions")
 
 function love.load()
   love.window.setTitle("Cholidean Harmony Structure")
-  dream:init()
+
+  -- 4) Load all materials, then init the engine in the callback
   dream:loadMaterialLibrary("assets/materials")
+  dream:setAutoExposure(true)
+  dream:init()
+
+    -- 5) Only now that the engine is initialized and textures are loaded do we load the scene & camera
   scene.load(dream)
   camera:init(dream)
 end
@@ -56,7 +60,6 @@ function love.keypressed(key)
     return
   end
 
-  -- 1) scene handles all its rotates/toggles
   if scene.pressedAction and scene.pressedAction(action) then
     if action == A.ROTATE_CW or action == A.ROTATE_CCW then
       scene.updateLabels()
@@ -64,14 +67,12 @@ function love.keypressed(key)
     return
   end
 
-  -- 2) camera handles reset‐view & debug (via our new pressedAction)
   if camera.pressedAction and camera:pressedAction(action) then
     return
   end
-
-  -- 3) (optionally) other systems…
 end
 
 function love.resize(w, h)
+  -- re-initialize to update viewport, projection, etc.
   dream:init()
 end
