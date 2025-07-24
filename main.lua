@@ -18,7 +18,6 @@ local Engine = require("3DreamEngine")
 local dream  = (type(Engine) == "function" and Engine() or Engine)
 
 -- 3) Require your modules
-local labels = require("src.labels")
 local scene  = require("scene")
 local camera = require("camera")
 local Input  = require("src.input")
