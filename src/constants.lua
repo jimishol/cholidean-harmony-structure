@@ -10,6 +10,11 @@ M.maxBright       = 1.5 -- maximum acceptable background brightness
 M.scaleFactor     = 1.6 -- scale ratio of active joints
 M.surfAlpha       = 0.17
 M.threshold       = 0.5
+M.autoExposure = {
+  enabled = true,     -- true to turn on, false to turn off
+  target  = 0.25,     -- desired average luminance
+  speed   = 1,     -- adaptation speed
+}
 
 -- Torus geometry parameters
 -- @field torusRadius Outer radius of torus
@@ -17,8 +22,8 @@ M.threshold       = 0.5
 -- @field steps Number of segment steps (for rendering resolution)
 M.torusRadius    = 7
 M.torusWidth     = 3
-M.label_distance = 1.6  -- factor the distance from center of augmented third triangles to respective joint
-M.label_font_size = 64  -- or adjust as needed
+M.label_distance = 1.5  -- factor the distance from center of augmented third triangles to respective joint
+M.label_scale    = 0.75  -- or adjust as needed
 M.dynamicLabelFacing = true  -- whether labels rotate to face the camera
 
 -- Tone marker options
@@ -51,9 +56,9 @@ M.farClip  = 1000
 -- @field yAt Target point Y
 -- @field zAt Target point Z
 M.initialCameraPosition = {
-  x = 15,
-  y = 23,
-  z =-19
+  x = -18.5,
+  y =  22,
+  z = -18.5
 }
 
 M.xAt = 0

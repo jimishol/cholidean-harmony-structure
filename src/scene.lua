@@ -82,6 +82,14 @@ function scene.load(dream)
   sun = dream:newLight("sun")
   sun:addNewShadow()
   sun:setBrightness(daycycle.computeDaycycle(scene.dayTime))
+  if constants.autoExposure.enabled then
+    dream:setAutoExposure(
+      constants.autoExposure.target,
+      constants.autoExposure.speed
+    )
+  else
+    dream:setAutoExposure(false)
+  end
 
   -- Load all model categories
   loadCategory("joints",   scene.joints,   dream)
@@ -175,7 +183,7 @@ function scene.draw(dream)
            * dream.mat4.getRotateX( math.pi / 2 + V.pitch )
        end
 
-	dream:draw(mesh, transform * dream.mat4.getScale(1))
+	dream:draw(mesh, transform * dream.mat4.getScale(constants.label_scale))
       end
     end
 

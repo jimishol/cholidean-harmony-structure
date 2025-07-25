@@ -33,7 +33,6 @@ function love.load()
     dream:loadMaterialLibrary("assets/materials_dx")
   end
 
-  dream:setAutoExposure(true)
   dream:init()
   Colors.init(dream)
 
