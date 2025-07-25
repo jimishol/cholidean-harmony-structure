@@ -29,6 +29,10 @@ function love.load()
 
   -- 4) Load all materials, then init the engine in the callback
   dream:loadMaterialLibrary("assets/materials")
+  if love.system.getOS() == "Windows" then
+    dream:loadMaterialLibrary("assets/materials_dx")
+  end
+
   dream:setAutoExposure(true)
   dream:init()
   Colors.init(dream)

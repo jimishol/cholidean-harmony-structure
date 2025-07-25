@@ -40,44 +40,87 @@ local hdrImg = love.graphics.newImage(constants.bck_image)
 local sun
 
 -- load all .obj files from assets/models/<folder>
+-- local function loadCategory(folder, out, dream)
+--   local base = "assets/models/" .. folder .. "/"
+--   for _, file in ipairs(lfs.getDirectoryItems(base)) do
+--     if file:match("%.obj$") then
+--       local id = file:match("(.+)%.obj")
+--       local ok, mesh = pcall(function() return dream:loadObject(base .. id) end)
+--       if ok and mesh then
+--         mesh.id = id
+--         table.insert(out, mesh)
+--       else
+--         print("⚠️ Failed to load " .. folder .. ": " .. id)
+--       end
+--     end
+--   end
+-- end
+
 local function loadCategory(folder, out, dream)
-  local base = "assets/models/" .. folder .. "/"
-  for _, file in ipairs(lfs.getDirectoryItems(base)) do
-    if file:match("%.obj$") then
-      local id = file:match("(.+)%.obj")
-      local ok, mesh = pcall(function() return dream:loadObject(base .. id) end)
-      if ok and mesh then
-        mesh.id = id
-        table.insert(out, mesh)
-      else
-        print("⚠️ Failed to load " .. folder .. ": " .. id)
+  local base       = "assets/models/" .. folder .. "/"
+  local customPath = base .. "materials/custom_object.lua"
+
+  if lfs.getInfo(customPath) then
+    -- PHASE 1: custom definitions override
+    local defs = require("models." .. folder .. ".materials.custom_object")
+
+    for id, def in pairs(defs) do
+      local mesh = dream:loadObject(base .. id)
+      if not mesh then
+        error(("Failed to load %s for %s"):format(id, folder))
+      end
+
+      mesh.id       = id
+      mesh.material = dream.materialLibrary[def.material]
+      table.insert(out, mesh)
+    end
+
+  else
+    -- PHASE 2: fallback to loading every OBJ
+    for _, file in ipairs(lfs.getDirectoryItems(base)) do
+      if file:match("%.obj$") then
+        local id, ok, mesh = file:match("(.+)%.obj"), nil, nil
+        ok, mesh = pcall(function()
+          return dream:loadObject(base .. id)
+        end)
+        if ok and mesh then
+          mesh.id = id
+          table.insert(out, mesh)
+        else
+          print("⚠️ Failed to load " .. folder .. ": " .. id)
+        end
       end
     end
   end
 end
 
+-- src/scene.lua
+
 function scene.load(dream)
-  -- sun & lighting
+  -- Sun & lighting
   sun = dream:newLight("sun")
   sun:addNewShadow()
   sun:setBrightness(daycycle.computeDaycycle(scene.dayTime))
 
-  -- load models
+  -- Load all model categories
   loadCategory("joints",   scene.joints,   dream)
   loadCategory("edges",    scene.edges,    dream)
   loadCategory("curves",   scene.curves,   dream)
   loadCategory("surfaces", scene.surfaces, dream)
   loadCategory("labels",   scene.labels,   dream)
 
-  -- build label lookup
+  -- Build label lookup
   for _, mesh in ipairs(scene.labels) do
     scene.labelModels[mesh.id] = mesh
   end
 
---  Assign materials (Onyx for joints/labels; Metal for others)
-materials.assignAll(dream, scene)
+  -- Assign default materials (onyx for joints/labels; metal for others)
+  materials.assignAll(
+    scene,
+    dream.materialLibrary
+  )
 
-  -- initialize note system & labels
+  -- Initialize note system & labels
   scene.noteSystem = NoteSystem:new(scene)
   scene.updateLabels()
 end

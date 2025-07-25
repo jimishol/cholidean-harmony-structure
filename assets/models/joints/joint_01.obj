@@ -1,5 +1,6 @@
 # Blender 4.4.3
 # www.blender.org
+o joint_01
 g joint_01_Mesh
 v -0.187500 2.000000 -7.490880
 v -0.490881 2.187500 -7.000000

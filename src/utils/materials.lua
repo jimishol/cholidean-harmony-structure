@@ -1,15 +1,41 @@
+-- src/utils/materials.lua
+
 local M = {}
 
-function M.assignAll(dream, scene)
-  -- pull the already‐loaded materials by their folder names:
-  local onyx  = dream.materialLibrary["Onyx001_4K-PNG"]
-  local metal = dream.materialLibrary["Metal014_4K-PNG"]
+-- Default assignment if no map is passed
+local defaultCategoryMap = {
+  joints   = "onyx",
+  labels   = "onyx",
+  edges    = "metal",
+  curves   = "metal",
+  surfaces = "metal",
+}
 
-  for _, m in ipairs(scene.joints)   do m.material = onyx  end
-  for _, m in ipairs(scene.labels)   do m.material = onyx  end
-  for _, m in ipairs(scene.edges)    do m.material = metal end
-  for _, m in ipairs(scene.curves)   do m.material = metal end
-  for _, m in ipairs(scene.surfaces) do m.material = metal end
+-- Loads a material library from a map of { key = modulePath, … }
+function M.loadLibrary(pathMap)
+  local lib = {}
+  for key, modulePath in pairs(pathMap) do
+    lib[key] = require(modulePath)
+  end
+  return lib
+end
+
+-- Assigns materials based on scene categories → material keys
+-- scene:      table with scene.joints, scene.edges, etc.
+-- matLib:     table returned by loadLibrary or dream.materialLibrary
+-- categoryMap: optional table like { joints="onyx", … }
+function M.assignAll(scene, matLib, categoryMap)
+  local map = categoryMap or defaultCategoryMap
+
+  for category, matKey in pairs(map) do
+    local material = matLib[matKey]
+    local items    = scene[category]
+    if material and items then
+      for _, obj in ipairs(items) do
+        obj.material = material
+      end
+    end
+  end
 end
 
 return M

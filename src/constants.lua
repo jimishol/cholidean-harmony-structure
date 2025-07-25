@@ -99,9 +99,6 @@ M.NOTE_ORDER = {
 -- Emission strength when a note is active (0.0–1.0)
 M.activeEmission       = 0.75
 
--- Choose DX‐style normals on Windows (true) or GL normals elsewhere (false)
-M.useDXNormals         = false
-
 -- Optional: per‐category emission multipliers
 M.categoryEmission = {
   joints   = 1.0,  -- 1.0 × activeEmission
