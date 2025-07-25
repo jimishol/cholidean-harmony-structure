@@ -39,23 +39,6 @@ local hdrImg = love.graphics.newImage(constants.bck_image)
 -- forward declaration
 local sun
 
--- load all .obj files from assets/models/<folder>
--- local function loadCategory(folder, out, dream)
---   local base = "assets/models/" .. folder .. "/"
---   for _, file in ipairs(lfs.getDirectoryItems(base)) do
---     if file:match("%.obj$") then
---       local id = file:match("(.+)%.obj")
---       local ok, mesh = pcall(function() return dream:loadObject(base .. id) end)
---       if ok and mesh then
---         mesh.id = id
---         table.insert(out, mesh)
---       else
---         print("⚠️ Failed to load " .. folder .. ": " .. id)
---       end
---     end
---   end
--- end
-
 local function loadCategory(folder, out, dream)
   local base       = "assets/models/" .. folder .. "/"
   local customPath = base .. "materials/custom_object.lua"
@@ -63,14 +46,12 @@ local function loadCategory(folder, out, dream)
   if lfs.getInfo(customPath) then
     -- PHASE 1: custom definitions override
     local defs = require("models." .. folder .. ".materials.custom_object")
-
     for id, def in pairs(defs) do
       local mesh = dream:loadObject(base .. id)
       if not mesh then
         error(("Failed to load %s for %s"):format(id, folder))
       end
-
-      mesh.id       = id
+      mesh.name       = id
       mesh.material = dream.materialLibrary[def.material]
       table.insert(out, mesh)
     end
@@ -111,7 +92,7 @@ function scene.load(dream)
 
   -- Build label lookup
   for _, mesh in ipairs(scene.labels) do
-    scene.labelModels[mesh.id] = mesh
+    scene.labelModels[mesh.name] = mesh
   end
 
   -- Assign default materials (onyx for joints/labels; metal for others)

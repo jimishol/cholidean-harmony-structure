@@ -32,7 +32,7 @@ function M.assignAll(scene, matLib, categoryMap)
     local items    = scene[category]
     if material and items then
       for _, obj in ipairs(items) do
-        obj.material = material
+        obj:setMaterial(material)
       end
     end
   end
