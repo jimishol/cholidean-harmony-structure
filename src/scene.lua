@@ -139,7 +139,34 @@ function scene.draw(dream)
   dream:setSky(hdrImg, envBrightness)
 
   -- draw geometry
-  if scene.showJoints   then for _, o in ipairs(scene.joints)   do dream:draw(o) end end
+  if scene.showJoints then
+    local jointPos        = JointLayout.getJointPositions()
+    local triangleCenters = JointLayout.getTriangleCenters()
+    local dist            = constants.label_distance
+
+    for idx = 0, 11 do
+      local noteInfo = scene.noteSystem.notes[idx + 1]
+      local J = jointPos[idx]
+      local C = triangleCenters[(idx % #triangleCenters) + 1]
+
+      -- Optional: scale more if note is active
+      local s = constants.jointScale
+      if noteInfo and noteInfo.active then
+        s = s * constants.scaleFactor
+      end
+
+      -- Build transform: scale around joint position
+      local transform =
+        dream.mat4.getTranslate(J[1], J[2], J[3])
+        * dream.mat4.getScale(s)
+        * dream.mat4.getTranslate(-J[1], -J[2], -J[3])
+
+      -- Draw joint mesh
+      local jointMesh = scene.joints[idx + 1]
+      dream:draw(jointMesh, transform)
+    end
+  end
+
   if scene.showEdges    then for _, o in ipairs(scene.edges)    do dream:draw(o) end end
   if scene.showCurves   then for _, o in ipairs(scene.curves)   do dream:draw(o) end end
   if scene.showSurfaces then for _, o in ipairs(scene.surfaces) do dream:draw(o) end end
