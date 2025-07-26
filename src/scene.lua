@@ -55,23 +55,6 @@ local function loadCategory(folder, out, dream)
       mesh.material = dream.materialLibrary[def.material]
       table.insert(out, mesh)
     end
-
-  else
-    -- PHASE 2: fallback to loading every OBJ
-    for _, file in ipairs(lfs.getDirectoryItems(base)) do
-      if file:match("%.obj$") then
-        local id, ok, mesh = file:match("(.+)%.obj"), nil, nil
-        ok, mesh = pcall(function()
-          return dream:loadObject(base .. id)
-        end)
-        if ok and mesh then
-          mesh.id = id
-          table.insert(out, mesh)
-        else
-          print("⚠️ Failed to load " .. folder .. ": " .. id)
-        end
-      end
-    end
   end
 end
 
