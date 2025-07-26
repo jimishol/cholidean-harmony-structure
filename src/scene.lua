@@ -65,6 +65,8 @@ function scene.load(dream)
   sun = dream:newLight("sun")
   sun:addNewShadow()
   sun:setBrightness(daycycle.computeDaycycle(scene.dayTime))
+  skyExt:setSunOffset(0.42,0)
+
   if constants.autoExposure.enabled then
     dream:setAutoExposure(
       constants.autoExposure.target,

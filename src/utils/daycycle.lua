@@ -9,18 +9,18 @@ local M = {}
 -- @return envBright number  0–constants.maxBrightness for dream:setSky()
 function M.computeDaycycle(dayTime)
   -- wrap into [0,24)
-  local h = dayTime % 24
-  local sunFactor
+  local h = ((dayTime - 6) % 24 + 24) % 24
+  local sunFactor = h/24
+  local envBright
 
-  if h >= 5 and h <= 21 then
-     local angle = math.pi * (h - 5) / 16
-     sunFactor = math.sin(angle)
-    else
-     sunFactor = 0
-  end
+  local t = (dayTime % 24 + 24) % 24
+    if t >= 4 and t <= 20 then
+	envBright = constants.maxBright * math.sin( math.pi / 4 * ( t / 4 - 1) )
+      else
+	envBright = constants.maxNightBright * math.sin( math.pi / 2 * (4 - math.min(t, 24 - t)) / 4 )
+    end
 
-  local envBright = constants.maxBright * sunFactor
-
+print("h= ", h, "sunFactor= ", sunFactor, "envBright= ", envBright)
   return sunFactor, envBright
 end
 
