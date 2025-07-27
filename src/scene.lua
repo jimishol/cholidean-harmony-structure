@@ -46,7 +46,17 @@ local function loadCategory(folder, out, dream)
   if lfs.getInfo(customPath) then
     -- PHASE 1: custom definitions override
     local defs = require("models." .. folder .. ".materials.custom_object")
-    for id, def in pairs(defs) do
+
+    local sorted_ids = {}
+
+    for id, _ in pairs(defs) do
+      table.insert(sorted_ids, id)
+    end
+
+    table.sort(sorted_ids)
+
+    for _, id in pairs(sorted_ids) do
+      local def = defs[id]
       local mesh = dream:loadObject(base .. id)
       if not mesh then
         error(("Failed to load %s for %s"):format(id, folder))
