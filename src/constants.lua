@@ -26,24 +26,8 @@ M.autoExposure = {
 M.torusRadius    = 7
 M.torusWidth     = 3
 M.label_distance = 1.5  -- factor the distance from center of augmented third triangles to respective joint
-M.label_scale    = 0.75  -- or adjust as needed
+M.label_scale    = 0.85  -- ratio on imported initial size of 3D labels.
 M.dynamicLabelFacing = true  -- whether labels rotate to face the camera
-
--- Tone marker options
--- @field ballRadius Radius of tone spheres placed on geometry
-M.ballRadius = 1.5
-
--- Spiral of Fifths rendering options
--- @field rope_radius Radius of spiral curve
--- @field rope_sides Number of sides for rope (polygonal resolution)
--- @field monoSegment Whether to render single-tone segment only
--- @field monoSegmentColor Color of mono segment (RGB)
--- @field glassAlpha Alpha transparency for glass overlay
-M.rope_radius      = 0.12
-M.rope_sides       = 6
-M.monoSegment      = false
-M.monoSegmentColor = { r = 255, g = 255, b = 255 }
-M.glassAlpha       = 0.3
 
 -- Camera projection settings for 3DreamEngine
 -- @field fov Vertical field-of-view in degrees (simulates 50 mm lens)
