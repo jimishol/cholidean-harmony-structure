@@ -20,7 +20,6 @@ function M.computeDaycycle(dayTime)
 	envBright = constants.maxNightBright * math.sin( math.pi / 2 * (4 - math.min(t, 24 - t)) / 4 )
     end
 
-print("h= ", h, "sunFactor= ", sunFactor, "envBright= ", envBright)
   return sunFactor, envBright
 end
 
