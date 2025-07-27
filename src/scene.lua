@@ -37,7 +37,7 @@ local scene = {
 local hdrImg = love.graphics.newImage(constants.bck_image)
 
 -- forward declaration
-local sun
+local sun, sunFactor, envBrightness
 
 local function loadCategory(folder, out, dream)
   local base       = "assets/models/" .. folder .. "/"
@@ -68,14 +68,14 @@ local function loadCategory(folder, out, dream)
   end
 end
 
--- src/scene.lua
-
 function scene.load(dream)
   -- Sun & lighting
   sun = dream:newLight("sun")
   sun:addNewShadow()
-  sun:setBrightness(daycycle.computeDaycycle(scene.dayTime))
   skyExt:setSunOffset(0.42,0)
+  sunFactor, envBrightness = daycycle.computeDaycycle(scene.dayTime)
+  sun:setBrightness(constants.sunBrightness * envBrightness)
+  skyExt:setDaytime(sun, sunFactor)
 
   if constants.autoExposure.enabled then
     dream:setAutoExposure(
@@ -109,12 +109,27 @@ function scene.load(dream)
   scene.updateLabels()
 end
 
+local firstFrame = true
+
 function scene.update(dt)
+
+  if firstFrame then
+    sunFactor, envBrightness = daycycle.computeDaycycle(04.00)
+    sun:setBrightness(constants.sunBrightness * envBrightness)
+    skyExt:setDaytime(sun, sunFactor)
+  end
+
   -- adjust dayTime with + / -
   if love.keyboard.isDown("+", "=") then
     scene.dayTime = (scene.dayTime + constants.day_night_speed) % 24
+    sunFactor, envBrightness = daycycle.computeDaycycle(scene.dayTime)
+    sun:setBrightness(constants.sunBrightness * envBrightness)
+    skyExt:setDaytime(sun, sunFactor)
   elseif love.keyboard.isDown("-") then
     scene.dayTime = (scene.dayTime - constants.day_night_speed) % 24
+    sunFactor, envBrightness = daycycle.computeDaycycle(scene.dayTime)
+    sun:setBrightness(constants.sunBrightness * envBrightness)
+    skyExt:setDaytime(sun, sunFactor)
   end
 end
 
@@ -144,11 +159,21 @@ function scene.updateLabels()
 end
 
 function scene.draw(dream)
-  -- sky & lighting
+
   dream:addLight(sun)
-  local sunFactor, envBrightness = daycycle.computeDaycycle(scene.dayTime)
-  skyExt:setDaytime(sun, sunFactor)
   dream:setSky(hdrImg, envBrightness)
+
+  if firstFrame then
+    sunFactor, envBrightness = daycycle.computeDaycycle(scene.dayTime)
+    sun:setBrightness(constants.sunBrightness * envBrightness)
+    skyExt:setDaytime(sun, sunFactor)
+    firstFrame = false
+  end
+
+    sunFactor, envBrightness = daycycle.computeDaycycle(scene.dayTime)
+    sun:setBrightness(constants.sunBrightness * envBrightness)
+    skyExt:setDaytime(sun, sunFactor)
+  -- sky & lighting
 
   -- draw geometry
   if scene.showJoints then

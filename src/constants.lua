@@ -6,15 +6,16 @@ local M = {}
 M.bck_image	  = "assets/sky/DaySkyHDRI021A_4K.hdr"
 M.day_night       = 8    -- Hour (float) 0:00-24:0.05
 M.day_night_speed = 0.15 -- greater value faster change of background brightness by +/- keys
-M.maxBright       = 1.60 -- maximum acceptable background brightness
-M.maxNightBright  = 0.50 -- maximum night bright (supposedly by moon)
+M.maxBright       = 1.40 -- maximum acceptable background brightness
+M.maxNightBright  = 0.60 -- maximum night bright (supposedly by moon)
 M.jointScale      = 1.00 -- Factor to scale imported joints
 M.scaleFactor     = 1.60 -- scale ratio of active joints
 M.surfAlpha       = 0.17
-M.threshold       = 0.5
+M.threshold       = 0.5  -- With larger active value activation effect will be on
+M.sunBrightness   = 1.0
 M.autoExposure = {
   enabled = true,     -- true to turn on, false to turn off
-  target  = 0.25,     -- desired average luminance
+  target  = 0.18,     -- desired average luminance
   speed   = 1,     -- adaptation speed
 }
 
