@@ -69,7 +69,10 @@ local function loadCategory(folder, out, dream)
 end
 
 function scene.load(dream)
-  -- Sun & lighting
+
+  materials.init(dream)
+
+    -- Sun & lighting
   sun = dream:newLight("sun")
   sun:addNewShadow()
   skyExt:setSunOffset(0.42,0)
@@ -98,15 +101,17 @@ function scene.load(dream)
     scene.labelModels[mesh.name] = mesh
   end
 
-  -- Assign default materials (onyx for joints/labels; metal for others)
-  materials.assignAll(
-    scene,
-    dream.materialLibrary
-  )
-
   -- Initialize note system & labels
   scene.noteSystem = NoteSystem:new(scene)
   scene.updateLabels()
+
+  -- Assign default materials (onyx for joints/labels; metal for others)
+  materials.assignAll(
+    scene,
+    dream.materialLibrary,
+    scene.noteSystem
+  )
+
 end
 
 local firstFrame = true
