@@ -69,7 +69,7 @@ local function loadCategory(folder, out, dream)
 end
 
 function scene.load(dream)
-
+  scene.materialLibrary = dream.materialLibrary
   materials.init(dream)
 
     -- Sun & lighting
@@ -247,10 +247,12 @@ function scene.pressedAction(action)
   if action == A.ROTATE_CW then
     scene.noteSystem:shift(1)
     scene.updateLabels()
+    materials.assignAll(scene, scene.materialLibrary, scene.noteSystem)
     return true
   elseif action == A.ROTATE_CCW then
     scene.noteSystem:shift(-1)
     scene.updateLabels()
+    materials.assignAll(scene, scene.materialLibrary, scene.noteSystem)
     return true
   end
 
