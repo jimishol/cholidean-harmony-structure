@@ -40,8 +40,19 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
         error("Object in " .. category .. " missing its _matInst")
       end
 
-      -- recolor
-      local r, g, b = Colors.getNoteColor(note.index)
+      -- determine how many steps to shift in the 12-tone circle
+      local shift = 0
+      if category == "curves" then
+        shift = 1    -- curves get next tone
+      elseif category == "edges" then
+        shift = 4    -- edges jump +4 tones
+      end
+
+      -- wrap around 1..12
+      local useIndex = ((note.index - 1 + shift) % 12) + 1
+
+      -- recolor using the shifted index
+      local r, g, b = Colors.getNoteColor(useIndex)
       matInst:setColor(r, g, b)
 
       -- emission
