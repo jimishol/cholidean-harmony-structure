@@ -4,32 +4,25 @@ local constants = require("src.constants")
 
 local M = {}
 
-local defaultCategoryMap = {
-  joints   = "onyx",
-  labels   = "onyx",
-  edges    = "metal",
-  curves   = "metal",
-  surfaces = "metal",
-}
-
+-- no change to init()
 function M.init(dream)
   Colors.init(dream)
 end
 
--- scene        = table with category arrays (scene.joints, scene.edges, …)
--- matLib       = dream.materialLibrary
--- noteSystem   = your NoteSystem instance (holds .notes[])
--- categoryMap  = optional override map
+-- now we only recolor, never clone
 function M.assignAll(scene, matLib, noteSystem, categoryMap)
-  assert(noteSystem, "NoteSystem is required for materials.assignAll()")
-
-  local map   = categoryMap or defaultCategoryMap
+  local map   = categoryMap or {
+    joints   = "onyx",
+    labels   = "onyx",    -- we’ll skip recoloring labels below
+    edges    = "metal",
+    curves   = "metal",
+    surfaces = "metal",
+  }
   local notes = noteSystem.notes
 
   for category, matKey in pairs(map) do
-    local baseMat = matLib[matKey]
-    local items   = scene[category]
-    if not baseMat or not items then goto continue end
+    local items = scene[category]
+    if not items then goto continue end
 
     for idx, obj in ipairs(items) do
       local note = notes[idx]
@@ -37,16 +30,21 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
         error(("No note at index %d in category %q"):format(idx, category))
       end
 
-      -- clone the shared material
-      local matInst = baseMat:clone()
+      -- skip labels entirely so they keep their original tint
+      if category == "labels" then
+        goto skip_label
+      end
 
-      -- destructure RGB from HSVtoRGB
+      local matInst = obj._matInst
+      if not matInst then
+        error("Object in " .. category .. " missing its _matInst")
+      end
+
+      -- recolor
       local r, g, b = Colors.getNoteColor(note.index)
-
-      -- apply tint
       matInst:setColor(r, g, b)
 
-      -- apply emission only if active
+      -- emission
       if note.active then
         matInst:setEmission(r, g, b)
         local scale = constants.categoryEmission[category] or 1.0
@@ -56,17 +54,26 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
         matInst:setEmissionFactor(0)
       end
 
-      -- assign the material
-      if obj.setMaterial then
-        obj:setMaterial(matInst)
-      elseif obj.geometry and obj.geometry.setMaterial then
-        obj.geometry:setMaterial(0, matInst)
-      else
-        error("Cannot set material on object in category "..category)
-      end
+      ::skip_label::
     end
 
     ::continue::
+  end
+
+  for i, lbl in ipairs(scene.activeLabels) do
+    local mesh = scene.labelModels[lbl.name] or scene.labels[i]
+    if mesh and mesh._matInst then
+      local inst = mesh._matInst
+      inst:setColor(lbl.color[1], lbl.color[2], lbl.color[3])
+      -- optional emission for active labels
+      if lbl.active then
+        inst:setEmission(lbl.color[1], lbl.color[2], lbl.color[3])
+        inst:setEmissionFactor(constants.activeEmission)
+      else
+        inst:setEmission(0, 0, 0)
+        inst:setEmissionFactor(0)
+      end
+    end
   end
 end
 

@@ -96,6 +96,30 @@ function scene.load(dream)
   loadCategory("surfaces", scene.surfaces, dream)
   loadCategory("labels",   scene.labels,   dream)
 
+  -- Give each mesh its own material clone so we can recolor it later:
+  local function makeInstances(list, matKey)
+    for _, mesh in ipairs(list) do
+      local base = dream.materialLibrary[matKey]
+      local inst = base:clone()
+      mesh._matInst  = inst        -- store it for future recolor
+      mesh._matKey   = matKey      -- remember which base it came from
+      -- apply it immediately so draw() picks it up
+      if mesh.setMaterial then
+        mesh:setMaterial(inst)
+      elseif mesh.geometry then
+        mesh.geometry:setMaterial(0, inst)
+      end
+    end
+  end
+
+  makeInstances(scene.joints,   "onyx")
+  makeInstances(scene.edges,    "metal")
+  makeInstances(scene.curves,   "metal")
+  makeInstances(scene.surfaces, "metal")
+  makeInstances(scene.labels, "onyx")
+
+  -- note: we skip `scene.labels` here so labels keep their original material/color
+
   -- Build label lookup
   for _, mesh in ipairs(scene.labels) do
     scene.labelModels[mesh.name] = mesh
@@ -155,10 +179,14 @@ function scene.updateLabels()
       C[3] + (J[3] - C[3]) * dist,
     }
 
+    -- Destructure RGB from stored engine
+    local r, g, b = Colors.getNoteColor(noteInfo.index)
+
     table.insert(scene.activeLabels, {
       name     = noteInfo.name,
-      color = Colors.getNoteColor(noteInfo.index, dream),
+      color    = { r, g, b },      -- now a proper RGB table
       position = pos,
+      active   = noteInfo.active,  -- you can use this in assignAll
     })
   end
 end
