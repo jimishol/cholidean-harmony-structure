@@ -56,15 +56,16 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
       matInst:setColor(r, g, b)
 
       -- emission
+      local levels = constants.emissionLevels[category] or { active = 0, inactive = 0 }
+      local factor = note.active and levels.active or levels.inactive
+
       if note.active then
         matInst:setEmission(r, g, b)
-        local scale = constants.categoryEmission[category] or 1.0
-        matInst:setEmissionFactor(constants.activeEmission * scale)
       else
         matInst:setEmission(0, 0, 0)
-        matInst:setEmissionFactor(0)
       end
 
+      matInst:setEmissionFactor(factor)
       ::skip_label::
     end
 
@@ -76,14 +77,17 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
     if mesh and mesh._matInst then
       local inst = mesh._matInst
       inst:setColor(lbl.color[1], lbl.color[2], lbl.color[3])
-      -- optional emission for active labels
+      -- emission for labels
+      local levels = constants.emissionLevels.labels or { active = 0, inactive = 0 }
+      local factor = lbl.active and levels.active or levels.inactive
+
       if lbl.active then
         inst:setEmission(lbl.color[1], lbl.color[2], lbl.color[3])
-        inst:setEmissionFactor(constants.activeEmission)
       else
         inst:setEmission(0, 0, 0)
-        inst:setEmissionFactor(0)
       end
+
+      inst:setEmissionFactor(factor)
     end
   end
 end

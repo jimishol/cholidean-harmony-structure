@@ -9,11 +9,10 @@ M.day_night_speed = 0.15 -- greater value faster change of background brightness
 M.maxBright       = 1.40 -- maximum acceptable background brightness
 M.maxNightBright  = 0.60 -- maximum night bright (supposedly by moon)
 M.nightLightOrigin = 3.0 -- how bright is the point light on origin
-M.nightLightCamera = 160 -- how bright is the point light on camera
+M.nightLightCamera = 175 -- how bright is the point light on camera
 M.jointScale      = 1.00 -- Factor to scale imported joints
 M.scaleFactor     = 1.60 -- scale ratio of active joints
 M.surfAlpha       = 0.17
-M.threshold       = 0.5  -- With larger active value activation effect will be on
 M.sunBrightness   = 1.0
 M.autoExposure = {
   enabled = false,     -- true to turn on, false to turn off
@@ -82,16 +81,17 @@ M.NOTE_ORDER = {
   "Gb", "B", "E", "A", "D", "G"
 }
 
--- Emission strength when a note is active (0.0–1.0)
-M.activeEmission       = 0.75
+-- global volume cutoff for “heard” vs “unheard”
+M.activationThreshold = 0.15
 
--- Optional: per‐category emission multipliers
-M.categoryEmission = {
-  joints   = 1.0,  -- 1.0 × activeEmission
-  edges    = 0.6,  -- 0.6 × activeEmission
-  curves   = 0.6,
-  surfaces = 0.4,
-  labels   = 0.0,  -- labels never glow
+-- emission strengths by category:
+--   .active   when hitVolume ≥ activationThreshold
+--   .inactive when hitVolume <  activationThreshold
+M.emissionLevels = {
+  joints   = { active = 1.00, inactive = 0.05 },
+  edges    = { active = 0.80, inactive = 0.03 },
+  curves   = { active = 0.60, inactive = 0.02 },
+  surfaces = { active = 0.40, inactive = 0.01 },
+  labels   = { active = 0.00, inactive = 0.00 },
 }
-
 return M

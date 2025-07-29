@@ -103,27 +103,27 @@ function NoteSystem:_applyToGeometry(i)
 	    if obj.material then
 	      local mat       = obj.material
 	      local cat       = name:match("^(%a+)_")       -- e.g. "joint", "edge", etc.
-	      local baseEmit  = constants.activeEmission
-	      local scaleEmit = (constants.categoryEmission[cat] or 0) 
 
 	      -- set tint
 	      mat:setColor        (color)
 	      mat:setEmission(color)
 
-	      -- compute final emission strength
-	      local raw         = note.active or 0
-	      local threshold   = constants.threshold
-	      local strength    = (raw >= threshold)
-				   and baseEmit * scaleEmit
-				   or 0
+	      -- compute emission factor using emissionLevels table
+	      local levels      = constants.emissionLevels[cat] or { active = 0, inactive = 0 }
+	      local activeState = note.active    -- already boolean
+	      local factor      = activeState and levels.active or levels.inactive
 
-	      mat:setEmissionFactor(strength)
+	      mat:setEmissionFactor(factor)
 
 	      -- scale joint geometry on activation
-	      if cat == "joint" and raw >= threshold then
-		obj:scale(constants.scaleFactor, constants.scaleFactor, constants.scaleFactor)
-	      else
-		obj:scale(1, 1, 1)
+	      if cat == "joint" then
+		if activeState then
+		  obj:scale(constants.scaleFactor,
+			    constants.scaleFactor,
+			    constants.scaleFactor)
+		else
+		  obj:scale(1, 1, 1)
+		end
 	      end
 	    end
 	  end
