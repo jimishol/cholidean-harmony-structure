@@ -8,8 +8,8 @@ local JointLayout = require("src.utils.joint_layout")
 local NoteSystem  = require("src.systems.note_system")
 local camera      = require("camera")
 local A           = require("src.input.actions")
-local Colors = require("src.utils.colors")
-local materials = require("src.utils.materials")
+local Colors      = require("src.utils.colors")
+local materials   = require("src.utils.materials")
 
 local scene = {
   -- geometry containers
@@ -38,6 +38,9 @@ local hdrImg = love.graphics.newImage(constants.bck_image)
 
 -- forward declaration
 local sun, sunFactor, envBrightness
+
+local fillLight, headLight         -- our torus‐center fill light & camera headlight
+scene.showTorusLights = false     -- start with both off
 
 local function loadCategory(folder, out, dream)
   local base       = "assets/models/" .. folder .. "/"
@@ -69,6 +72,20 @@ local function loadCategory(folder, out, dream)
 end
 
 function scene.load(dream)
+   local vec3        = dream.vec3
+   -- 1) Static point‐fill light at origin (subtle night glow)
+   fillLight = dream:newLight("point", vec3(0,0,0))
+   fillLight:setColor(1, 1, 1)
+   fillLight:setBrightness(constants.nightLightOrigin)      -- low intensity
+   fillLight:setAttenuation(2)
+
+   -- 2) Camera‐locked spotlight (like a torch)
+    headLight = dream:newLight("point")
+    headLight:setColor(1, 1, 1)
+    headLight:setBrightness(constants.nightLightCamera)      -- modest beam
+    headLight:setAttenuation(2)         -- soft edge
+   -- never call headLight:addIndicator() → stays invisible
+
   scene.materialLibrary = dream.materialLibrary
   materials.init(dream)
 
@@ -160,6 +177,7 @@ function scene.update(dt)
     sun:setBrightness(constants.sunBrightness * envBrightness)
     skyExt:setDaytime(sun, sunFactor)
   end
+
 end
 
 function scene.updateLabels()
@@ -206,7 +224,14 @@ function scene.draw(dream)
     sunFactor, envBrightness = daycycle.computeDaycycle(scene.dayTime)
     sun:setBrightness(constants.sunBrightness * envBrightness)
     skyExt:setDaytime(sun, sunFactor)
+
   -- sky & lighting
+  if scene.showTorusLights then
+    dream:addLight(fillLight)
+    local V = camera.View
+    headLight:setPosition(V.Pos.x, V.Pos.y, V.Pos.z)
+    dream:addLight(headLight)
+  end
 
   -- draw geometry
   if scene.showJoints then
@@ -299,6 +324,11 @@ function scene.pressedAction(action)
   -- debug overlay toggle
   if action == A.TOGGLE_DEBUG then
     scene.showDebug = not scene.showDebug
+    return true
+  end
+
+  if action == A.TOGGLE_TORUS_LIGHTS then
+    scene.showTorusLights = not scene.showTorusLights
     return true
   end
 

@@ -37,4 +37,6 @@ A.PITCH_DOWN     = "pitch_down"
 A.ZOOM_IN        = "zoom_in"
 A.ZOOM_OUT       = "zoom_out"
 
+A.TOGGLE_TORUS_LIGHTS = "toggle_torus_lights"
+
 return A

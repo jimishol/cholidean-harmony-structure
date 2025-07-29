@@ -8,13 +8,15 @@ M.day_night       = 8    -- Hour (float) 0:00-24:0.05
 M.day_night_speed = 0.15 -- greater value faster change of background brightness by +/- keys
 M.maxBright       = 1.40 -- maximum acceptable background brightness
 M.maxNightBright  = 0.60 -- maximum night bright (supposedly by moon)
+M.nightLightOrigin = 3.0 -- how bright is the point light on origin
+M.nightLightCamera = 160 -- how bright is the point light on camera
 M.jointScale      = 1.00 -- Factor to scale imported joints
 M.scaleFactor     = 1.60 -- scale ratio of active joints
 M.surfAlpha       = 0.17
 M.threshold       = 0.5  -- With larger active value activation effect will be on
 M.sunBrightness   = 1.0
 M.autoExposure = {
-  enabled = true,     -- true to turn on, false to turn off
+  enabled = false,     -- true to turn on, false to turn off
   target  = 0.18,     -- desired average luminance
   speed   = 1,     -- adaptation speed
 }
@@ -31,11 +33,7 @@ M.dynamicLabelFacing = true  -- whether labels rotate to face the camera
 
 -- Camera projection settings for 3DreamEngine
 -- @field fov Vertical field-of-view in degrees (simulates 50 mm lens)
--- @field nearClip Distance to near clipping plane
--- @field farClip Distance to far clipping plane
 M.fov      = 26.8
-M.nearClip = 0.01
-M.farClip  = 1000
 
 -- Initial camera placement
 -- @field initialCameraPosition Initial camera position in world space
@@ -43,14 +41,10 @@ M.farClip  = 1000
 -- @field yAt Target point Y
 -- @field zAt Target point Z
 M.initialCameraPosition = {
-  x =  18.5,
-  y =  22.0,
-  z = -18.5
+  x = -15.5,
+  y =  20.0,
+  z = -22.0
 }
-
-M.xAt = 0
-M.yAt = 0
-M.zAt = 0
 
 -- Time duration (seconds) for orientation reset tween
 -- @field resetDuration Duration in seconds to interpolate orientation reset
