@@ -8,6 +8,7 @@ local A = {}
 -- Application control
 A.QUIT           = "quit"
 A.RESET_VIEW     = "reset_view"    -- reset camera orientation
+A.RESET_FOV      = "reset_fov"
 A.TOGGLE_DEBUG   = "toggle_debug" -- Toggle FPS + camera position (yaw/pitch) overlay
 
 -- Label controls
@@ -38,6 +39,8 @@ A.ZOOM_IN        = "zoom_in"
 A.ZOOM_OUT       = "zoom_out"
 
 A.TOGGLE_TORUS_LIGHTS = "toggle_torus_lights"
+
+A.TOGGLE_NOTE_MODE = "toggle_note_mode"
 
 -- ########## TEMP DEBUG ACTIONS START (delete later) ##########
 A.DEBUG_DUMP_STATE = "debug_dump_state"   -- print full scene graph to console

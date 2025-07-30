@@ -12,6 +12,8 @@ M.bindings = {
   [A.TOGGLE_CURVES]   = { "c" },
   [A.TOGGLE_SURFACES] = { "s" },
   [A.TOGGLE_TORUS_LIGHTS] = { "b" },
+  [A.TOGGLE_NOTE_MODE] = { "h" },  -- 🔥 Head/unheard or on/off mode for active status
+  [A.RESET_FOV]       = {"f"},
 
   -- ########## TEMP DEBUG BINDINGS START (delete later) ##########
   [A.DEBUG_DUMP_STATE]   = { "f4" },  -- F4 dumps scene state to console

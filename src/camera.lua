@@ -9,7 +9,7 @@ local M = {}
 -- Sensitivity parameters
 local keyboard_angle = cons.sensitivity.keyboard_angle or 0.18
 local mouse_angle    = cons.sensitivity.mouse_angle    or 0.005
-local current_fov    = cons.fov or 45
+local current_fov    = math.max(cons.fov or 45, 1)
 local freeMoveSpeed  = cons.sensitivity.free_move or 5.0
 
 -- Camera position
@@ -25,7 +25,8 @@ local currentYaw, currentPitch = 0, 0
 M.View = {
   yaw   = currentYaw,
   pitch = currentPitch,
-  Pos   = currentPos
+  Pos   = currentPos,
+  fov   = current_fov
 }
 
 -- Tweening state
@@ -117,7 +118,14 @@ function M:pressed(key)
     isResettingOrientation = true
     resetTimer = 0
     return true
+
+  elseif key == "f" then
+    current_fov = cons.fov
+    self.dream.camera:setFov(current_fov)
+    return true
+
   end
+
   return false
 end
 
@@ -139,7 +147,7 @@ function M:update(dt)
   if ctrlDown then
     local up = love.keyboard.isDown("up")
     local down = love.keyboard.isDown("down")
-    if up then current_fov = current_fov - cons.sensitivity.keyboard_fov * dt end
+    if up then current_fov = math.max(current_fov - cons.sensitivity.keyboard_fov * dt, 1) end
     if down then current_fov = current_fov + cons.sensitivity.keyboard_fov * dt end
     if up or down then self.dream.camera:setFov(current_fov) end
 
@@ -176,7 +184,8 @@ function M:update(dt)
     M.View = {
       yaw = currentYaw,
       pitch = currentPitch,
-      Pos = currentPos
+      Pos = currentPos,
+      fov = current_fov
     }
 end
 
@@ -207,7 +216,11 @@ function M:pressedAction(action)
   if action == A.RESET_VIEW then
     -- fold RESET_VIEW back into space
     return self:pressed("space")
+
+  elseif action == A.RESET_FOV then
+    return self:pressed("f")
   end
+
   return false
 end
 

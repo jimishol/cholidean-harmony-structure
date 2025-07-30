@@ -331,6 +331,12 @@ function scene.pressedAction(action)
     scene.showTorusLights = not scene.showTorusLights
     return true
   end
+  -- 🎵 NEW: note mode toggle
+  if action == A.TOGGLE_NOTE_MODE then
+    scene.noteMode = (scene.noteMode == "on_off") and "heard_unheard" or "on_off"
+    print("Note Mode switched to: " .. scene.noteMode)
+    return true
+  end
 
   return false
 end
@@ -342,9 +348,9 @@ function scene.apply()
 
   love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
   love.graphics.print("Day time: " .. daycycle.formatTime(scene.dayTime), 10, 40)
-  love.graphics.print(string.format("Camera Pos: (%.2f, %.2f, %.2f)", V.Pos.x, V.Pos.y, V.Pos.z), 10, 60)
-  love.graphics.print(string.format("Camera yaw: (%.2f)", V.yaw), 10, 80)
-  love.graphics.print(string.format("Camera pitch: (%.2f)",  V.pitch), 10, 100)
+  love.graphics.print(string.format("Camera Pos : (%.2f, %.2f, %.2f)", V.Pos.x, V.Pos.y, V.Pos.z), 10, 60)
+  love.graphics.print(string.format("Camera FOV: (%.2f)", V.fov), 10, 80)
+  love.graphics.print("Note Mode  : " .. (noteMode == "on_off" and "ON/OFF" or "HEARD/UNHEARD"), 10, 100)
 end
 
 return scene
