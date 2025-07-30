@@ -55,17 +55,12 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
       local r, g, b = Colors.getNoteColor(useIndex)
       matInst:setColor(r, g, b)
 
-      -- emission
+      -- emission: always set the note’s color, let the factor dial the glow
       local levels = constants.emissionLevels[category] or { active = 0, inactive = 0 }
       local factor = note.active and levels.active or levels.inactive
 
-      if note.active then
-        matInst:setEmission(r, g, b)
-      else
-        matInst:setEmission(0, 0, 0)
-      end
+      matInst:setEmission(factor, factor, factor)
 
-      matInst:setEmissionFactor(factor)
       ::skip_label::
     end
 
@@ -77,17 +72,12 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
     if mesh and mesh._matInst then
       local inst = mesh._matInst
       inst:setColor(lbl.color[1], lbl.color[2], lbl.color[3])
-      -- emission for labels
+
+      -- emission for labels: always use the label hue + its factor
       local levels = constants.emissionLevels.labels or { active = 0, inactive = 0 }
       local factor = lbl.active and levels.active or levels.inactive
 
-      if lbl.active then
-        inst:setEmission(lbl.color[1], lbl.color[2], lbl.color[3])
-      else
-        inst:setEmission(0, 0, 0)
-      end
-
-      inst:setEmissionFactor(factor)
+      inst:setEmission(factor, factor, factor)
     end
   end
 end

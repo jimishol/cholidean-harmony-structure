@@ -36,7 +36,6 @@ function NoteSystem:new(scene)
     self.notes[i] = Note:new(i, name, jointObj)
     self:_applyToGeometry(i)
   end
-
   return self
 end
 

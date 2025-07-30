@@ -4,13 +4,18 @@ local M = {}
 M.bindings = {
   [A.QUIT]         = { "q" },
   [A.RESET_VIEW]   = { "space" },
+-- Show FPS + camera yaw/pitch overlay
   [A.TOGGLE_DEBUG] = { "d" },
   [A.TOGGLE_LABELS]= { "l" },
   [A.TOGGLE_JOINTS]   = { "j" },
   [A.TOGGLE_EDGES]    = { "e" },
   [A.TOGGLE_CURVES]   = { "c" },
   [A.TOGGLE_SURFACES] = { "s" },
-  [A.TOGGLE_TORUS_LIGHTS] = { "b" }
+  [A.TOGGLE_TORUS_LIGHTS] = { "b" },
+
+  -- ########## TEMP DEBUG BINDINGS START (delete later) ##########
+  [A.DEBUG_DUMP_STATE]   = { "f4" },  -- F4 dumps scene state to console
+  -- ########## TEMP DEBUG BINDINGS END ##########
 }
 
 --- Returns the action string for the given key, or nil if none.

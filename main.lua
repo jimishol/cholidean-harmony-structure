@@ -59,6 +59,19 @@ function love.keypressed(key)
   local action = Input:onKey(key)
   if not action then return end
 
+  -- ########## TEMP DEBUG HANDLER START (delete later) ##########
+local Dump = Input.SafeDump
+  if action == A.DEBUG_DUMP_STATE then
+ -- produce a string (with default maxDepth=3)
+    local dumpStr = Dump(scene)
+
+    -- write to LÖVE's save directory
+    love.filesystem.write("scene_dump.txt", dumpStr)
+    print("Scene dumped to scene_dump.txt")
+    return
+  end
+  -- ########## TEMP DEBUG HANDLER END ##########
+  
   if action == A.QUIT then
     love.event.quit()
     return
