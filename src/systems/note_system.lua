@@ -2,6 +2,7 @@
 
 local constants = require("src.constants")
 local Colors = require("src.utils.colors")
+local NoteState = require("midi.note_state")
 
 -- Single-note abstraction
 local Note = {}
@@ -61,9 +62,17 @@ function NoteSystem:shift(offset)
   end
 end
 
+-- Inside note_system.lua
+function NoteSystem:update(dt)
+  for i = 1, #self.notes do
+    self:_applyToGeometry(i)
+  end
+end
+
 -- Propagate note info into matching edge/curve/surface/label objects
 function NoteSystem:_applyToGeometry(i)
   local note   = self.notes[i]
+  note.active = NoteState.isNoteActive(note.index)
   local suffix = string.format("%02d", i-1)
   local targets = {
     "joint_"   .. suffix,

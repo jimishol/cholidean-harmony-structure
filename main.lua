@@ -45,6 +45,7 @@ function love.update(dt)
   dream:update(dt)
   camera:update(dt)
   scene.update(dt)
+  scene.noteSystem:update(dt)
 end
 
 function love.draw()
