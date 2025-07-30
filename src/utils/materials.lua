@@ -4,6 +4,22 @@ local constants = require("src.constants")
 
 local M = {}
 
+--- Update one surface’s material to ghost/X-ray or solid-emissive
+function M.updateSurfaceMaterial(matInst, noteColor, isActive)
+  local r, g, b = noteColor[1], noteColor[2], noteColor[3]
+  if isActive then
+    matInst:setSolid()
+    matInst:setColor(r, g, b, 1.0)
+    local f = constants.emissionLevels.surfaces.active
+    -- bake factor into emission color
+    matInst:setEmission(f, f, f)
+  else
+    matInst:setAlpha()
+    matInst:setColor(r, g, b, constants.surfAlpha)
+    matInst:setEmission(0, 0, 0)
+  end
+end
+
 -- no change to init()
 function M.init(dream)
   Colors.init(dream)
@@ -16,7 +32,6 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
     labels   = "onyx",    -- we’ll skip recoloring labels below
     edges    = "metal",
     curves   = "metal",
-    surfaces = "metal",
   }
   local notes = noteSystem.notes
 
@@ -80,6 +95,24 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
       inst:setEmission(factor, factor, factor)
     end
   end
+
+  -- now handle surfaces with our ghost/X-ray helper
+  for idx, obj in ipairs(scene.surfaces) do
+    local note     = noteSystem.notes[idx]
+    if not note then
+      error(("No note at index %d for surfaces"):format(idx))
+    end
+
+    local matInst   = obj._matInst
+    local shift     = 0            -- surfaces don’t shift hue
+    local useIndex  = ((note.index - 1 + shift) % 12) + 1
+    local noteColor = { Colors.getNoteColor(useIndex) }
+    local isActive  = note.active
+
+    -- ghost ↔ solid-emissive
+    M.updateSurfaceMaterial(matInst, noteColor, isActive)
+  end
+
 end
 
 return M
