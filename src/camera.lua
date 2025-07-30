@@ -96,40 +96,6 @@ function M:init(dream)
   end
 end
 
-function M:pressed(key)
-  if key == "q" then
-    love.event.quit()
-    return true
-
-  elseif key == "space" and not isResettingOrientation then
-    local d = math.sqrt(currentPos.x^2 + currentPos.y^2 + currentPos.z^2)
-    local computedPitch, computedYaw = 0, 0
-    if d > 0 then
-      local vx = -currentPos.x / d
-      local vy = -currentPos.y / d
-      local vz = -currentPos.z / d
-      computedPitch = math.asin(vy)
-      computedYaw   = math.atan2(vx, -vz)
-    end
-    startYaw = normalizeAngle(currentYaw)
-    targetYaw = normalizeAngle(computedYaw)
-    startPitch = currentPitch
-    targetPitch = computedPitch
-    isResettingOrientation = true
-    resetTimer = 0
-    return true
-
-  elseif key == "f" then
-    current_fov = cons.fov
-    self.dream.camera:setFov(current_fov)
-    return true
-
-  end
-
-  return false
-end
-
--- Update
 function M:update(dt)
   if isResettingOrientation then
     resetTimer = resetTimer + dt
@@ -213,12 +179,34 @@ function M:mousemoved(dx, dy)
 end
 
 function M:pressedAction(action)
-  if action == A.RESET_VIEW then
-    -- fold RESET_VIEW back into space
-    return self:pressed("space")
+
+  if action == A.QUIT then
+    love.event.quit()
+    return true
+
+  elseif action == A.RESET_VIEW and not isResettingOrientation then
+    local d = math.sqrt(currentPos.x^2 + currentPos.y^2 + currentPos.z^2)
+    local computedPitch, computedYaw = 0, 0
+    if d > 0 then
+      local vx = -currentPos.x / d
+      local vy = -currentPos.y / d
+      local vz = -currentPos.z / d
+      computedPitch = math.asin(vy)
+      computedYaw   = math.atan2(vx, -vz)
+    end
+    startYaw = normalizeAngle(currentYaw)
+    targetYaw = normalizeAngle(computedYaw)
+    startPitch = currentPitch
+    targetPitch = computedPitch
+    isResettingOrientation = true
+    resetTimer = 0
+    return true
 
   elseif action == A.RESET_FOV then
-    return self:pressed("f")
+    current_fov = cons.fov
+    self.dream.camera:setFov(current_fov)
+    return true
+
   end
 
   return false
