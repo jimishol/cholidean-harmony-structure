@@ -88,10 +88,10 @@ M.activationThreshold = 0.15
 --   .active   when hitVolume ≥ activationThreshold
 --   .inactive when hitVolume <  activationThreshold
 M.emissionLevels = {
-  joints   = { active = 0.15, inactive = 0.01 },
-  edges    = { active = 0.15, inactive = 0.01 },
-  curves   = { active = 0.15, inactive = 0.01 },
+  joints   = { active = 0.15, inactive = 0.005},
+  edges    = { active = 0.15, inactive = 0.005},
+  curves   = { active = 0.15, inactive = 0.005},
   surfaces = { active = 0.10, inactive = 0.015},
-  labels   = { active = 0.30, inactive = 0.01 },
+  labels   = { active = 0.30, inactive = 0.005},
 }
 return M
