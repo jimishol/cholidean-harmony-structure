@@ -89,7 +89,7 @@ function NoteSystem:update(dt)
   return changed
 end
 
--- Propagate note info into matching edge/curve/surface/label objects
+-- Propagate note info into matching joint/edge/curve/surface objects
 function NoteSystem:_applyToGeometry(i)
   local note   = self.notes[i]
   local suffix = string.format("%02d", i-1)
@@ -98,7 +98,6 @@ function NoteSystem:_applyToGeometry(i)
     "edge_"    .. suffix,
     "curve_"   .. suffix,
     "surface_" .. suffix,
-    "label_"   .. suffix,
   }
 
   for _, name in ipairs(targets) do

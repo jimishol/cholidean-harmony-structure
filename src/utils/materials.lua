@@ -8,15 +8,14 @@ local M = {}
 function M.updateSurfaceMaterial(matInst, noteColor, isActive)
   local r, g, b = noteColor[1], noteColor[2], noteColor[3]
   if isActive then
-    matInst:setSolid()
     matInst:setColor(r, g, b, 1.0)
     local f = constants.emissionLevels.surfaces.active
-    -- bake factor into emission color
     matInst:setEmission(f, f, f)
   else
     matInst:setAlpha()
     matInst:setColor(r, g, b, constants.surfAlpha)
-    matInst:setEmission(0, 0, 0)
+    local f = constants.emissionLevels.surfaces.inactive
+    matInst:setEmission(f, f, f)
   end
 end
 

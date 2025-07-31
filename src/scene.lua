@@ -182,7 +182,6 @@ function scene:update(dt)
   local notesChanged = self.noteSystem:update(dt)
   if notesChanged then
     -- shake up labels & materials
---    self.noteSystem:shift(0)            -- rebind geometry w/ current order
     self:updateLabels()                 -- your existing label‐update helper
     materials.assignAll(
       self, self.materialLibrary, self.noteSystem
