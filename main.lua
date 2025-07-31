@@ -11,6 +11,7 @@ package.path = table.concat({
   "./extensions/?.lua",
   "./extensions/?/init.lua",
   "./assets/?.lua",
+  "./src/midi/?.lua",
 }, ";") .. ";" .. package.path
 
 -- 2) Require & instantiate 3DreamEngine
@@ -44,8 +45,7 @@ end
 function love.update(dt)
   dream:update(dt)
   camera:update(dt)
-  scene.update(dt)
-  scene.noteSystem:update(dt)
+  scene:update(dt)
 end
 
 function love.draw()

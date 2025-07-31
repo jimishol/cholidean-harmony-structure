@@ -157,7 +157,7 @@ end
 
 local firstFrame = true
 
-function scene.update(dt)
+function scene:update(dt)
 
   if firstFrame then
     sunFactor, envBrightness = daycycle.computeDaycycle(04.00)
@@ -178,6 +178,16 @@ function scene.update(dt)
     skyExt:setDaytime(sun, sunFactor)
   end
 
+  -- Poll NoteSystem; only reassign if something actually changed
+  local notesChanged = self.noteSystem:update(dt)
+  if notesChanged then
+    -- shake up labels & materials
+--    self.noteSystem:shift(0)            -- rebind geometry w/ current order
+    self:updateLabels()                 -- your existing label‐update helper
+    materials.assignAll(
+      self, self.materialLibrary, self.noteSystem
+    )
+  end
 end
 
 function scene.updateLabels()

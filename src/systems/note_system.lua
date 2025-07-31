@@ -37,6 +37,12 @@ function NoteSystem:new(scene)
     self.notes[i] = Note:new(i, name, jointObj)
     self:_applyToGeometry(i)
   end
+
+  self.prevActive = {}
+  for i = 1, #self.notes do
+    self.prevActive[i] = false
+  end
+
   return self
 end
 
@@ -62,17 +68,30 @@ function NoteSystem:shift(offset)
   end
 end
 
--- Inside note_system.lua
 function NoteSystem:update(dt)
-  for i = 1, #self.notes do
-    self:_applyToGeometry(i)
+  local changed = false
+
+  for slotIdx, note in ipairs(self.notes) do
+    -- Poll current state
+    local isActive = NoteState.isNoteActive(note.index)
+    note.active = isActive
+
+    -- Compare with last frame
+    if isActive ~= self.prevActive[slotIdx] then
+      changed = true
+    end
+    self.prevActive[slotIdx] = isActive
+
+    -- Always refresh geometry
+    self:_applyToGeometry(slotIdx)
   end
+
+  return changed
 end
 
 -- Propagate note info into matching edge/curve/surface/label objects
 function NoteSystem:_applyToGeometry(i)
   local note   = self.notes[i]
-  note.active = NoteState.isNoteActive(note.index)
   local suffix = string.format("%02d", i-1)
   local targets = {
     "joint_"   .. suffix,
