@@ -4,6 +4,26 @@ local constants = require("src.constants")
 
 local M = {}
 
+function checkSurfState(idx, notes)
+
+  local function wrap12(n)
+    return ((n - 1) % 12) + 1
+  end
+
+  local C = notes[wrap12(idx + 0)]   -- C (offset 0)
+  local E = notes[wrap12(idx + 8)]   -- E (offset +8)
+  local B = notes[wrap12(idx + 7)]   -- B (offset +7)
+  local G = notes[wrap12(idx + 11)]  -- G (offset +11)
+
+  -- Check each pair for simultaneous activation
+  local CE_active = (C and C.active) and (E and E.active)
+  local CB_active = (C and C.active) and (B and B.active)
+  local EG_active = (E and E.active) and (G and G.active)
+
+  -- Surface is active if any pair is active
+  return CE_active or CB_active or EG_active
+end
+
 --- Update one surface’s material to ghost/X-ray or solid-emissive
 function M.updateSurfaceMaterial(matInst, noteColor, isActive)
   local r, g, b = noteColor[1], noteColor[2], noteColor[3]
@@ -106,7 +126,7 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
     local shift     = 0            -- surfaces don’t shift hue
     local useIndex  = ((note.index - 1 + shift) % 12) + 1
     local noteColor = { Colors.getNoteColor(useIndex) }
-    local isActive  = note.active
+    local isActive  = checkSurfState(idx, notes)
 
     -- ghost ↔ solid-emissive
     M.updateSurfaceMaterial(matInst, noteColor, isActive)
