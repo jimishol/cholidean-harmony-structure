@@ -286,18 +286,24 @@ function scene.draw(dream)
 	local x,y,z     = table.unpack(lbl.position)
 	local transform = dream.mat4.getTranslate(x, y, z)
 
-       if constants.dynamicLabelFacing then
+        if constants.dynamicLabelFacing then
 
-         local V = camera.View
-	 local rot_offset = 0
-	 if V.Pos.z < 0 then rot_offset = - math.pi end
-         transform = transform
-           * dream.mat4.getRotateY( V.yaw )
-           * dream.mat4.getRotateY( rot_offset + math.pi / 2 + math.atan(-V.Pos.z, -V.Pos.x) )
-           * dream.mat4.getRotateX( math.pi / 2 + V.pitch )
-       end
+          local V = camera.View
+          local rot_offset = 0
+          if V.Pos.z < 0 then rot_offset = - math.pi end
+          transform = transform
+            * dream.mat4.getRotateY( V.yaw )
+            * dream.mat4.getRotateY( rot_offset + math.pi / 2 + math.atan(-V.Pos.z, -V.Pos.x) )
+            * dream.mat4.getRotateX( math.pi / 2 + V.pitch )
+        end
 
-	dream:draw(mesh, transform * dream.mat4.getScale(constants.label_scale))
+        -- apply base scale, then enlarge if active
+        local baseScale = constants.label_scale
+        if lbl.active then
+           baseScale = baseScale * constants.label_active_scale
+        end
+
+        dream:draw(mesh, transform * dream.mat4.getScale(baseScale))
       end
     end
 

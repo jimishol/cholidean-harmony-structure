@@ -26,8 +26,9 @@ M.autoExposure = {
 -- @field steps Number of segment steps (for rendering resolution)
 M.torusRadius    = 7
 M.torusWidth     = 3
-M.label_distance = 1.5  -- factor the distance from center of augmented third triangles to respective joint
+M.label_distance = 1.55  -- factor the distance from center of augmented third triangles to respective joint
 M.label_scale    = 0.85  -- ratio on imported initial size of 3D labels.
+M.label_active_scale = 1.3 -- label size ratio between active and incative tones 
 M.dynamicLabelFacing = true  -- whether labels rotate to face the camera
 
 -- Camera projection settings for 3DreamEngine
