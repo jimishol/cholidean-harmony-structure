@@ -1,7 +1,6 @@
 -- src/systems/note_system.lua
 
 local constants = require("src.constants")
-local Colors = require("src.utils.colors")
 local NoteState = require("midi.note_state")
 
 -- Single-note abstraction
@@ -22,7 +21,7 @@ local NoteSystem = {}
 NoteSystem.__index = NoteSystem
 
 function NoteSystem:new(scene)
-  local self = setmetatable({ scene = scene, notes = {} }, NoteSystem)
+  local instance = setmetatable({ scene = scene, notes = {} }, NoteSystem)
 
   -- Instantiate notes & bind to joint_00..joint_11
   for i, name in ipairs(constants.NOTE_ORDER) do
@@ -34,15 +33,15 @@ function NoteSystem:new(scene)
       if obj.id == jointID then jointObj = obj; break end
     end
 
-    self.notes[i] = Note:new(i, name, jointObj)
+    instance.notes[i] = Note:new(i, name, jointObj)
   end
 
-  self.prevActive = {}
-  for i = 1, #self.notes do
-    self.prevActive[i] = false
+  instance.prevActive = {}
+  for i = 1, #instance.notes do
+    instance.prevActive[i] = false
   end
 
-  return self
+  return instance
 end
 
 -- Shift all notes by offset (+1 = right, -1 = left)
