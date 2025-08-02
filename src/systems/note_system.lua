@@ -86,13 +86,6 @@ function NoteSystem:update(dt)
     note.active = isActive
     note.isBass = isBass
 
-    -- Debug
-    print(string.format(
-      "Note %s : active=%s, isBass=%s",
-      note.name,
-      tostring(note.active),
-      tostring(note.isBass)
-    ))
   end
 
   return changed
