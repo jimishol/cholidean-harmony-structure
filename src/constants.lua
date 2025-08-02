@@ -11,7 +11,8 @@ M.maxNightBright  = 0.60 -- maximum night bright (supposedly by moon)
 M.nightLightOrigin = 3.0 -- how bright is the point light on origin
 M.nightLightCamera = 175 -- how bright is the point light on camera
 M.jointScale      = 1.00 -- Factor to scale imported joints
-M.scaleFactor     = 1.60 -- scale ratio of active joints
+M.scaleFactor     = 1.60 -- Ratio of active over inactive joints
+M.bassScale	  = 0.90 -- Ratio of rotated bass joints over active/ Defines how much of the bass corners pops out.   
 M.surfAlpha       = 0.23
 M.sunBrightness   = 1.0
 M.autoExposure = {
@@ -68,11 +69,11 @@ M.sensitivity = {
   mouse_zoom    = 0.1,
   invert_mouse  = false,
 
-  keyboard_angle  = 0.18,
+  keyboard_angle  = 0.20,
   keyboard_height = 5,
-  keyboard_zoom   = 5.0,
   keyboard_fov    = 8,
 
+  -- forward - backward move by keyboard
   free_move  = 5.0,
   free_mouse = 0.1
 }

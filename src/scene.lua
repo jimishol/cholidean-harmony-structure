@@ -115,7 +115,7 @@ function scene.load(dream)
 
   -- makeInstances now takes an extra `black_clone` flag
   local function makeInstances(list, matKey, black_clone)
-    for _, mesh in ipairs(list) do
+    for idx, mesh in ipairs(list) do
       local base = dream.materialLibrary[matKey]
       local inst = base:clone()
       mesh._matInst  = inst        -- store it for future recolor
@@ -130,7 +130,9 @@ function scene.load(dream)
       -- 2) Black clone (only if requested)
       if black_clone then
         local blackInst = base:clone()
-        blackInst:setColor(0, 0, 0)   -- pure black
+        blackInst:setColor(Colors.getNoteColor(idx + 6))   -- get opposite color
+	local factor = constants.emissionLevels.joints.active
+	blackInst:setEmission(factor, factor, factor)
         mesh._matBlack = blackInst
       end
     end
@@ -280,7 +282,7 @@ function scene.draw(dream)
 	transform =
 	    dream.mat4.getTranslate(J[1], J[2], J[3])
             * dream.mat4.getRotateY(angle)
-	    * dream.mat4.getScale(0.89 * s)
+	    * dream.mat4.getScale(constants.bassScale * s)
 	    * dream.mat4.getTranslate(-J[1], -J[2], -J[3])
 
 	local blackMesh = scene.joints_black[idx + 1]
