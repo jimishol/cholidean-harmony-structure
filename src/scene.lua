@@ -19,7 +19,7 @@ local scene = {
   surfaces     = {},
   labels       = {},   -- raw .obj label meshes
   labelModels  = {},   -- id → mesh lookup
-  activeLabels = {},   -- { name, color, position } per frame
+  labels_to_Draw = {},   -- { name, color, position } per frame
 
   -- visibility toggles
   showJoints   = true,
@@ -205,7 +205,7 @@ function scene.updateLabels()
   local triangleCenters = JointLayout.getTriangleCenters()
   local dist            = constants.label_distance
 
-  scene.activeLabels = {}
+  scene.labels_to_Draw = {}
   for idx = 0, 11 do
     local noteInfo = scene.noteSystem.notes[idx + 1]
     local J = jointPos[idx]
@@ -220,7 +220,7 @@ function scene.updateLabels()
     -- Destructure RGB from stored engine
     local r, g, b = Colors.getNoteColor(noteInfo.index)
 
-    table.insert(scene.activeLabels, {
+    table.insert(scene.labels_to_Draw, {
       name     = noteInfo.name,
       color    = { r, g, b },      -- now a proper RGB table
       position = pos,
@@ -299,7 +299,7 @@ function scene.draw(dream)
   -- draw labels
   if scene.showLabels then
 
-    for i, lbl in ipairs(scene.activeLabels) do
+    for i, lbl in ipairs(scene.labels_to_Draw) do
       local mesh = scene.labelModels[lbl.name] or scene.labels[i]
       if not mesh then
 	print(("No label mesh for %s"):format(lbl.name))

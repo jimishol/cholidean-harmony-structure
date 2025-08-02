@@ -4,7 +4,7 @@ local constants = require("src.constants")
 
 local M = {}
 
-function checkSurfState(idx, notes)
+local function checkSurfState(idx, notes)
 
   local function wrap12(n)
     return ((n - 1) % 12) + 1
@@ -101,7 +101,7 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
     ::continue::
   end
 
-  for i, lbl in ipairs(scene.activeLabels) do
+  for i, lbl in ipairs(scene.labels_to_Draw) do
     local mesh = scene.labelModels[lbl.name] or scene.labels[i]
     if mesh and mesh._matInst then
       local inst = mesh._matInst
