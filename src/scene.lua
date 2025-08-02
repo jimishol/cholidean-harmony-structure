@@ -265,12 +265,12 @@ function scene.draw(dream)
       -- Draw joint mesh
       local jointMesh = scene.joints[idx + 1]
       dream:draw(jointMesh, transform)
---      print(noteInfo.name, "is bass = ", noteInfo.isBass)
+
       if noteInfo.isBass then
 	transform =
 	    dream.mat4.getTranslate(J[1], J[2], J[3])
             * dream.mat4.getRotateY(angle)
-	    * dream.mat4.getScale(s)
+	    * dream.mat4.getScale(0.95 * s)
 	    * dream.mat4.getTranslate(-J[1], -J[2], -J[3])
 
         dream:draw(jointMesh, transform)
