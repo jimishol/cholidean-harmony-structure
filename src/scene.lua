@@ -113,8 +113,8 @@ function scene.load(dream)
   loadCategory("surfaces", scene.surfaces, dream)
   loadCategory("labels",   scene.labels,   dream)
 
-  -- Give each mesh its own material clone so we can recolor it later:
-  local function makeInstances(list, matKey)
+  -- makeInstances now takes an extra `black_clone` flag
+  local function makeInstances(list, matKey, black_clone)
     for _, mesh in ipairs(list) do
       local base = dream.materialLibrary[matKey]
       local inst = base:clone()
@@ -126,16 +126,25 @@ function scene.load(dream)
       elseif mesh.geometry then
         mesh.geometry:setMaterial(0, inst)
       end
+
+      -- 2) Black clone (only if requested)
+      if black_clone then
+        local blackInst = base:clone()
+        blackInst:setColor(0, 0, 0)   -- pure black
+        mesh._matBlack = blackInst
+      end
     end
   end
 
-  makeInstances(scene.joints,   "onyx")
-  makeInstances(scene.edges,    "metal")
-  makeInstances(scene.curves,   "metal")
-  makeInstances(scene.surfaces, "metal")
-  makeInstances(scene.labels, "onyx")
+  makeInstances(scene.joints,   "onyx", true)
+  makeInstances(scene.edges,    "metal", false)
+  makeInstances(scene.curves,   "metal", false)
+  makeInstances(scene.surfaces, "metal", false)
+  makeInstances(scene.labels, "onyx", false)
 
-  -- note: we skip `scene.labels` here so labels keep their original material/color
+  scene.joints_black = {}
+  loadCategory("joints", scene.joints_black, dream)
+  makeInstances(scene.joints_black, "onyx", true)
 
   -- Build label lookup
   for _, mesh in ipairs(scene.labels) do
@@ -264,16 +273,19 @@ function scene.draw(dream)
 
       -- Draw joint mesh
       local jointMesh = scene.joints[idx + 1]
+      jointMesh:setMaterial(jointMesh._matInst)  -- ensure using the instanced material
       dream:draw(jointMesh, transform)
 
       if noteInfo.isBass then
 	transform =
 	    dream.mat4.getTranslate(J[1], J[2], J[3])
             * dream.mat4.getRotateY(angle)
-	    * dream.mat4.getScale(0.95 * s)
+	    * dream.mat4.getScale(0.89 * s)
 	    * dream.mat4.getTranslate(-J[1], -J[2], -J[3])
 
-        dream:draw(jointMesh, transform)
+	local blackMesh = scene.joints_black[idx + 1]
+        blackMesh:setMaterial(blackMesh._matBlack)  -- ensure using the instanced material
+        dream:draw(blackMesh, transform)
       end
     end
   end
