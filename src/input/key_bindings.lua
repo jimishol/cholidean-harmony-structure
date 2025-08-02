@@ -14,10 +14,6 @@ M.bindings = {
   [A.TOGGLE_TORUS_LIGHTS] = { "b" },
   [A.TOGGLE_NOTE_MODE] = { "h" },  -- 🔥 Head/unheard or on/off mode for active status
   [A.RESET_FOV]       = {"f"},
-
-  -- ########## TEMP DEBUG BINDINGS START (delete later) ##########
-  [A.DEBUG_DUMP_STATE]   = { "f4" },  -- F4 dumps scene state to console
-  -- ########## TEMP DEBUG BINDINGS END ##########
 }
 
 --- Returns the action string for the given key, or nil if none.

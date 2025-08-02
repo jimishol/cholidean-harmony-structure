@@ -42,8 +42,4 @@ A.TOGGLE_TORUS_LIGHTS = "toggle_torus_lights"
 
 A.TOGGLE_NOTE_MODE = "toggle_note_mode"
 
--- ########## TEMP DEBUG ACTIONS START (delete later) ##########
-A.DEBUG_DUMP_STATE = "debug_dump_state"   -- print full scene graph to console
--- ########## TEMP DEBUG ACTIONS END ##########
-
 return A
