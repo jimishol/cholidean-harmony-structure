@@ -245,15 +245,12 @@ function scene.draw(dream)
   -- draw geometry
   if scene.showJoints then
     local jointPos        = JointLayout.getJointPositions()
-    local triangleCenters = JointLayout.getTriangleCenters()
-    local dist            = constants.label_distance
+    local angle    = math.pi / 5
 
     for idx = 0, 11 do
       local noteInfo = scene.noteSystem.notes[idx + 1]
       local J = jointPos[idx]
-      local C = triangleCenters[(idx % #triangleCenters) + 1]
 
-      -- Optional: scale more if note is active
       local s = constants.jointScale
       if noteInfo and noteInfo.active then
         s = s * constants.scaleFactor
@@ -268,6 +265,16 @@ function scene.draw(dream)
       -- Draw joint mesh
       local jointMesh = scene.joints[idx + 1]
       dream:draw(jointMesh, transform)
+--      print(noteInfo.name, "is bass = ", noteInfo.isBass)
+      if noteInfo.isBass then
+	transform =
+	    dream.mat4.getTranslate(J[1], J[2], J[3])
+            * dream.mat4.getRotateY(angle)
+	    * dream.mat4.getScale(s)
+	    * dream.mat4.getTranslate(-J[1], -J[2], -J[3])
+
+        dream:draw(jointMesh, transform)
+      end
     end
   end
 

@@ -12,6 +12,7 @@ function Note:new(idx, name, jointObj)
     name      = name,     -- e.g. "C"
     joint     = jointObj, -- the mesh object for this joint
     active    = false,    -- future MIDI on/off
+    isBass    = false,
     midiProps = {},       -- placeholder
   }, Note)
 end
@@ -69,17 +70,29 @@ function NoteSystem:update(dt)
   local changed = false
 
   for slotIdx, note in ipairs(self.notes) do
-    -- Poll current state
+    -- Query both active and bass flags
     local isActive = NoteState.isNoteActive(note.index)
-    note.active = isActive
+    local isBass   = NoteState.isNoteBass(note.index)
 
-    -- Compare with last frame
+    -- Detect any on/off transition
     if isActive ~= self.prevActive[slotIdx] then
       changed = true
     end
+
+    -- Store for next frame’s diff check
     self.prevActive[slotIdx] = isActive
 
-    -- Always refresh geometry
+    -- Update your note object
+    note.active = isActive
+    note.isBass = isBass
+
+    -- Debug
+    print(string.format(
+      "Note %s : active=%s, isBass=%s",
+      note.name,
+      tostring(note.active),
+      tostring(note.isBass)
+    ))
   end
 
   return changed
