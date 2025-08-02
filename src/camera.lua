@@ -180,11 +180,7 @@ end
 
 function M:pressedAction(action)
 
-  if action == A.QUIT then
-    love.event.quit()
-    return true
-
-  elseif action == A.RESET_VIEW and not isResettingOrientation then
+  if action == A.RESET_VIEW and not isResettingOrientation then
     local d = math.sqrt(currentPos.x^2 + currentPos.y^2 + currentPos.z^2)
     local computedPitch, computedYaw = 0, 0
     if d > 0 then
