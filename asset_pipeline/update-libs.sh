@@ -8,16 +8,6 @@ echo "# 📚 Library Versions" > "$OUT"
 echo "Last updated: $DATE" >> "$OUT"
 echo "" >> "$OUT"
 
-# LuaMidi
-echo "→ LuaMidi"
-git fetch luamidi
-git subtree pull --prefix=LuaMidi/src luamidi master --squash
-HASH=$(git log -1 --pretty=format:"%h" LuaMidi/src)
-echo "## LuaMidi" >> "$OUT"
-echo "- 📌 Commit: $HASH ($DATE)" >> "$OUT"
-echo "- 🗂️ Path: LuaMidi/src/" >> "$OUT"
-echo "" >> "$OUT"
-
 # 3DreamEngine core
 echo "→ 3DreamEngine (core)"
 git fetch 3DreamEngine

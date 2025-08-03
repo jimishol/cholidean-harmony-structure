@@ -21,25 +21,43 @@ end
 local NoteSystem = {}
 NoteSystem.__index = NoteSystem
 
-function NoteSystem:new(scene)
-  local instance = setmetatable({ scene = scene, notes = {} }, NoteSystem)
+-- default to instant
+NoteSystem.noteMode = constants.defaultNoteMode
 
-  -- Instantiate notes & bind to joint_00..joint_11
+function NoteSystem:toggleNoteMode()
+  if self.noteMode == "instant" then
+    self.noteMode = "offset"
+  else
+    self.noteMode = "instant"
+  end
+end
+
+function NoteSystem:new(scene)
+  local instance = setmetatable({
+    scene                  = scene,
+    notes                  = {},
+    prevActive             = {},
+    prevBass               = {},
+    deactivationTimers     = {},
+    bassDeactivationTimers = {},
+    offsetDuration         = constants.offsetDuration or 0.2,
+    bassOffsetDuration     = constants.bassOffsetDuration or 0.1,
+  }, NoteSystem)
+
+  -- Instantiate notes & initialize prevActive/prevBass
   for i, name in ipairs(constants.NOTE_ORDER) do
     local jointID = string.format("joint_%02d", i-1)
-
-    -- find the actual mesh object in scene.joints
     local jointObj
     for _, obj in ipairs(scene.joints) do
-      if obj.id == jointID then jointObj = obj; break end
+      if obj.id == jointID then
+        jointObj = obj
+        break
+      end
     end
 
-    instance.notes[i] = Note:new(i, name, jointObj)
-  end
-
-  instance.prevActive = {}
-  for i = 1, #instance.notes do
+    instance.notes[i]      = Note:new(i, name, jointObj)
     instance.prevActive[i] = false
+    instance.prevBass[i]   = false
   end
 
   return instance
@@ -67,25 +85,73 @@ function NoteSystem:shift(offset)
 end
 
 function NoteSystem:update(dt)
-  local changed = false
+  local changed   = false
+  local useOffset = (self.noteMode == "offset")
 
   for slotIdx, note in ipairs(self.notes) do
-    -- Query both active and bass flags
     local isActive = NoteState.isNoteActive(note.index)
     local isBass   = NoteState.isNoteBass(note.index)
 
-    -- Detect any on/off transition
-    if isActive ~= self.prevActive[slotIdx] then
-      changed = true
+    if useOffset then
+      -- ACTIVE WITH OFFSET
+      if     isActive and not self.prevActive[slotIdx] then
+        note.active                       = true
+        self.deactivationTimers[slotIdx]  = nil
+        changed                           = true
+
+      elseif not isActive and self.prevActive[slotIdx] then
+        self.deactivationTimers[slotIdx]  = self.offsetDuration
+      end
+
+      local tA = self.deactivationTimers[slotIdx]
+      if tA then
+        tA = tA - dt
+        if tA <= 0 then
+          note.active                      = false
+          self.deactivationTimers[slotIdx] = nil
+          changed                          = true
+        else
+          self.deactivationTimers[slotIdx] = tA
+        end
+      end
+
+      -- BASS WITH OFFSET
+      if     isBass and not self.prevBass[slotIdx] then
+        note.isBass                         = true
+        self.bassDeactivationTimers[slotIdx] = nil
+        changed                             = true
+
+      elseif not isBass and self.prevBass[slotIdx] then
+        self.bassDeactivationTimers[slotIdx] = self.bassOffsetDuration
+      end
+
+      local tB = self.bassDeactivationTimers[slotIdx]
+      if tB then
+        tB = tB - dt
+        if tB <= 0 then
+          note.isBass                         = false
+          self.bassDeactivationTimers[slotIdx] = nil
+          changed                             = true
+        else
+          self.bassDeactivationTimers[slotIdx] = tB
+        end
+      end
+
+    else
+      -- INSTANT MODE (no offsets)
+      if isActive ~= self.prevActive[slotIdx] then
+        note.active = isActive
+        changed     = true
+      end
+      if isBass ~= self.prevBass[slotIdx] then
+        note.isBass = isBass
+        changed     = true
+      end
     end
 
-    -- Store for next frame’s diff check
+    -- store for next frame’s diff-check
     self.prevActive[slotIdx] = isActive
-
-    -- Update your note object
-    note.active = isActive
-    note.isBass = isBass
-
+    self.prevBass[slotIdx]   = isBass
   end
 
   return changed

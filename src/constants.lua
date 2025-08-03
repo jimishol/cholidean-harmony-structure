@@ -34,8 +34,8 @@ M.autoExposure = {
 -- @field torusRadius Outer radius of torus
 -- @field torusWidth Width of torus ring
 -- @field steps Number of segment steps (for rendering resolution)
-M.torusRadius    = 7
-M.torusWidth     = 3
+M.torusRadius    = 7 -- SHOULD NOT BE ALTERED. Else joints and labels will disconnect from rest of structure
+M.torusWidth     = 3 -- SHOULD NOT BE ALTERED. Else joints and labels will disconnect from rest of structure
 M.label_distance = 1.60  -- factor the distance from center of augmented third triangles to respective joint
 M.label_scale    = 0.85  -- ratio on imported initial size of 3D labels.
 M.label_active_scale = 1.3 -- label size ratio between active and incative tones 
@@ -94,4 +94,10 @@ M.emissionLevels = {
   surfaces = { active = 0.10, inactive = 0.015},
   labels   = { active = 0.40, inactive = 0.005},
 }
+
+M.defaultNoteMode    = "offset" -- delayed turning OFF after note OFF event 
+
+M.offsetDuration     = 0.20 -- offset to delay OFF in seconds. At 120BPM 1 eigth lasts 0.25 seconds. 
+M.bassOffsetDuration = 0.10 -- offsey to delay OFF the bass tone in seconds.
+
 return M
