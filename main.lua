@@ -11,7 +11,6 @@ package.path = table.concat({
   "./extensions/?.lua",
   "./extensions/?/init.lua",
   "./assets/?.lua",
-  "./src/midi/?.lua",
 }, ";") .. ";" .. package.path
 
 -- 2) Require & instantiate 3DreamEngine

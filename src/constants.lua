@@ -3,6 +3,15 @@
 -- @module constants
 
 local M = {}
+
+-- Initial camera placement
+-- @field initialCameraPosition Initial camera position in world space
+M.initialCameraPosition = {
+  x = -17.3,
+  y =  19.7,
+  z = -17.3
+}
+
 M.bck_image	  = "assets/sky/DaySkyHDRI021A_4K.hdr"
 M.day_night       = 8    -- Hour (float) 0:00-24:0.05
 M.day_night_speed = 0.15 -- greater value faster change of background brightness by +/- keys
@@ -35,17 +44,6 @@ M.dynamicLabelFacing = true  -- whether labels rotate to face the camera
 -- Camera projection settings for 3DreamEngine
 -- @field fov Vertical field-of-view in degrees (simulates 50 mm lens)
 M.fov      = 26.8
-
--- Initial camera placement
--- @field initialCameraPosition Initial camera position in world space
--- @field xAt Target point X (for orbit mode or framing)
--- @field yAt Target point Y
--- @field zAt Target point Z
-M.initialCameraPosition = {
-  x = -15.5,
-  y =  20.0,
-  z = -22.0
-}
 
 -- Time duration (seconds) for orientation reset tween
 -- @field resetDuration Duration in seconds to interpolate orientation reset
