@@ -36,7 +36,7 @@ M.autoExposure = {
 -- @field steps Number of segment steps (for rendering resolution)
 M.torusRadius    = 7
 M.torusWidth     = 3
-M.label_distance = 1.55  -- factor the distance from center of augmented third triangles to respective joint
+M.label_distance = 1.60  -- factor the distance from center of augmented third triangles to respective joint
 M.label_scale    = 0.85  -- ratio on imported initial size of 3D labels.
 M.label_active_scale = 1.3 -- label size ratio between active and incative tones 
 M.dynamicLabelFacing = true  -- whether labels rotate to face the camera
@@ -88,10 +88,10 @@ M.activationThreshold = 0.15
 --   .active   when hitVolume ≥ activationThreshold
 --   .inactive when hitVolume <  activationThreshold
 M.emissionLevels = {
-  joints   = { active = 0.15, inactive = 0.005},
-  edges    = { active = 0.15, inactive = 0.005},
-  curves   = { active = 0.15, inactive = 0.005},
+  joints   = { active = 0.20, inactive = 0.005},
+  edges    = { active = 0.10, inactive = 0.005},
+  curves   = { active = 0.10, inactive = 0.005},
   surfaces = { active = 0.10, inactive = 0.015},
-  labels   = { active = 0.30, inactive = 0.005},
+  labels   = { active = 0.40, inactive = 0.005},
 }
 return M
