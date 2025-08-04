@@ -39,6 +39,8 @@ function love.load()
   -- 5) Only now that the engine is initialized and textures are loaded do we load the scene & camera
   scene.load(dream)
   camera:init(dream)
+  local thread = love.thread.newThread("src/midi/track_active_notes.lua")
+  thread:start()
 end
 
 function love.update(dt)
@@ -60,6 +62,8 @@ function love.keypressed(key)
   if not action then return end
 
   if action == A.QUIT then
+    local quit_channel = love.thread.getChannel("quit")
+    quit_channel:push("quit")
     love.event.quit()
     return
   end
