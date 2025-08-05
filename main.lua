@@ -7,6 +7,7 @@ package.path = table.concat({
   "./3DreamEngine/?.lua",
   "./3DreamEngine/?/init.lua",
   "./src/?.lua",
+  "./src/utils/?.lua",
   "./src/?/init.lua",
   "./extensions/?.lua",
   "./extensions/?/init.lua",
@@ -24,12 +25,15 @@ local Input  = require("src.input")
 local A      = require("src.input.actions")
 local Colors = require("src.utils.colors")
 
+local os_detect = require("os_detect")
+local platform = os_detect.getPlatform()
+
 function love.load()
   love.window.setTitle("Cholidean Harmony Structure")
 
   -- 4) Load all materials, then init the engine in the callback
   dream:loadMaterialLibrary("assets/materials")
-  if love.system.getOS() == "Windows" then
+  if platform == "windows" then
     dream:loadMaterialLibrary("assets/materials/materials_dx")
   end
 
