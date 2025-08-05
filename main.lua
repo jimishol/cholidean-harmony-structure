@@ -37,6 +37,13 @@ backendChannel:push(backend)
 local soundfontChannel = love.thread.getChannel("soundfont")
 soundfontChannel:push(constants.soundfont)
 
+local selectedSongs = {
+  "assets/Wagner_Ride_of_the_valkyries.mid",
+}
+local songsChannel = love.thread.getChannel("songs")
+local songList = table.concat(selectedSongs, " ")
+songsChannel:push(songList)
+
 function love.load()
   love.window.setTitle("Cholidean Harmony Structure")
 
