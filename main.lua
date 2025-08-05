@@ -118,18 +118,6 @@ function love.keypressed(key)
     return
   end
 
-    if backend == "fluidsynth" then
-
-      local socket = require("socket")
-      local fluidClient = assert(socket.tcp())
-      assert(fluidClient:connect(host, shellPort))
-
-    elseif backend == "timidity" then
-      print("⚠️ Unknown backend type:", backend)
-    else
-      print("⚠️ Unknown backend type:", backend)
-    end
-
   if action == A.TOGGLE_PLAYBACK then
     midiCtl.togglePlayback(host, shellPort)
     return
