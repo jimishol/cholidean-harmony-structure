@@ -34,8 +34,13 @@ local backend   = constants.backend
 local backendChannel = love.thread.getChannel("backend")
 backendChannel:push(backend)
 
+local host = constants.host
+local shellPortChannel = love.thread.getChannel("shellPort")
+local shellPort = constants.shellPort
+shellPortChannel:push(shellPort)
+
 local soundfontChannel = love.thread.getChannel("soundfont")
-soundfontChannel:push(constants.soundfont)
+soundfontChannel:push(constants.soundfonts)
 
 local playlist = require("src.midi.playlist")
 local selectedSongs = playlist.getSelectedSongs()
@@ -64,6 +69,7 @@ function love.load()
     if backend == "fluidsynth" then
       local thread = love.thread.newThread("src/midi/track_active_notes_thread.lua")
       thread:start()
+
     elseif backend == "timidity" then
       print("⚠️ Unknown backend type:", backend)
     else
@@ -84,6 +90,8 @@ function love.draw()
   dream:present()
   scene.apply()
 end
+
+local midiCtl = require("src.midi.midi_controls")
 
 function love.keypressed(key)
   local action = Input:onKey(key)
@@ -110,6 +118,23 @@ function love.keypressed(key)
     return
   end
 
+    if backend == "fluidsynth" then
+
+      local socket = require("socket")
+      local fluidClient = assert(socket.tcp())
+      assert(fluidClient:connect(host, shellPort))
+
+    elseif backend == "timidity" then
+      print("⚠️ Unknown backend type:", backend)
+    else
+      print("⚠️ Unknown backend type:", backend)
+    end
+
+  if action == A.TOGGLE_PLAYBACK then
+    midiCtl.togglePlayback(host, shellPort)
+    return
+  end
+
   if scene.pressedAction and scene.pressedAction(action) then
     if action == A.ROTATE_CW or action == A.ROTATE_CCW then
       scene.updateLabels()
@@ -120,6 +145,7 @@ function love.keypressed(key)
   if camera.pressedAction and camera:pressedAction(action) then
     return
   end
+
 end
 
 function love.resize(w, h)

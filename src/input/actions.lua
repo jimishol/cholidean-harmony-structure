@@ -42,4 +42,7 @@ A.TOGGLE_TORUS_LIGHTS = "toggle_torus_lights"
 
 A.TOGGLE_NOTE_MODE = "toggle_note_mode"
 
+-- Fluidsynth playback control
+A.TOGGLE_PLAYBACK = "toggle_playback"
+
 return A

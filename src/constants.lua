@@ -4,8 +4,11 @@
 
 local M = {}
 
-M.backend = "fluidsynth" -- the engine that outputs the heard notes
-M.soundfonts = {"assets/FluidR3_GM.sf2"}
+M.backend    = "fluidsynth" -- the engine that outputs the heard notes
+M.soundfonts = "assets/FluidR3_GM.sf2"
+M.shellPort  = 9800 -- port to control fluidsynth when launched with -s option
+M.host	     = "localhost"
+
 -- Initial camera placement
 -- @field initialCameraPosition Initial camera position in world space
 M.initialCameraPosition = {
