@@ -37,9 +37,9 @@ backendChannel:push(backend)
 local soundfontChannel = love.thread.getChannel("soundfont")
 soundfontChannel:push(constants.soundfont)
 
-local selectedSongs = {
-  "assets/Wagner_Ride_of_the_valkyries.mid",
-}
+local playlist = require("src.midi.playlist")
+local selectedSongs = playlist.getSelectedSongs()
+
 local songsChannel = love.thread.getChannel("songs")
 local songList = table.concat(selectedSongs, " ")
 songsChannel:push(songList)
