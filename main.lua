@@ -34,6 +34,9 @@ local backend   = constants.backend
 local backendChannel = love.thread.getChannel("backend")
 backendChannel:push(backend)
 
+local soundfontChannel = love.thread.getChannel("soundfont")
+soundfontChannel:push(constants.soundfont)
+
 function love.load()
   love.window.setTitle("Cholidean Harmony Structure")
 

@@ -5,7 +5,7 @@
 local M = {}
 
 M.backend = "fluidsynth" -- the engine that outputs the heard notes
-
+M.soundfonts = {"assets/FluidR3_GM.sf2"}
 -- Initial camera placement
 -- @field initialCameraPosition Initial camera position in world space
 M.initialCameraPosition = {
