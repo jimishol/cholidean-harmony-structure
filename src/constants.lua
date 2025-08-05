@@ -4,6 +4,8 @@
 
 local M = {}
 
+M.backend = "fluidsynth" -- the engine that outputs the heard notes
+
 -- Initial camera placement
 -- @field initialCameraPosition Initial camera position in world space
 M.initialCameraPosition = {

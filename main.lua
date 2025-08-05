@@ -28,6 +28,12 @@ local Colors = require("src.utils.colors")
 local os_detect = require("os_detect")
 local platform = os_detect.getPlatform()
 
+local constants = require("src.constants")
+local backend   = constants.backend
+
+local backendChannel = love.thread.getChannel("backend")
+backendChannel:push(backend)
+
 function love.load()
   love.window.setTitle("Cholidean Harmony Structure")
 
@@ -43,8 +49,16 @@ function love.load()
   -- 5) Only now that the engine is initialized and textures are loaded do we load the scene & camera
   scene.load(dream)
   camera:init(dream)
-  local thread = love.thread.newThread("src/midi/track_active_notes.lua")
-  thread:start()
+
+    -- Start the correct thread based on backend
+    if backend == "fluidsynth" then
+      local thread = love.thread.newThread("src/midi/track_active_notes_thread.lua")
+      thread:start()
+    elseif backend == "timidity" then
+      print("⚠️ Unknown backend type:", backend)
+    else
+      print("⚠️ Unknown backend type:", backend)
+    end
 end
 
 function love.update(dt)
@@ -68,6 +82,20 @@ function love.keypressed(key)
   if action == A.QUIT then
     local quit_channel = love.thread.getChannel("quit")
     quit_channel:push("quit")
+
+    if backend == "fluidsynth" then
+      if platform == "windows" then
+	os.execute('taskkill /IM fluidsynth.exe /F >NUL 2>&1')
+      else
+	os.execute('pkill -9 fluidsynth > /dev/null 2>&1')
+      end
+    elseif backend == "other_player" then
+      -- Insert "other_player" specific cleanup here if needed
+      -- For now, just placeholder logic
+    else
+      return
+    end
+
     love.event.quit()
     return
   end
