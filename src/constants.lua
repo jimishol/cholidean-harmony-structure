@@ -100,7 +100,7 @@ M.emissionLevels = {
   labels   = { active = 0.40, inactive = 0.005},
 }
 
-M.defaultNoteMode    = "offset" -- delayed turning OFF after note OFF event 
+M.defaultNoteMode    = "instant" -- "instant" or "offset" delayed turning OFF after note OFF event 
 
 M.offsetDuration     = 0.20 -- offset to delay OFF in seconds. At 120BPM 1 eigth lasts 0.25 seconds. 
 M.bassOffsetDuration = 0.10 -- offsey to delay OFF the bass tone in seconds.

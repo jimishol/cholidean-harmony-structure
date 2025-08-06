@@ -32,8 +32,6 @@ local scene = {
 
   -- day/night cycle
   dayTime = constants.day_night,
-  -- command-menu state (initialize closed)
-  commandMenuOpen = false,
 }
 
 -- pre-load the HDR background image
@@ -76,6 +74,7 @@ end
 
 function scene.load(dream)
    local vec3        = dream.vec3
+
    -- 1) Static point‐fill light at origin (subtle night glow)
    fillLight = dream:newLight("point", vec3(0,0,0))
    fillLight:setColor(1, 1, 1)
@@ -167,6 +166,8 @@ function scene.load(dream)
     scene.noteSystem
   )
 
+  -- command-menu state (initialize closed)
+  scene.commandMenuOpen = false
   scene.commandMenu      = CommandMenu:new()
 
 end
@@ -401,12 +402,11 @@ function scene.apply()
   love.graphics.print("Day time: " .. daycycle.formatTime(scene.dayTime), 10, 40)
   love.graphics.print(string.format("Camera Pos : (%.2f, %.2f, %.2f)", V.Pos.x, V.Pos.y, V.Pos.z), 10, 60)
   love.graphics.print(string.format("Camera FOV: (%.2f)", V.fov), 10, 80)
---  love.graphics.print("Note Mode  : " .. (scene.noteMode == "on_off" and "ON/OFF" or "HEARD/UNHEARD"), 10, 100)
-love.graphics.print(
-  "Note Mode  : " ..
-  (NoteSystem.noteMode == "instant" and "INSTANT" or "OFFSET"),
-  10, 100
-)
+  love.graphics.print(
+    "Note Mode  : " ..
+    (NoteSystem.noteMode == "instant" and "INSTANT" or "OFFSET"),
+    10, 100
+  )
 end
 
 return scene

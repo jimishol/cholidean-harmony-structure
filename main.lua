@@ -85,10 +85,22 @@ end
 
 function love.draw()
   dream:prepare()
-  scene.apply()
   scene.draw(dream)
   dream:present()
+
+  -- 2) Reset to screen‐space for HUD & overlays
+  love.graphics.push()
+  love.graphics.origin()
+  love.graphics.setColor(1, 1, 1, 1)
+
+  -- 2.A) Re–draw debug text (since we only wanted it in screen‐space)
   scene.apply()
+  -- draw your command‐menu on top of the scene
+  if scene.commandMenuOpen then
+    scene.commandMenu:draw(10,120)
+  end
+ -- scene.apply()
+  love.graphics.pop()
 end
 
 local midiCtl = require("src.midi.midi_controls")
@@ -100,18 +112,16 @@ function love.keypressed(key)
   -- toggle the in-scene command menu on/off
   if action == A.SHOW_COMMAND_MENU then
     scene.commandMenuOpen = not scene.commandMenuOpen
+    scene.commandMenu:toggle()        -- flip the menu’s internal visible
     return
   end
 
--- if the menu is open, let it handle backspace/escape/return
+  -- when the menu is open, route _all_ keypresses into it
   if scene.commandMenuOpen then
-    local act = scene.commandMenu:keypressed(key)
-    if act then
-      if act == A.QUIT then
-        love.event.quit()
-      elseif scene.pressedAction then
-        scene:pressedAction(act)
-      end
+    local topic = scene.commandMenu:keypressed(key)
+    if topic then
+      midiCtl.send_message(topic, host, shellPort)
+      scene.commandMenuOpen = false
     end
     return
   end
