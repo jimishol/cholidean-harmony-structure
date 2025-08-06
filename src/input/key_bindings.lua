@@ -15,6 +15,8 @@ M.bindings = {
   [A.TOGGLE_NOTE_MODE] = { "h" },  -- 🔥 Head/unheard or on/off mode for active status
   [A.RESET_FOV]       = {"f"},
   [A.TOGGLE_PLAYBACK] = { "p" },
+  [A.BEGIN_SONG] = { "return" },
+  [A.NEXT_SONG] = { "tab" },
 }
 
 --- Returns the action string for the given key, or nil if none.

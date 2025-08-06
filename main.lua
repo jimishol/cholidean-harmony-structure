@@ -123,6 +123,16 @@ function love.keypressed(key)
     return
   end
 
+  if action == A.BEGIN_SONG then
+    midiCtl.beginSong(host, shellPort)
+    return
+  end
+
+  if action == A.NEXT_SONG then
+    midiCtl.nextSong(host, shellPort)
+    return
+  end
+
   if scene.pressedAction and scene.pressedAction(action) then
     if action == A.ROTATE_CW or action == A.ROTATE_CCW then
       scene.updateLabels()

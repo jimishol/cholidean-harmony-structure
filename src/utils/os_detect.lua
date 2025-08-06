@@ -1,4 +1,4 @@
--- os_detect.lua
+-- srx/ustils/os_detect.lua
 local M = {}
 
 function M.getPlatform()

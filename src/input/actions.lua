@@ -44,5 +44,7 @@ A.TOGGLE_NOTE_MODE = "toggle_note_mode"
 
 -- Fluidsynth playback control
 A.TOGGLE_PLAYBACK = "toggle_playback"
+A.BEGIN_SONG = "play_from_begin"
+A.NEXT_SONG = "move_to_next_song"
 
 return A
