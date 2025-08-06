@@ -10,6 +10,7 @@ local camera      = require("camera")
 local A           = require("src.input.actions")
 local Colors      = require("src.utils.colors")
 local materials   = require("src.utils.materials")
+local CommandMenu = require("src.midi.command_menu")
 
 local scene = {
   -- geometry containers
@@ -31,6 +32,8 @@ local scene = {
 
   -- day/night cycle
   dayTime = constants.day_night,
+  -- command-menu state (initialize closed)
+  commandMenuOpen = false,
 }
 
 -- pre-load the HDR background image
@@ -164,6 +167,8 @@ function scene.load(dream)
     scene.noteSystem
   )
 
+  scene.commandMenu      = CommandMenu:new()
+
 end
 
 local firstFrame = true
@@ -176,17 +181,20 @@ function scene:update(dt)
     skyExt:setDaytime(sun, sunFactor)
   end
 
-  -- adjust dayTime with + / -
-  if love.keyboard.isDown("+", "=") then
-    scene.dayTime = (scene.dayTime + constants.day_night_speed) % 24
-    sunFactor, envBrightness = daycycle.computeDaycycle(scene.dayTime)
-    sun:setBrightness(constants.sunBrightness * envBrightness)
-    skyExt:setDaytime(sun, sunFactor)
-  elseif love.keyboard.isDown("-") then
-    scene.dayTime = (scene.dayTime - constants.day_night_speed) % 24
-    sunFactor, envBrightness = daycycle.computeDaycycle(scene.dayTime)
-    sun:setBrightness(constants.sunBrightness * envBrightness)
-    skyExt:setDaytime(sun, sunFactor)
+  -- only adjust dayTime if command-menu is closed
+  if not self.commandMenuOpen then
+    if love.keyboard.isDown("+", "=") then
+      self.dayTime = (self.dayTime + constants.day_night_speed) % 24
+      local sunFactor, envBrightness = daycycle.computeDaycycle(self.dayTime)
+      sun:setBrightness(constants.sunBrightness * envBrightness)
+      skyExt:setDaytime(sun, sunFactor)
+
+    elseif love.keyboard.isDown("-") then
+      self.dayTime = (self.dayTime - constants.day_night_speed) % 24
+      local sunFactor, envBrightness = daycycle.computeDaycycle(self.dayTime)
+      sun:setBrightness(constants.sunBrightness * envBrightness)
+      skyExt:setDaytime(sun, sunFactor)
+    end
   end
 
   -- Poll NoteSystem; only reassign if something actually changed
@@ -329,6 +337,11 @@ function scene.draw(dream)
     end
 
   end
+
+  if scene.commandMenuOpen then
+    scene.commandMenu:draw()
+  end
+
 end
 
 function scene.pressedAction(action)
@@ -368,13 +381,13 @@ function scene.pressedAction(action)
     return true
   end
 
--- 🎵 NEW: note mode toggle
-if action == A.TOGGLE_NOTE_MODE then
-  -- swap between “instant” and “offset” modes
-  NoteSystem:toggleNoteMode()
-  scene.apply()
-  return true
-end
+  -- 🎵 NEW: note mode toggle
+  if action == A.TOGGLE_NOTE_MODE then
+    -- swap between “instant” and “offset” modes
+    NoteSystem:toggleNoteMode()
+    scene.apply()
+    return true
+  end
 
   return false
 end

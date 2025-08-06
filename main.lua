@@ -97,6 +97,25 @@ function love.keypressed(key)
   local action = Input:onKey(key)
   if not action then return end
 
+  -- toggle the in-scene command menu on/off
+  if action == A.SHOW_COMMAND_MENU then
+    scene.commandMenuOpen = not scene.commandMenuOpen
+    return
+  end
+
+-- if the menu is open, let it handle backspace/escape/return
+  if scene.commandMenuOpen then
+    local act = scene.commandMenu:keypressed(key)
+    if act then
+      if act == A.QUIT then
+        love.event.quit()
+      elseif scene.pressedAction then
+        scene:pressedAction(act)
+      end
+    end
+    return
+  end
+
   if action == A.QUIT then
     local quit_channel = love.thread.getChannel("quit")
     quit_channel:push("quit")
@@ -144,6 +163,16 @@ function love.keypressed(key)
     return
   end
 
+end
+
+-- 2) Handle text input when the menu is open
+function love.textinput(t)
+  if scene.commandMenuOpen then
+    -- this feeds letters into your command prompt
+    scene.commandMenu:textinput(t)
+    return
+  end
+  -- otherwise ignore or pass to other systems
 end
 
 function love.resize(w, h)

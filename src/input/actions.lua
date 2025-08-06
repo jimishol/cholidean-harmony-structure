@@ -47,4 +47,7 @@ A.TOGGLE_PLAYBACK = "toggle_playback"
 A.BEGIN_SONG = "play_from_begin"
 A.NEXT_SONG = "move_to_next_song"
 
+-- Extended command popup (triggered by “:”)
+A.SHOW_COMMAND_MENU = "show_command_menu"
+
 return A
