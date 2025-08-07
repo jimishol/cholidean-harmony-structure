@@ -10,7 +10,7 @@ local camera      = require("camera")
 local A           = require("src.input.actions")
 local Colors      = require("src.utils.colors")
 local materials   = require("src.utils.materials")
-local CommandMenu = require("src.midi.command_menu")
+local commandMenu = require("src.midi.command_menu")
 
 local scene = {
   -- geometry containers
@@ -167,8 +167,7 @@ function scene.load(dream)
   )
 
   -- command-menu state (initialize closed)
-  scene.commandMenuOpen = false
-  scene.commandMenu      = CommandMenu:new()
+  scene.commandMenu      = commandMenu:new()
 
 end
 
@@ -182,8 +181,9 @@ function scene:update(dt)
     skyExt:setDaytime(sun, sunFactor)
   end
 
+  local commandMenuOpen = self.commandMenu.visible
   -- only adjust dayTime if command-menu is closed
-  if not self.commandMenuOpen then
+  if not commandMenuOpen then
     if love.keyboard.isDown("+", "=") then
       self.dayTime = (self.dayTime + constants.day_night_speed) % 24
       local sunFactor, envBrightness = daycycle.computeDaycycle(self.dayTime)
@@ -337,10 +337,6 @@ function scene.draw(dream)
       end
     end
 
-  end
-
-  if scene.commandMenuOpen then
-    scene.commandMenu:draw()
   end
 
 end

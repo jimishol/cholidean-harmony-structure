@@ -96,8 +96,9 @@ function love.draw()
 
   -- 2.A) Re–draw debug text (since we only wanted it in screen‐space)
   scene.apply()
+
   -- draw your command‐menu on top of the scene
-  if scene.commandMenuOpen then
+  if scene.commandMenu.visible then
     scene.commandMenu:draw(10,120)
   end
  -- scene.apply()
@@ -108,12 +109,12 @@ local midiCtl = require("src.midi.midi_controls")
 
 function love.keypressed(key, scancode)
   -- 1) If the menu is open, let it consume every key
-  if scene.commandMenuOpen then
+  if scene.commandMenu.visible then
     -- pass both key & scancode into your menu
     local topic = scene.commandMenu:keypressed(key, scancode)
     if topic then
       midiCtl.send_message(topic, host, shellPort)
-      scene.commandMenuOpen = false
+      scene.commandMenu.visible = midiCtl.visible
     end
     return
   end
@@ -126,7 +127,6 @@ function love.keypressed(key, scancode)
 
   -- 3) Toggle the menu on your SHOW_COMMAND_MENU action
   if action == A.SHOW_COMMAND_MENU then
-    scene.commandMenuOpen = true
     scene.commandMenu:toggle()
     return
   end
@@ -178,14 +178,13 @@ end
 -- 2) Handle text input when the menu is open
 function love.textinput(t)
   -- 1) When menu is hidden, open on colon keystroke
-  if t == ":" and not scene.commandMenuOpen then
-    scene.commandMenuOpen = true
+  if t == ":" and not scene.commandMenu.visible then
     scene.commandMenu:toggle()
     return
   end
 
   -- 2) When menu is open, feed text into it
-  if scene.commandMenuOpen then
+  if scene.commandMenu.visible then
     scene.commandMenu:textinput(t)
     return
   end
