@@ -51,6 +51,7 @@ songsChannel:push(songList)
 
 function love.load()
   love.window.setTitle("Cholidean Harmony Structure")
+  love.keyboard.setTextInput(true)
 
   -- 4) Load all materials, then init the engine in the callback
   dream:loadMaterialLibrary("assets/materials")
@@ -105,20 +106,11 @@ end
 
 local midiCtl = require("src.midi.midi_controls")
 
-function love.keypressed(key)
-  local action = Input:onKey(key)
-  if not action then return end
-
-  -- toggle the in-scene command menu on/off
-  if action == A.SHOW_COMMAND_MENU then
-    scene.commandMenuOpen = not scene.commandMenuOpen
-    scene.commandMenu:toggle()        -- flip the menu’s internal visible
-    return
-  end
-
-  -- when the menu is open, route _all_ keypresses into it
+function love.keypressed(key, scancode)
+  -- 1) If the menu is open, let it consume every key
   if scene.commandMenuOpen then
-    local topic = scene.commandMenu:keypressed(key)
+    -- pass both key & scancode into your menu
+    local topic = scene.commandMenu:keypressed(key, scancode)
     if topic then
       midiCtl.send_message(topic, host, shellPort)
       scene.commandMenuOpen = false
@@ -126,23 +118,32 @@ function love.keypressed(key)
     return
   end
 
+  -- 2) When menu is closed, fall back to your normal keybindings
+  local action = Input:onKey(key)
+  if not action then
+    return
+  end
+
+  -- 3) Toggle the menu on your SHOW_COMMAND_MENU action
+  if action == A.SHOW_COMMAND_MENU then
+    scene.commandMenuOpen = true
+    scene.commandMenu:toggle()
+    return
+  end
+
+  -- 4) Handle all your existing actions exactly as before
   if action == A.QUIT then
     local quit_channel = love.thread.getChannel("quit")
     quit_channel:push("quit")
-
     if backend == "fluidsynth" then
       if platform == "windows" then
-	os.execute('taskkill /IM fluidsynth.exe /F >NUL 2>&1')
+        os.execute('taskkill /IM fluidsynth.exe /F >NUL 2>&1')
       else
-	os.execute('pkill -9 fluidsynth > /dev/null 2>&1')
+        os.execute('pkill -9 fluidsynth > /dev/null 2>&1')
       end
     elseif backend == "other_player" then
-      -- Insert "other_player" specific cleanup here if needed
-      -- For now, just placeholder logic
-    else
-      return
+      -- your other cleanup
     end
-
     love.event.quit()
     return
   end
@@ -172,17 +173,24 @@ function love.keypressed(key)
   if camera.pressedAction and camera:pressedAction(action) then
     return
   end
-
 end
 
 -- 2) Handle text input when the menu is open
 function love.textinput(t)
+  -- 1) When menu is hidden, open on colon keystroke
+  if t == ":" and not scene.commandMenuOpen then
+    scene.commandMenuOpen = true
+    scene.commandMenu:toggle()
+    return
+  end
+
+  -- 2) When menu is open, feed text into it
   if scene.commandMenuOpen then
-    -- this feeds letters into your command prompt
     scene.commandMenu:textinput(t)
     return
   end
-  -- otherwise ignore or pass to other systems
+
+  -- 3) Otherwise ignore or dispatch to other systems
 end
 
 function love.resize(w, h)

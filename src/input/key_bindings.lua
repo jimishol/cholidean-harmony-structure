@@ -17,7 +17,7 @@ M.bindings = {
   [A.TOGGLE_PLAYBACK] = { "p" },
   [A.BEGIN_SONG] = { "tab" },
   [A.NEXT_SONG] = { "return" },
-  [A.SHOW_COMMAND_MENU]   = { "m" },
+  [A.SHOW_COMMAND_MENU]   = { ":" },
 }
 
 --- Returns the action string for the given key, or nil if none.
