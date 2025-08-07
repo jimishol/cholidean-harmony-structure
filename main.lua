@@ -81,7 +81,6 @@ function love.load()
   camera:init(dream)
 
   -- Start the correct backend thread
-  local Backend = require("src.backends")
   Backend.start(backend)
 end
 
@@ -108,7 +107,12 @@ function love.draw()
   if scene.commandMenu.visible then
     scene.commandMenu:draw(10,120)
   end
- -- scene.apply()
+
+  if Backend.fallbackMessage then
+    love.graphics.setColor(1, 0.8, 0)      -- amber
+    love.graphics.print(Backend.fallbackMessage, 10, 10)
+  end
+
   love.graphics.pop()
 end
 
