@@ -4,7 +4,7 @@
 
 local M = {}
 
-M.backend    = "" --"fluidsynth" -- the engine that outputs the heard notes
+M.backend    = "fluidsynth" -- "null" --"fluidsynth" -- the engine that outputs the heard notes
 M.soundfonts = "assets/FluidR3_GM.sf2"
 M.shellPort  = 9800 -- port to control fluidsynth when launched with -s option
 M.host	     = "localhost"

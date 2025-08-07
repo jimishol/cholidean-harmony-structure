@@ -30,38 +30,16 @@ local platform = os_detect.getPlatform()
 
 local constants = require("src.constants")
 local backend   = constants.backend
--- Centralized backend module loader
+
+-- Initialize the centralized backend loader
+local Backend = require("src.backends")
+Backend.setup(backend)
+
 local backendModules = {
-  noteState = require("src.backends.note_state")  -- always required
+  noteState   = require("src.backends.note_state"),
+  controls    = Backend.controls,
+  commandMenu = Backend.commandMenu,
 }
-
-if backend and backend ~= "" then
-  local ok_controls, controls    = pcall(require, "src.backends." .. backend .. ".backend_controls")
-  local ok_commandMenu, commandMenu = pcall(require, "src.backends." .. backend .. ".command_menu")
-
-  if ok_controls then backendModules.controls = controls end
-  if ok_commandMenu then backendModules.commandMenu = commandMenu end
-else
-  print("🛠️ Running in manual watcher mode (no backend)")
-end
-
-if backend and backend ~= "" then
-  local ok_controls, controls    = pcall(require, "src.backends." .. backend .. ".backend_controls")
-  local ok_commandMenu, commandMenu = pcall(require, "src.backends." .. backend .. ".command_menu")
-
-  if ok_controls then backendModules.controls = controls end
-  if ok_commandMenu then backendModules.commandMenu = commandMenu end
-else
-  print("🛠️ Running in manual watcher mode (no backend)")
-end
-
--- ✅ Load backend-neutral playlist
-local ok_playlist, playlist = pcall(require, "src.backends.playlist")
-if ok_playlist then
-  backendModules.playlist = playlist
-else
-  print("⚠️ Failed to load playlist module")
-end
 
 local backendChannel = love.thread.getChannel("backend")
 backendChannel:push(backend)
@@ -74,6 +52,11 @@ shellPortChannel:push(shellPort)
 local soundfontChannel = love.thread.getChannel("soundfont")
 soundfontChannel:push(constants.soundfonts)
 
+-- ✅ Load backend-neutral playlist
+local ok_playlist, playlist = pcall(require, "src.backends.playlist")
+backendModules.playlist = ok_playlist and playlist or {
+  getSelectedSongs = function() return {} end  -- empty playlist in manual mode
+}
 local selectedSongs = backendModules.playlist.getSelectedSongs()
 
 local songsChannel = love.thread.getChannel("songs")
