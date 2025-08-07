@@ -22,7 +22,7 @@ local cmd = string.format(
   songList
 )
 
-local output_file  = "src/midi/active_notes.lua"
+local output_file  = "active_notes.lua"
 local active_notes = {}
 
 -- Define dump_active *before* calling it

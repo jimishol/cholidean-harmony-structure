@@ -10,7 +10,6 @@ local camera      = require("camera")
 local A           = require("src.input.actions")
 local Colors      = require("src.utils.colors")
 local materials   = require("src.utils.materials")
-local commandMenu = require("src.midi.command_menu")
 
 local scene = {
   -- geometry containers
@@ -72,7 +71,7 @@ local function loadCategory(folder, out, dream)
   end
 end
 
-function scene.load(dream)
+function scene.load(dream, commandMenu)
    local vec3        = dream.vec3
 
    -- 1) Static point‐fill light at origin (subtle night glow)

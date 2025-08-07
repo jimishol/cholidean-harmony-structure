@@ -1,7 +1,15 @@
 -- src/systems/note_system.lua
 
 local constants = require("src.constants")
-local NoteState = require("midi.note_state")
+local backend = constants.backend or "fluidsynth" -- or however you define it
+
+local NoteState
+
+if backend and backend ~= "" then
+  NoteState = require("src.backends.note_state")
+else
+  NoteState = require("src.backends.note_state")  -- fallback to default watcher
+end
 
 -- Single-note abstraction
 local Note = {}

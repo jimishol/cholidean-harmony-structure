@@ -30,6 +30,13 @@ local platform = os_detect.getPlatform()
 
 local constants = require("src.constants")
 local backend   = constants.backend
+-- Centralized backend module loader
+local backendModules = {
+  controls     = require("src.backends." .. backend .. ".backend_controls"),
+  noteState    = require("src.backends.note_state"),
+  playlist     = require("src.backends." .. backend .. ".playlist"),
+  commandMenu  = require("src.backends." .. backend .. ".command_menu"),
+}
 
 local backendChannel = love.thread.getChannel("backend")
 backendChannel:push(backend)
@@ -42,8 +49,7 @@ shellPortChannel:push(shellPort)
 local soundfontChannel = love.thread.getChannel("soundfont")
 soundfontChannel:push(constants.soundfonts)
 
-local playlist = require("src.midi.playlist")
-local selectedSongs = playlist.getSelectedSongs()
+local selectedSongs = backendModules.playlist.getSelectedSongs()
 
 local songsChannel = love.thread.getChannel("songs")
 local songList = table.concat(selectedSongs, " ")
@@ -63,19 +69,12 @@ function love.load()
   Colors.init(dream)
 
   -- 5) Only now that the engine is initialized and textures are loaded do we load the scene & camera
-  scene.load(dream)
+  scene.load(dream, backendModules.commandMenu)
   camera:init(dream)
 
-    -- Start the correct thread based on backend
-    if backend == "fluidsynth" then
-      local thread = love.thread.newThread("src/midi/track_active_notes_thread.lua")
-      thread:start()
-
-    elseif backend == "timidity" then
-      print("⚠️ Unknown backend type:", backend)
-    else
-      print("⚠️ Unknown backend type:", backend)
-    end
+  -- Start the correct backend thread
+  local Backend = require("src.backends")
+  Backend.start(backend)
 end
 
 function love.update(dt)
@@ -105,7 +104,7 @@ function love.draw()
   love.graphics.pop()
 end
 
-local midiCtl = require("src.midi.midi_controls")
+local backendCtl = backendModules.controls
 
 function love.keypressed(key, scancode)
   -- 1) If the menu is open, let it consume every key
@@ -113,8 +112,8 @@ function love.keypressed(key, scancode)
     -- pass both key & scancode into your menu
     local topic = scene.commandMenu:keypressed(key, scancode)
     if topic then
-      midiCtl.send_message(topic, host, shellPort)
-      scene.commandMenu.visible = midiCtl.visible
+      backendCtl.send_message(topic, host, shellPort)
+      scene.commandMenu.visible = backendCtl.visible
     end
     return
   end
@@ -149,17 +148,17 @@ function love.keypressed(key, scancode)
   end
 
   if action == A.TOGGLE_PLAYBACK then
-    midiCtl.togglePlayback(host, shellPort)
+    backendCtl.togglePlayback(host, shellPort)
     return
   end
 
   if action == A.BEGIN_SONG then
-    midiCtl.beginSong(host, shellPort)
+    backendCtl.beginSong(host, shellPort)
     return
   end
 
   if action == A.NEXT_SONG then
-    midiCtl.nextSong(host, shellPort)
+    backendCtl.nextSong(host, shellPort)
     return
   end
 
