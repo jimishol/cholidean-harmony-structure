@@ -32,11 +32,36 @@ local constants = require("src.constants")
 local backend   = constants.backend
 -- Centralized backend module loader
 local backendModules = {
-  controls     = require("src.backends." .. backend .. ".backend_controls"),
-  noteState    = require("src.backends.note_state"),
-  playlist     = require("src.backends." .. backend .. ".playlist"),
-  commandMenu  = require("src.backends." .. backend .. ".command_menu"),
+  noteState = require("src.backends.note_state")  -- always required
 }
+
+if backend and backend ~= "" then
+  local ok_controls, controls    = pcall(require, "src.backends." .. backend .. ".backend_controls")
+  local ok_commandMenu, commandMenu = pcall(require, "src.backends." .. backend .. ".command_menu")
+
+  if ok_controls then backendModules.controls = controls end
+  if ok_commandMenu then backendModules.commandMenu = commandMenu end
+else
+  print("🛠️ Running in manual watcher mode (no backend)")
+end
+
+if backend and backend ~= "" then
+  local ok_controls, controls    = pcall(require, "src.backends." .. backend .. ".backend_controls")
+  local ok_commandMenu, commandMenu = pcall(require, "src.backends." .. backend .. ".command_menu")
+
+  if ok_controls then backendModules.controls = controls end
+  if ok_commandMenu then backendModules.commandMenu = commandMenu end
+else
+  print("🛠️ Running in manual watcher mode (no backend)")
+end
+
+-- ✅ Load backend-neutral playlist
+local ok_playlist, playlist = pcall(require, "src.backends.playlist")
+if ok_playlist then
+  backendModules.playlist = playlist
+else
+  print("⚠️ Failed to load playlist module")
+end
 
 local backendChannel = love.thread.getChannel("backend")
 backendChannel:push(backend)
@@ -104,19 +129,25 @@ function love.draw()
   love.graphics.pop()
 end
 
-local backendCtl = backendModules.controls
+local backendCtl = backendModules.controls or {}
 
 function love.keypressed(key, scancode)
-  -- 1) If the menu is open, let it consume every key
-  if scene.commandMenu.visible then
-    -- pass both key & scancode into your menu
-    local topic = scene.commandMenu:keypressed(key, scancode)
-    if topic then
+
+if scene.commandMenu.visible then
+  local topic = scene.commandMenu:keypressed(key, scancode)
+
+  if topic then
+    if backendCtl.send_message then
       backendCtl.send_message(topic, host, shellPort)
-      scene.commandMenu.visible = backendCtl.visible
+      scene.commandMenu.visible = backendCtl.visible or false
+    else
+      print("⚠️ No backend available to send message: " .. topic)
+      scene.commandMenu.visible = false  -- fallback: hide menu
     end
-    return
   end
+
+  return
+end
 
   -- 2) When menu is closed, fall back to your normal keybindings
   local action = Input:onKey(key)
@@ -147,18 +178,15 @@ function love.keypressed(key, scancode)
     return
   end
 
-  if action == A.TOGGLE_PLAYBACK then
-    backendCtl.togglePlayback(host, shellPort)
-    return
-  end
-
-  if action == A.BEGIN_SONG then
-    backendCtl.beginSong(host, shellPort)
-    return
-  end
-
-  if action == A.NEXT_SONG then
-    backendCtl.nextSong(host, shellPort)
+  local backendActions = {
+    [A.TOGGLE_PLAYBACK] = "togglePlayback",
+    [A.BEGIN_SONG]      = "beginSong",
+    [A.NEXT_SONG]       = "nextSong",
+  }
+  
+  local methodName = backendActions[action]
+  if methodName and backendCtl[methodName] then
+    backendCtl[methodName](host, shellPort)
     return
   end
 
