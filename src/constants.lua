@@ -4,7 +4,7 @@
 
 local M = {}
 
-M.backend    = "null" --"fluidsynth" -- the engine that outputs the heard notes
+M.backend    = "fluidsynth" -- The engine that outputs the heard notes or "null" if active_notes.lua is edited by hand!
 M.soundfonts = "assets/FluidR3_GM.sf2"
 M.shellPort  = 9800 -- port to control fluidsynth when launched with -s option
 M.host	     = "localhost"
@@ -100,9 +100,9 @@ M.emissionLevels = {
   labels   = { active = 0.40, inactive = 0.005},
 }
 
-M.defaultNoteMode    = "instant" -- "instant" or "offset" delayed turning OFF after note OFF event 
+M.defaultNoteMode    = "offset" -- "instant" or "offset" delayed turning OFF after note OFF event 
 
-M.offsetDuration     = 0.20 -- offset to delay OFF in seconds. At 120BPM 1 eigth lasts 0.25 seconds. 
-M.bassOffsetDuration = 0.10 -- offsey to delay OFF the bass tone in seconds.
+M.offsetDuration     = 0.15 -- offset to delay OFF in seconds. At 120BPM 1 eigth lasts 0.25 seconds. 
+M.bassOffsetDuration = 0.07 -- offset to delay OFF the bass tone in seconds.
 
 return M
