@@ -27,6 +27,8 @@ local Colors = require("src.utils.colors")
 
 local os_detect = require("os_detect")
 local platform = os_detect.getPlatform()
+local platformChannel = love.thread.getChannel("platform")
+platformChannel:push(platform)
 
 local constants = require("src.constants")
 local backend   = constants.backend

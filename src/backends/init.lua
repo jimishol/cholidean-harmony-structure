@@ -9,10 +9,27 @@ end
 function M.setup(backendName)
   local candidate = (backendName or "") ~= "" and backendName or "null"
 
-  -- <— INSERT: capture fallback message
+  local messages = {}
+
+  -- 1) Check for unknown backend
   if not love.filesystem.getInfo("src/backends/" .. candidate, "directory") then
-    M.fallbackMessage = ("⚠️ Unknown backend '%s', falling back to null"):format(backendName)
+    table.insert(messages, ("⚠️ Unknown backend '%s', falling back to null"):format(backendName))
     candidate = "null"
+  end
+
+  -- 2) Check for winPTY on Windows
+  if love.system.getOS() == "Windows" then
+    local test = io.popen("where winpty")
+    local result = test:read("*a")
+    test:close()
+    if result == "" then
+      table.insert(messages, "⚠️ winPTY not found. Real-time MIDI tracking will not work.")
+    end
+  end
+
+  -- 3) Combine messages if any
+  if #messages > 0 then
+    M.fallbackMessage = table.concat(messages, "\n")
   end
 
   M.name        = candidate

@@ -1,31 +1,48 @@
 -- /src/midi/track_active_notes_thread.lua
 
-local quit_channel = love.thread.getChannel("quit")
-local backendChannel = love.thread.getChannel("backend")
-local backend     = backendChannel:pop()
+-- Get platform from main thread
+local platformChannel = love.thread.getChannel("platform")
+local platform = platformChannel:pop()
 
+local quit_channel     = love.thread.getChannel("quit")
+local backendChannel   = love.thread.getChannel("backend")
 local soundfontChannel = love.thread.getChannel("soundfont")
-local soundfont = soundfontChannel:pop()
-local songsChannel = love.thread.getChannel("songs")
-local songList = songsChannel:pop()
+local songsChannel     = love.thread.getChannel("songs")
 
+local backend   = backendChannel:pop()
+local soundfont = soundfontChannel:pop()
+local songList  = songsChannel:pop()
 local shellPort = love.thread.getChannel("shellPort"):pop()
 
-local cmd = string.format(
-  'stdbuf -oL %s -ds ' ..
-  '-o audio.period-size=128 ' ..
-  '-o audio.periods=32 ' ..
-  '-o shell.port=%d %s %s',
-  backend,
-  shellPort,
-  soundfont,
-  songList
-)
+-- Construct command based on platform
+local cmd
+if platform == "windows" then
+  cmd = string.format(
+    'winpty %s -ds ' ..
+    '-o audio.period-size=128 ' ..
+    '-o audio.periods=32 ' ..
+    '-o shell.port=%d %s %s',
+    backend,
+    shellPort,
+    soundfont,
+    songList
+  )
+else
+  cmd = string.format(
+    'stdbuf -oL %s -ds ' ..
+    '-o audio.period-size=128 ' ..
+    '-o audio.periods=32 ' ..
+    '-o shell.port=%d %s %s',
+    backend,
+    shellPort,
+    soundfont,
+    songList
+  )
+end
 
 local output_file  = "active_notes.lua"
 local active_notes = {}
 
--- Define dump_active *before* calling it
 local function dump_active()
   local set = {}
   for _, note in pairs(active_notes) do set[note.key] = true end
@@ -46,10 +63,9 @@ end
 -- Clear on startup
 dump_active()
 
-local pipe         = assert(io.popen(cmd, "r"))
--- Main loop: consume quit *and* read one line per iteration
-while true do
+local pipe = assert(io.popen(cmd, "r"))
 
+while true do
   local line = pipe:read("*l")
   if not line then break end
 
@@ -65,10 +81,7 @@ while true do
     end
   end
 
-  if quit_channel:peek() == "quit" then
-    break
-  end
-
+  if quit_channel:peek() == "quit" then break end
 end
 
 pipe:close()
