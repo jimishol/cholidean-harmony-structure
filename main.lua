@@ -51,7 +51,7 @@ local shellPortChannel = love.thread.getChannel("shellPort")
 local shellPort = constants.shellPort
 shellPortChannel:push(shellPort)
 
-local soundfontChannel = love.thread.getChannel("soundfont")
+local soundfontChannel = love.thread.getChannel("soundfonts")
 soundfontChannel:push(constants.soundfonts)
 
 -- ✅ Load backend-neutral playlist
@@ -122,21 +122,21 @@ local backendCtl = backendModules.controls or {}
 
 function love.keypressed(key, scancode)
 
-if scene.commandMenu.visible then
-  local topic = scene.commandMenu:keypressed(key, scancode)
+  if scene.commandMenu.visible then
+    local topic = scene.commandMenu:keypressed(key, scancode)
 
-  if topic then
-    if backendCtl.send_message then
-      backendCtl.send_message(topic, host, shellPort)
-      scene.commandMenu.visible = backendCtl.visible or false
-    else
-      print("⚠️ No backend available to send message: " .. topic)
-      scene.commandMenu.visible = false  -- fallback: hide menu
+    if topic then
+      if backendCtl.send_message then
+        backendCtl.send_message(topic, host, shellPort)
+        scene.commandMenu.visible = backendCtl.visible or false
+      else
+        print("⚠️ No backend available to send message: " .. topic)
+        scene.commandMenu.visible = false  -- fallback: hide menu
+      end
     end
-  end
 
-  return
-end
+    return
+  end
 
   -- 2) When menu is closed, fall back to your normal keybindings
   local action = Input:onKey(key)
@@ -172,7 +172,7 @@ end
     [A.BEGIN_SONG]      = "beginSong",
     [A.NEXT_SONG]       = "nextSong",
   }
-  
+
   local methodName = backendActions[action]
   if methodName and backendCtl[methodName] then
     backendCtl[methodName](host, shellPort)

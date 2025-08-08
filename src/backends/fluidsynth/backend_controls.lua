@@ -2,8 +2,8 @@
 local socket = require("socket")
 
 local function send_command(message, host, port)
-  local external_host = host or "127.0.0.1"
-  local shellPort     = port or 9800
+  local external_host = host
+  local shellPort     = port
 
   print(string.format(
     "[midi_controls] Sending `%s` to %s:%d",

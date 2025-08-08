@@ -7,6 +7,7 @@ local A = {}
 
 -- Application control
 A.QUIT           = "quit"
+A.RESTART	 = "restart"
 A.RESET_VIEW     = "reset_view"    -- reset camera orientation
 A.RESET_FOV      = "reset_fov"
 A.TOGGLE_DEBUG   = "toggle_debug" -- Toggle FPS + camera position (yaw/pitch) overlay

@@ -6,7 +6,7 @@ local platform = platformChannel:pop()
 
 local quit_channel     = love.thread.getChannel("quit")
 local backendChannel   = love.thread.getChannel("backend")
-local soundfontChannel = love.thread.getChannel("soundfont")
+local soundfontChannel = love.thread.getChannel("soundfonts")
 local songsChannel     = love.thread.getChannel("songs")
 
 local backend   = backendChannel:pop()
