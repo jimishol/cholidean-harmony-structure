@@ -2,18 +2,18 @@
 
 -- Get platform from main thread
 local platformChannel = love.thread.getChannel("platform")
-local platform = platformChannel:pop()
+local platform = platformChannel:peek()
 
 local quit_channel     = love.thread.getChannel("quit")
 local backendChannel   = love.thread.getChannel("backend")
 local soundfontChannel = love.thread.getChannel("soundfonts")
 local songsChannel     = love.thread.getChannel("songs")
 
-local backend   = backendChannel:pop()
-local soundfont = soundfontChannel:pop()
-local songList  = songsChannel:pop()
-local shellPort = love.thread.getChannel("shellPort"):pop()
-local shellHost = love.thread.getChannel("shellHost"):pop() -- It is not used by fluidsynth that defaults to "locahost" or 127.0.0.1
+local backend   = backendChannel:peek()
+local soundfont = soundfontChannel:peek()
+local songList  = songsChannel:peek()
+local shellPort = love.thread.getChannel("shellPort"):peek()
+local shellHost = love.thread.getChannel("shellHost"):peek() -- It is not used by fluidsynth that defaults to "locahost" or 127.0.0.1
 
 -- Construct command based on platform
 local cmd
@@ -82,7 +82,7 @@ while true do
     end
   end
 
-  if quit_channel:peek() == "quit" then break end
+  if quit_channel:pop() == "quit" then break end
 end
 
 pipe:close()

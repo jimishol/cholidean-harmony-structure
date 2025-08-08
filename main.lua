@@ -174,7 +174,8 @@ function love.keypressed(key, scancode)
   if action == A.RESTART then
     quit_channel:push("quit")
     genericQuit()
-    love.event.restart()
+    Backend.setup(backend)
+    Backend.start(backend)
     return
   end
 
