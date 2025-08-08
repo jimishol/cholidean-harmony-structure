@@ -13,6 +13,7 @@ local backend   = backendChannel:pop()
 local soundfont = soundfontChannel:pop()
 local songList  = songsChannel:pop()
 local shellPort = love.thread.getChannel("shellPort"):pop()
+local shellHost = love.thread.getChannel("shellHost"):pop() -- It is not used by fluidsynth that defaults to "locahost" or 127.0.0.1
 
 -- Construct command based on platform
 local cmd

@@ -1,4 +1,4 @@
---src/midi/midi_controls.lua
+--src/backends/fluidsynth/midi_controls.lua
 local socket = require("socket")
 
 local function send_command(message, host, port)

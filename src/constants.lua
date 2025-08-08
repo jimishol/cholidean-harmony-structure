@@ -6,8 +6,8 @@ local M = {}
 
 M.backend    = "fluidsynth" -- The engine that outputs the heard notes or "null" if active_notes.lua is edited by hand!
 M.soundfonts = "assets/FluidR3_GM.sf2"
-M.shellPort  = 9800 -- port to control fluidsynth when launched with -s option
-M.host	     = "localhost"
+M.shellPort  = 9800 -- port to control backend (fluidsynth when launched with -s option)
+M.shellHost  = "localhost" -- host IP of backend
 
 -- Initial camera placement
 -- @field initialCameraPosition Initial camera position in world space

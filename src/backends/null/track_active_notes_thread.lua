@@ -4,11 +4,13 @@
 local quit_channel    = love.thread.getChannel("quit")
 local backend_channel = love.thread.getChannel("backend")
 local port_channel    = love.thread.getChannel("shellPort")
+local host_channel    = love.thread.getChannel("shellHost")
 local font_channel    = love.thread.getChannel("soundfont")
 local songs_channel   = love.thread.getChannel("songs")
 
 backend_channel:pop()
 port_channel:pop()
+host_channel:pop()
 font_channel:pop()
 songs_channel:pop()
 

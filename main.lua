@@ -46,7 +46,10 @@ local backendModules = {
 local backendChannel = love.thread.getChannel("backend")
 backendChannel:push(backend)
 
-local host = constants.host
+local shellHostChannel = love.thread.getChannel("shellHost")
+local host = constants.shellHost
+shellHostChannel:push(shellHost)
+
 local shellPortChannel = love.thread.getChannel("shellPort")
 local shellPort = constants.shellPort
 shellPortChannel:push(shellPort)

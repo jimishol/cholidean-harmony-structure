@@ -1,4 +1,4 @@
--- src/midi/command_menu.lua
+-- src/backends/fluidsynth/command_menu.lua
 
 local CommandMenu = {}
 CommandMenu.__index = CommandMenu
