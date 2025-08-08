@@ -1,4 +1,4 @@
--- /src/midi/track_active_notes_thread.lua
+-- /src/backends/fluidsynth/track_active_notes_thread.lua
 
 -- Get platform from main thread
 local platformChannel = love.thread.getChannel("platform")

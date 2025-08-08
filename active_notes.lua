@@ -1,5 +1,6 @@
 -- Auto‐generated active MIDI notes
 return {
-    50,
-    83,
+    48,
+    55,
+    60,
 }
