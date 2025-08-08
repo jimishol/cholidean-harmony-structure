@@ -6,28 +6,30 @@ local function loadModule(candidate, name)
   return (ok and mod) or require("src.backends.null." .. name)
 end
 
+--- Configure which backend to use (must be called once at startup)
+-- @param backendName string
 function M.setup(backendName)
   local candidate = (backendName or "") ~= "" and backendName or "null"
+  local messages  = {}
 
-  local messages = {}
-
-  -- 1) Check for unknown backend
+  -- Unknown backend → fall back to null
   if not love.filesystem.getInfo("src/backends/" .. candidate, "directory") then
-    table.insert(messages, ("⚠️ Unknown backend '%s', falling back to null"):format(backendName))
+    table.insert(messages,
+      ("⚠️ Unknown backend '%s', falling back to null"):format(backendName))
     candidate = "null"
   end
 
-  -- 2) Check for winPTY on Windows
+  -- Windows-only check for winpty
   if love.system.getOS() == "Windows" then
-    local test = io.popen("where winpty")
+    local test   = io.popen("where winpty")
     local result = test:read("*a")
     test:close()
     if result == "" then
-      table.insert(messages, "⚠️ winPTY not found. Real-time MIDI tracking will not work.")
+      table.insert(messages,
+        "⚠️ winPTY not found. Real-time MIDI tracking will not work.")
     end
   end
 
-  -- 3) Combine messages if any
   if #messages > 0 then
     M.fallbackMessage = table.concat(messages, "\n")
   end
@@ -35,13 +37,23 @@ function M.setup(backendName)
   M.name        = candidate
   M.controls    = loadModule(candidate, "backend_controls")
   M.commandMenu = loadModule(candidate, "command_menu")
-
+  M.thread      = nil  -- placeholder for our thread handle
   return M
 end
 
+--- Start (or restart) the backend’s active-notes thread
 function M.start()
-  local thread = love.thread.newThread(("src/backends/%s/track_active_notes_thread.lua"):format(M.name))
-  thread:start()
+
+  local path = ("src/backends/%s/track_active_notes_thread.lua")
+               :format(M.name)
+
+  M.thread = love.thread.newThread(path)
+  M.thread:start()
+  return true
+end
+
+function M.wait()
+  M.thread:wait()
 end
 
 return M

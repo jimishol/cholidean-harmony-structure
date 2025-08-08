@@ -121,6 +121,30 @@ function love.draw()
   love.graphics.pop()
 end
 
+local quit_channel = love.thread.getChannel("quit")
+local function genericQuit()
+    quit_channel:push("quit")
+    -- if we actually launched something, kill it
+    if backend ~= "null" then
+      -- extract just the base name, remove any extension
+      local proc = backend:match("([^/\\]+)$"):gsub("%.%w+$", "")
+
+      if platform == "windows" then
+	-- force-kill the .exe
+	os.execute(string.format(
+	  'taskkill /IM %s.exe /F >NUL 2>&1',
+	  proc
+	))
+      else
+	-- SIGKILL by name (matches scripts or binaries)
+	os.execute(string.format(
+	  'pkill -9 -f "%s" > /dev/null 2>&1',
+	  proc
+	))
+      end
+    end
+end
+
 local backendCtl = backendModules.controls or {}
 
 function love.keypressed(key, scancode)
@@ -147,6 +171,13 @@ function love.keypressed(key, scancode)
     return
   end
 
+  if action == A.RESTART then
+    quit_channel:push("quit")
+    genericQuit()
+    love.event.restart()
+    return
+  end
+
   -- 3) Toggle the menu on your SHOW_COMMAND_MENU action
   if action == A.SHOW_COMMAND_MENU then
     scene.commandMenu:toggle()
@@ -155,17 +186,7 @@ function love.keypressed(key, scancode)
 
   -- 4) Handle all your existing actions exactly as before
   if action == A.QUIT then
-    local quit_channel = love.thread.getChannel("quit")
-    quit_channel:push("quit")
-    if backend == "fluidsynth" then
-      if platform == "windows" then
-        os.execute('taskkill /IM fluidsynth.exe /F >NUL 2>&1')
-      else
-        os.execute('pkill -9 fluidsynth > /dev/null 2>&1')
-      end
-    elseif backend == "other_player" then
-      -- your other cleanup
-    end
+    genericQuit()
     love.event.quit()
     return
   end
