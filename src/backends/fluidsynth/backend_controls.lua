@@ -30,6 +30,7 @@ local isPlaying = true
 
 function M.togglePlayback(host, port)
   if     isPlaying then send_command("player_stop", host, port)
+  control:push("clear")
   else               send_command("player_cont", host, port)
   end
 
