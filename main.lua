@@ -174,6 +174,7 @@ function love.keypressed(key, scancode)
   if action == A.RESTART then
     quit_channel:push("quit")
     genericQuit()
+    --love.thread.getThread("thread"):start()
     Backend.setup(backend)
     Backend.start(backend)
     return

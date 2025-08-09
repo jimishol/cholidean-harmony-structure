@@ -52,8 +52,4 @@ function M.start()
   return true
 end
 
-function M.wait()
-  M.thread:wait()
-end
-
 return M
