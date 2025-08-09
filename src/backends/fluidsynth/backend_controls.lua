@@ -1,4 +1,4 @@
---src/backends/fluidsynth/midi_controls.lua
+--src/backends/fluidsynth/backend_controls.lua
 local socket = require("socket")
 local control = love.thread.getChannel("track_control")
 
