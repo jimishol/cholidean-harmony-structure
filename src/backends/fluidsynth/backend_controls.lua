@@ -37,11 +37,13 @@ function M.togglePlayback(host, port)
 end
 
 function  M.beginSong(host, port)
+  send_command("reset", host, port)
   send_command("player_start", host, port)
   print("[midi_controls] start current song")
 end
 
 function  M.nextSong(host, port)
+  send_command("reset", host, port)
   send_command("player_next", host, port)
   print("[midi_controls] move to next song")
 end
