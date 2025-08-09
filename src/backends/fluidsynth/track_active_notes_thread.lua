@@ -5,7 +5,6 @@ local clearChannel = love.thread.getChannel("track_control")
 local platformChannel = love.thread.getChannel("platform")
 local platform = platformChannel:peek()
 
-local quit_channel     = love.thread.getChannel("quit")
 local backendChannel   = love.thread.getChannel("backend")
 local soundfontChannel = love.thread.getChannel("soundfonts")
 local songsChannel     = love.thread.getChannel("songs")
@@ -89,7 +88,6 @@ while true do
     end
   end
 
-  if quit_channel:pop() == "quit" then break end
 end
 
 pipe:close()

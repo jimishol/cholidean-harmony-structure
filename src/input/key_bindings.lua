@@ -18,7 +18,7 @@ M.bindings = {
   [A.BEGIN_SONG] 	  = { "tab" },
   [A.NEXT_SONG] 	  = { "return" },
   [A.SHOW_COMMAND_MENU]   = { ":" },
-  [A.RESTART] 	          = { "r" },
+  [A.RESTART] 	          = { "f10" },
 }
 
 --- Returns the action string for the given key, or nil if none.

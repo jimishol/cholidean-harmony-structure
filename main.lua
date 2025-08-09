@@ -86,7 +86,7 @@ function love.load()
   camera:init(dream)
 
   -- Start the correct backend thread
-  Backend.start(backend)
+  Backend.start()
 end
 
 function love.update(dt)
@@ -121,9 +121,7 @@ function love.draw()
   love.graphics.pop()
 end
 
-local quit_channel = love.thread.getChannel("quit")
 local function genericQuit()
-    quit_channel:push("quit")
     -- if we actually launched something, kill it
     if backend ~= "null" then
       -- extract just the base name, remove any extension
@@ -146,6 +144,10 @@ local function genericQuit()
 end
 
 local backendCtl = backendModules.controls or {}
+
+local function ctrlDown()
+  return love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")
+end
 
 function love.keypressed(key, scancode)
 
@@ -172,9 +174,8 @@ function love.keypressed(key, scancode)
   end
 
   if action == A.RESTART then
-    quit_channel:push("quit")
     genericQuit()
-    Backend.start(backend)
+    love.event.quit(42)
     return
   end
 
@@ -185,7 +186,7 @@ function love.keypressed(key, scancode)
   end
 
   -- 4) Handle all your existing actions exactly as before
-  if action == A.QUIT then
+  if action == A.QUIT and ctrlDown then
     genericQuit()
     love.event.quit()
     return

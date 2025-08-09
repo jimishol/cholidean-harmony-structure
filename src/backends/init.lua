@@ -1,5 +1,6 @@
 -- src/backends/init.lua
 local M = {}
+M.thread = nil
 
 local function loadModule(candidate, name)
   local ok, mod = pcall(require, ("src.backends.%s.%s"):format(candidate, name))
@@ -47,9 +48,9 @@ function M.start()
   local path = ("src/backends/%s/track_active_notes_thread.lua")
                :format(M.name)
 
-  M.thread = love.thread.newThread(path)
-  M.thread:start()
-  return true
+  local th = love.thread.newThread(path)
+  th:start()
+  M.thread = th
 end
 
 return M
