@@ -1,4 +1,5 @@
 -- /src/backends/fluidsynth/track_active_notes_thread.lua
+local clearChannel = love.thread.getChannel("track_control")
 
 -- Get platform from main thread
 local platformChannel = love.thread.getChannel("platform")
@@ -67,6 +68,12 @@ dump_active()
 local pipe = assert(io.popen(cmd, "r"))
 
 while true do
+-- 2) Handle explicit clear
+  if clearChannel:pop() == "clear" then
+    active_notes = {}
+    dump_active()
+  end
+
   local line = pipe:read("*l")
   if not line then break end
 

@@ -1,5 +1,6 @@
 --src/backends/fluidsynth/midi_controls.lua
 local socket = require("socket")
+local control = love.thread.getChannel("track_control")
 
 local function send_command(message, host, port)
   local external_host = host
@@ -37,13 +38,13 @@ function M.togglePlayback(host, port)
 end
 
 function  M.beginSong(host, port)
-  send_command("reset", host, port)
+  control:push("clear")
   send_command("player_start", host, port)
   print("[midi_controls] start current song")
 end
 
 function  M.nextSong(host, port)
-  send_command("reset", host, port)
+  control:push("clear")
   send_command("player_next", host, port)
   print("[midi_controls] move to next song")
 end
