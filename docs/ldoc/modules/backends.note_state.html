@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Harmony Structure</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/src.backends.fluidsynth.backend_controls.html">src.backends.fluidsynth.backend_controls</a></li>
+  <li><a href="../modules/src.backends.fluidsynth.command_menu.html">src.backends.fluidsynth.command_menu</a></li>
+  <li><a href="../modules/src.backends.fluidsynth.track_active_notes_thread.html">src.backends.fluidsynth.track_active_notes_thread</a></li>
+  <li><a href="../modules/src.backends.html">src.backends</a></li>
+  <li><strong>backends.note_state</strong></li>
+  <li><a href="../modules/src.backends.null.backend_controls.html">src.backends.null.backend_controls</a></li>
+  <li><a href="../modules/src.backends.null.command_menu.html">src.backends.null.command_menu</a></li>
+  <li><a href="../modules/src.backends.null.track_active_notes_thread.html">src.backends.null.track_active_notes_thread</a></li>
+  <li><a href="../modules/backends.playlist.html">backends.playlist</a></li>
+  <li><a href="../modules/src.backends.camera.html">src.backends.camera</a></li>
+  <li><a href="../modules/constants.html">constants</a></li>
+  <li><a href="../modules/src.input.actions.html">src.input.actions</a></li>
+  <li><a href="../modules/src.input.init.html">src.input.init</a></li>
+  <li><a href="../modules/src.input.key_bindings.html">src.input.key_bindings</a></li>
+  <li><a href="../modules/src.scene.html">src.scene</a></li>
+  <li><a href="../modules/src.systems.note_system.html">src.systems.note_system</a></li>
+  <li><a href="../modules/src.utils.colors.html">src.utils.colors</a></li>
+  <li><a href="../modules/src.helpers.daycycle.html">src.helpers.daycycle</a></li>
+  <li><a href="../modules/src.utils.joint_layout.html">src.utils.joint_layout</a></li>
+  <li><a href="../modules/src.materials.html">src.materials</a></li>
+  <li><a href="../modules/src.utils.os_detect.html">src.utils.os_detect</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>backends.note_state</code></h1>
+<p>Active MIDI note state backend.</p>
+<p> Reads a user‐maintained <code>active_notes.lua</code> file, caches its list of MIDI notes,
+ and exposes lookup functions for whether a given circle‐of‐fourths step is active
+ or is the bass (lowest) note.</p>
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">local note_state = require(&quot;backends.note_state&quot;)
+local raw = note_state.getActiveNotes()
+local isActive = note_state.isNoteActive(5)
+local isBass   = note_state.isNoteBass(5)
+</pre>
+    </ul>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#getActiveNotes">getActiveNotes ()</a></td>
+	<td class="summary">Returns the raw list of active MIDI notes.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#isNoteActive">isNoteActive (stepIndex)</a></td>
+	<td class="summary">Check if a given circle‐of‐fourths step is active.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#isNoteBass">isNoteBass (stepIndex)</a></td>
+	<td class="summary">Check if a given step is the bass (lowest) active note.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "getActiveNotes"></a>
+    <strong>getActiveNotes ()</strong>
+    </dt>
+    <dd>
+    Returns the raw list of active MIDI notes.
+ Re‐reads the file if it’s been modified.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int[]</span></span>
+        list of MIDI note numbers
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "isNoteActive"></a>
+    <strong>isNoteActive (stepIndex)</strong>
+    </dt>
+    <dd>
+    Check if a given circle‐of‐fourths step is active.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">stepIndex</span>
+            <span class="types"><span class="type">int</span></span>
+         1–12 (will be converted internally to 0–11)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        true if that step is set in <code>activeSteps</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "isNoteBass"></a>
+    <strong>isNoteBass (stepIndex)</strong>
+    </dt>
+    <dd>
+    Check if a given step is the bass (lowest) active note.
+ Compares against the circle‐of‐fourths index of <code>minNote</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">stepIndex</span>
+            <span class="types"><span class="type">int</span></span>
+         1–12 (converted internally to 0–11)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        true if that step equals the bass step
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-08-10 21:31:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

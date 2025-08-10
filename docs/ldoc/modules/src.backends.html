@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Harmony Structure</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Fields">Fields</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/src.backends.fluidsynth.backend_controls.html">src.backends.fluidsynth.backend_controls</a></li>
+  <li><a href="../modules/src.backends.fluidsynth.command_menu.html">src.backends.fluidsynth.command_menu</a></li>
+  <li><a href="../modules/src.backends.fluidsynth.track_active_notes_thread.html">src.backends.fluidsynth.track_active_notes_thread</a></li>
+  <li><strong>src.backends</strong></li>
+  <li><a href="../modules/backends.note_state.html">backends.note_state</a></li>
+  <li><a href="../modules/src.backends.null.backend_controls.html">src.backends.null.backend_controls</a></li>
+  <li><a href="../modules/src.backends.null.command_menu.html">src.backends.null.command_menu</a></li>
+  <li><a href="../modules/src.backends.null.track_active_notes_thread.html">src.backends.null.track_active_notes_thread</a></li>
+  <li><a href="../modules/backends.playlist.html">backends.playlist</a></li>
+  <li><a href="../modules/src.backends.camera.html">src.backends.camera</a></li>
+  <li><a href="../modules/constants.html">constants</a></li>
+  <li><a href="../modules/src.input.actions.html">src.input.actions</a></li>
+  <li><a href="../modules/src.input.init.html">src.input.init</a></li>
+  <li><a href="../modules/src.input.key_bindings.html">src.input.key_bindings</a></li>
+  <li><a href="../modules/src.scene.html">src.scene</a></li>
+  <li><a href="../modules/src.systems.note_system.html">src.systems.note_system</a></li>
+  <li><a href="../modules/src.utils.colors.html">src.utils.colors</a></li>
+  <li><a href="../modules/src.helpers.daycycle.html">src.helpers.daycycle</a></li>
+  <li><a href="../modules/src.utils.joint_layout.html">src.utils.joint_layout</a></li>
+  <li><a href="../modules/src.materials.html">src.materials</a></li>
+  <li><a href="../modules/src.utils.os_detect.html">src.utils.os_detect</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>src.backends</code></h1>
+<p>Central backend loader and manager.</p>
+<p> Detects available backends, issues warnings on fallback,
+ and launches the active‐notes tracking thread.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#setup">setup (backendName)</a></td>
+	<td class="summary">Configure which backend to use (must be called once at startup).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#start">start ()</a></td>
+	<td class="summary">Start (or restart) the backend’s active‐notes thread.</td>
+	</tr>
+</table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#thread">thread</a></td>
+	<td class="summary">Thread handle for the active‐notes tracker.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#name">name</a></td>
+	<td class="summary">Name of the selected backend (directory under <code>src/backends</code>).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#controls">controls</a></td>
+	<td class="summary">Controls API for the selected backend.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#commandMenu">commandMenu</a></td>
+	<td class="summary">Command‐menu API for the selected backend.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#fallbackMessage">fallbackMessage</a></td>
+	<td class="summary">Human‐readable warnings aggregated during setup.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "setup"></a>
+    <strong>setup (backendName)</strong>
+    </dt>
+    <dd>
+    Configure which backend to use (must be called once at startup).
+ Verifies the backend directory exists, checks for winpty on Windows,
+ and loads the corresponding <a href="../modules/src.backends.html#controls">controls</a> and <code>command_menu</code> modules.
+ Any warnings are concatenated into <code>M.fallbackMessage</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">backendName</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+          Name of the desired backend (or empty to use null)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        The backend manager table (<code>M</code>)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "start"></a>
+    <strong>start ()</strong>
+    </dt>
+    <dd>
+    Start (or restart) the backend’s active‐notes thread.
+ Spawns <code>track_active_notes_thread.lua</code> from the selected backend directory
+ and saves the thread handle in <code>M.thread</code>.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "thread"></a>
+    <strong>thread</strong>
+    </dt>
+    <dd>
+    Thread handle for the active‐notes tracker.
+
+
+    <ul>
+        <li><span class="parameter">thread</span>
+         Thread or nil
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "name"></a>
+    <strong>name</strong>
+    </dt>
+    <dd>
+    Name of the selected backend (directory under <code>src/backends</code>).
+
+
+    <ul>
+        <li><span class="parameter">name</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "controls"></a>
+    <strong>controls</strong>
+    </dt>
+    <dd>
+    Controls API for the selected backend.
+ Exposes functions like <code>togglePlayback</code>, <code>beginSong</code>, etc.
+
+
+    <ul>
+        <li><span class="parameter">controls</span>
+         table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "commandMenu"></a>
+    <strong>commandMenu</strong>
+    </dt>
+    <dd>
+    Command‐menu API for the selected backend.
+ Provides in‐game command dispatching.
+
+
+    <ul>
+        <li><span class="parameter">commandMenu</span>
+         table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "fallbackMessage"></a>
+    <strong>fallbackMessage</strong>
+    </dt>
+    <dd>
+    Human‐readable warnings aggregated during setup.
+ Populated if an unknown backend is requested or winpty is missing on Windows.
+
+
+    <ul>
+        <li><span class="parameter">fallbackMessage</span>
+         string or nil
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-08-10 21:31:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

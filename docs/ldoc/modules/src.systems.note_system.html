@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Harmony Structure</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Class_Note">Class Note </a></li>
+<li><a href="#Class_NoteSystem">Class NoteSystem </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/src.backends.fluidsynth.backend_controls.html">src.backends.fluidsynth.backend_controls</a></li>
+  <li><a href="../modules/src.backends.fluidsynth.command_menu.html">src.backends.fluidsynth.command_menu</a></li>
+  <li><a href="../modules/src.backends.fluidsynth.track_active_notes_thread.html">src.backends.fluidsynth.track_active_notes_thread</a></li>
+  <li><a href="../modules/src.backends.html">src.backends</a></li>
+  <li><a href="../modules/backends.note_state.html">backends.note_state</a></li>
+  <li><a href="../modules/src.backends.null.backend_controls.html">src.backends.null.backend_controls</a></li>
+  <li><a href="../modules/src.backends.null.command_menu.html">src.backends.null.command_menu</a></li>
+  <li><a href="../modules/src.backends.null.track_active_notes_thread.html">src.backends.null.track_active_notes_thread</a></li>
+  <li><a href="../modules/backends.playlist.html">backends.playlist</a></li>
+  <li><a href="../modules/src.backends.camera.html">src.backends.camera</a></li>
+  <li><a href="../modules/constants.html">constants</a></li>
+  <li><a href="../modules/src.input.actions.html">src.input.actions</a></li>
+  <li><a href="../modules/src.input.init.html">src.input.init</a></li>
+  <li><a href="../modules/src.input.key_bindings.html">src.input.key_bindings</a></li>
+  <li><a href="../modules/src.scene.html">src.scene</a></li>
+  <li><strong>src.systems.note_system</strong></li>
+  <li><a href="../modules/src.utils.colors.html">src.utils.colors</a></li>
+  <li><a href="../modules/src.helpers.daycycle.html">src.helpers.daycycle</a></li>
+  <li><a href="../modules/src.utils.joint_layout.html">src.utils.joint_layout</a></li>
+  <li><a href="../modules/src.materials.html">src.materials</a></li>
+  <li><a href="../modules/src.utils.os_detect.html">src.utils.os_detect</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>src.systems.note_system</code></h1>
+<p>Manages a 12-note system, syncing MIDI‐driven note activation to joint visuals.</p>
+<p> Supports circular shifts, and both “instant” and “offset” activation modes.</p>
+
+
+<h2><a href="#Class_Note">Class Note </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Note:new">Note:new (idx, name, jointObj)</a></td>
+	<td class="summary">Construct a new Note object.</td>
+	</tr>
+</table>
+<h2><a href="#Class_NoteSystem">Class NoteSystem </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#NoteSystem:toggleNoteMode">NoteSystem:toggleNoteMode ()</a></td>
+	<td class="summary">Toggle between &ldquo;instant&rdquo; and &ldquo;offset&rdquo; note modes.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#NoteSystem:new">NoteSystem:new (scene)</a></td>
+	<td class="summary">Create a new NoteSystem bound to a scene.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#NoteSystem:shift">NoteSystem:shift (offset)</a></td>
+	<td class="summary">Shift all note slots by a given offset.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#NoteSystem:update">NoteSystem:update (dt)</a></td>
+	<td class="summary">Update note and bass states based on MIDI input.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header has-description"><a name="Class_Note"></a>Class Note </h2>
+
+          <div class="section-description">
+          Single‐note abstraction, tracking its slot, name, visual joint, and state.
+          </div>
+    <dl class="function">
+    <dt>
+    <a name = "Note:new"></a>
+    <strong>Note:new (idx, name, jointObj)</strong>
+    </dt>
+    <dd>
+    Construct a new Note object.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">idx</span>
+            <span class="types"><span class="type">number</span></span>
+        <pre><code> Slot index 1–12
+</code></pre>
+
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        <pre><code>Note name
+</code></pre>
+
+        </li>
+        <li><span class="parameter">jointObj</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         Mesh object for this joint
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/src.systems.note_system.html#Note">Note</a></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header has-description"><a name="Class_NoteSystem"></a>Class NoteSystem </h2>
+
+          <div class="section-description">
+          The main note system, managing 12 Note instances and their state.
+          </div>
+    <dl class="function">
+    <dt>
+    <a name = "NoteSystem:toggleNoteMode"></a>
+    <strong>NoteSystem:toggleNoteMode ()</strong>
+    </dt>
+    <dd>
+    Toggle between &ldquo;instant&rdquo; and &ldquo;offset&rdquo; note modes.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">nil</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "NoteSystem:new"></a>
+    <strong>NoteSystem:new (scene)</strong>
+    </dt>
+    <dd>
+    Create a new NoteSystem bound to a scene.
+ Initializes 12 Note objects and their previous‐state tables.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">scene</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+          Scene containing <code>scene.joints</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/src.systems.note_system.html#NoteSystem">NoteSystem</a></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "NoteSystem:shift"></a>
+    <strong>NoteSystem:shift (offset)</strong>
+    </dt>
+    <dd>
+    Shift all note slots by a given offset.
+ Positive values rotate slots right; negative rotate left.
+ Rebinds each Note to the correct joint object afterward.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">offset</span>
+            <span class="types"><span class="type">number</span></span>
+          Number of slots to shift
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">nil</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "NoteSystem:update"></a>
+    <strong>NoteSystem:update (dt)</strong>
+    </dt>
+    <dd>
+    Update note and bass states based on MIDI input.
+ In “offset” mode, uses timers to delay deactivation.
+ In “instant” mode, applies state changes immediately.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dt</span>
+            <span class="types"><span class="type">number</span></span>
+          Delta time in seconds since last frame
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        True if any note or bass state changed
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-08-10 21:31:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

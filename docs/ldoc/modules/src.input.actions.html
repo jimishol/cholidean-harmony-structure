@@ -1,0 +1,740 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Harmony Structure</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Fields">Fields</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/src.backends.fluidsynth.backend_controls.html">src.backends.fluidsynth.backend_controls</a></li>
+  <li><a href="../modules/src.backends.fluidsynth.command_menu.html">src.backends.fluidsynth.command_menu</a></li>
+  <li><a href="../modules/src.backends.fluidsynth.track_active_notes_thread.html">src.backends.fluidsynth.track_active_notes_thread</a></li>
+  <li><a href="../modules/src.backends.html">src.backends</a></li>
+  <li><a href="../modules/backends.note_state.html">backends.note_state</a></li>
+  <li><a href="../modules/src.backends.null.backend_controls.html">src.backends.null.backend_controls</a></li>
+  <li><a href="../modules/src.backends.null.command_menu.html">src.backends.null.command_menu</a></li>
+  <li><a href="../modules/src.backends.null.track_active_notes_thread.html">src.backends.null.track_active_notes_thread</a></li>
+  <li><a href="../modules/backends.playlist.html">backends.playlist</a></li>
+  <li><a href="../modules/src.backends.camera.html">src.backends.camera</a></li>
+  <li><a href="../modules/constants.html">constants</a></li>
+  <li><strong>src.input.actions</strong></li>
+  <li><a href="../modules/src.input.init.html">src.input.init</a></li>
+  <li><a href="../modules/src.input.key_bindings.html">src.input.key_bindings</a></li>
+  <li><a href="../modules/src.scene.html">src.scene</a></li>
+  <li><a href="../modules/src.systems.note_system.html">src.systems.note_system</a></li>
+  <li><a href="../modules/src.utils.colors.html">src.utils.colors</a></li>
+  <li><a href="../modules/src.helpers.daycycle.html">src.helpers.daycycle</a></li>
+  <li><a href="../modules/src.utils.joint_layout.html">src.utils.joint_layout</a></li>
+  <li><a href="../modules/src.materials.html">src.materials</a></li>
+  <li><a href="../modules/src.utils.os_detect.html">src.utils.os_detect</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>src.input.actions</code></h1>
+<p>High‐level input action constants for keyboard and MIDI events.</p>
+<p> Mirrors the keys and behaviors used in camera.lua and other systems.</p>
+
+
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#QUIT">QUIT</a></td>
+	<td class="summary">Application control: quit the application.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#RESTART">RESTART</a></td>
+	<td class="summary">Application control: restart the application.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#RESET_VIEW">RESET_VIEW</a></td>
+	<td class="summary">Application control: reset the camera orientation to default.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#RESET_FOV">RESET_FOV</a></td>
+	<td class="summary">Application control: reset the camera field of view to default.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#TOGGLE_DEBUG">TOGGLE_DEBUG</a></td>
+	<td class="summary">Application control: toggle the debug overlay (FPS and camera info).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#TOGGLE_LABELS">TOGGLE_LABELS</a></td>
+	<td class="summary">Label controls: toggle display of labels.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#TOGGLE_JOINTS">TOGGLE_JOINTS</a></td>
+	<td class="summary">Label controls: toggle display of joint markers.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#TOGGLE_EDGES">TOGGLE_EDGES</a></td>
+	<td class="summary">Label controls: toggle display of mesh edges.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#TOGGLE_CURVES">TOGGLE_CURVES</a></td>
+	<td class="summary">Label controls: toggle display of control curves.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#TOGGLE_SURFACES">TOGGLE_SURFACES</a></td>
+	<td class="summary">Label controls: toggle display of surface meshes.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ROTATE_CW">ROTATE_CW</a></td>
+	<td class="summary">Shift‐based rotation: rotate the 12‐note map clockwise.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ROTATE_CCW">ROTATE_CCW</a></td>
+	<td class="summary">Shift‐based rotation: rotate the 12‐note map counter‐clockwise.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#MOVE_FORWARD">MOVE_FORWARD</a></td>
+	<td class="summary">Continuous camera movement: move forward.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#MOVE_BACKWARD">MOVE_BACKWARD</a></td>
+	<td class="summary">Continuous camera movement: move backward.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#STRAFE_LEFT">STRAFE_LEFT</a></td>
+	<td class="summary">Continuous camera movement: strafe left.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#STRAFE_RIGHT">STRAFE_RIGHT</a></td>
+	<td class="summary">Continuous camera movement: strafe right.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ROTATE_LEFT">ROTATE_LEFT</a></td>
+	<td class="summary">Continuous camera rotation: yaw left.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ROTATE_RIGHT">ROTATE_RIGHT</a></td>
+	<td class="summary">Continuous camera rotation: yaw right.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#PITCH_UP">PITCH_UP</a></td>
+	<td class="summary">Continuous camera rotation: pitch up.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#PITCH_DOWN">PITCH_DOWN</a></td>
+	<td class="summary">Continuous camera rotation: pitch down.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ZOOM_IN">ZOOM_IN</a></td>
+	<td class="summary">Zoom control: zoom in.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ZOOM_OUT">ZOOM_OUT</a></td>
+	<td class="summary">Zoom control: zoom out.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#TOGGLE_TORUS_LIGHTS">TOGGLE_TORUS_LIGHTS</a></td>
+	<td class="summary">Lighting control: toggle torus lights.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#TOGGLE_NOTE_MODE">TOGGLE_NOTE_MODE</a></td>
+	<td class="summary">Mode toggle: switch between note‐mode and default.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#TOGGLE_PLAYBACK">TOGGLE_PLAYBACK</a></td>
+	<td class="summary">Playback control: toggle MIDI playback on/off.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#BEGIN_SONG">BEGIN_SONG</a></td>
+	<td class="summary">Playback control: start song from beginning.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#NEXT_SONG">NEXT_SONG</a></td>
+	<td class="summary">Playback control: advance to next song.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SHOW_COMMAND_MENU">SHOW_COMMAND_MENU</a></td>
+	<td class="summary">UI interaction: show the extended command popup (triggered by “:”).</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "QUIT"></a>
+    <strong>QUIT</strong>
+    </dt>
+    <dd>
+    Application control: quit the application.
+
+
+    <ul>
+        <li><span class="parameter">QUIT</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "RESTART"></a>
+    <strong>RESTART</strong>
+    </dt>
+    <dd>
+    Application control: restart the application.
+
+
+    <ul>
+        <li><span class="parameter">RESTART</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "RESET_VIEW"></a>
+    <strong>RESET_VIEW</strong>
+    </dt>
+    <dd>
+    Application control: reset the camera orientation to default.
+
+
+    <ul>
+        <li><span class="parameter">RESET_VIEW</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "RESET_FOV"></a>
+    <strong>RESET_FOV</strong>
+    </dt>
+    <dd>
+    Application control: reset the camera field of view to default.
+
+
+    <ul>
+        <li><span class="parameter">RESET_FOV</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "TOGGLE_DEBUG"></a>
+    <strong>TOGGLE_DEBUG</strong>
+    </dt>
+    <dd>
+    Application control: toggle the debug overlay (FPS and camera info).
+
+
+    <ul>
+        <li><span class="parameter">TOGGLE_DEBUG</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "TOGGLE_LABELS"></a>
+    <strong>TOGGLE_LABELS</strong>
+    </dt>
+    <dd>
+    Label controls: toggle display of labels.
+
+
+    <ul>
+        <li><span class="parameter">TOGGLE_LABELS</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "TOGGLE_JOINTS"></a>
+    <strong>TOGGLE_JOINTS</strong>
+    </dt>
+    <dd>
+    Label controls: toggle display of joint markers.
+
+
+    <ul>
+        <li><span class="parameter">TOGGLE_JOINTS</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "TOGGLE_EDGES"></a>
+    <strong>TOGGLE_EDGES</strong>
+    </dt>
+    <dd>
+    Label controls: toggle display of mesh edges.
+
+
+    <ul>
+        <li><span class="parameter">TOGGLE_EDGES</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "TOGGLE_CURVES"></a>
+    <strong>TOGGLE_CURVES</strong>
+    </dt>
+    <dd>
+    Label controls: toggle display of control curves.
+
+
+    <ul>
+        <li><span class="parameter">TOGGLE_CURVES</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "TOGGLE_SURFACES"></a>
+    <strong>TOGGLE_SURFACES</strong>
+    </dt>
+    <dd>
+    Label controls: toggle display of surface meshes.
+
+
+    <ul>
+        <li><span class="parameter">TOGGLE_SURFACES</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ROTATE_CW"></a>
+    <strong>ROTATE_CW</strong>
+    </dt>
+    <dd>
+    Shift‐based rotation: rotate the 12‐note map clockwise.
+
+
+    <ul>
+        <li><span class="parameter">ROTATE_CW</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ROTATE_CCW"></a>
+    <strong>ROTATE_CCW</strong>
+    </dt>
+    <dd>
+    Shift‐based rotation: rotate the 12‐note map counter‐clockwise.
+
+
+    <ul>
+        <li><span class="parameter">ROTATE_CCW</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "MOVE_FORWARD"></a>
+    <strong>MOVE_FORWARD</strong>
+    </dt>
+    <dd>
+    Continuous camera movement: move forward.
+
+
+    <ul>
+        <li><span class="parameter">MOVE_FORWARD</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "MOVE_BACKWARD"></a>
+    <strong>MOVE_BACKWARD</strong>
+    </dt>
+    <dd>
+    Continuous camera movement: move backward.
+
+
+    <ul>
+        <li><span class="parameter">MOVE_BACKWARD</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "STRAFE_LEFT"></a>
+    <strong>STRAFE_LEFT</strong>
+    </dt>
+    <dd>
+    Continuous camera movement: strafe left.
+
+
+    <ul>
+        <li><span class="parameter">STRAFE_LEFT</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "STRAFE_RIGHT"></a>
+    <strong>STRAFE_RIGHT</strong>
+    </dt>
+    <dd>
+    Continuous camera movement: strafe right.
+
+
+    <ul>
+        <li><span class="parameter">STRAFE_RIGHT</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ROTATE_LEFT"></a>
+    <strong>ROTATE_LEFT</strong>
+    </dt>
+    <dd>
+    Continuous camera rotation: yaw left.
+
+
+    <ul>
+        <li><span class="parameter">ROTATE_LEFT</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ROTATE_RIGHT"></a>
+    <strong>ROTATE_RIGHT</strong>
+    </dt>
+    <dd>
+    Continuous camera rotation: yaw right.
+
+
+    <ul>
+        <li><span class="parameter">ROTATE_RIGHT</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "PITCH_UP"></a>
+    <strong>PITCH_UP</strong>
+    </dt>
+    <dd>
+    Continuous camera rotation: pitch up.
+
+
+    <ul>
+        <li><span class="parameter">PITCH_UP</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "PITCH_DOWN"></a>
+    <strong>PITCH_DOWN</strong>
+    </dt>
+    <dd>
+    Continuous camera rotation: pitch down.
+
+
+    <ul>
+        <li><span class="parameter">PITCH_DOWN</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ZOOM_IN"></a>
+    <strong>ZOOM_IN</strong>
+    </dt>
+    <dd>
+    Zoom control: zoom in.
+
+
+    <ul>
+        <li><span class="parameter">ZOOM_IN</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ZOOM_OUT"></a>
+    <strong>ZOOM_OUT</strong>
+    </dt>
+    <dd>
+    Zoom control: zoom out.
+
+
+    <ul>
+        <li><span class="parameter">ZOOM_OUT</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "TOGGLE_TORUS_LIGHTS"></a>
+    <strong>TOGGLE_TORUS_LIGHTS</strong>
+    </dt>
+    <dd>
+    Lighting control: toggle torus lights.
+
+
+    <ul>
+        <li><span class="parameter">TOGGLE_TORUS_LIGHTS</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "TOGGLE_NOTE_MODE"></a>
+    <strong>TOGGLE_NOTE_MODE</strong>
+    </dt>
+    <dd>
+    Mode toggle: switch between note‐mode and default.
+
+
+    <ul>
+        <li><span class="parameter">TOGGLE_NOTE_MODE</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "TOGGLE_PLAYBACK"></a>
+    <strong>TOGGLE_PLAYBACK</strong>
+    </dt>
+    <dd>
+    Playback control: toggle MIDI playback on/off.
+
+
+    <ul>
+        <li><span class="parameter">TOGGLE_PLAYBACK</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "BEGIN_SONG"></a>
+    <strong>BEGIN_SONG</strong>
+    </dt>
+    <dd>
+    Playback control: start song from beginning.
+
+
+    <ul>
+        <li><span class="parameter">BEGIN_SONG</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "NEXT_SONG"></a>
+    <strong>NEXT_SONG</strong>
+    </dt>
+    <dd>
+    Playback control: advance to next song.
+
+
+    <ul>
+        <li><span class="parameter">NEXT_SONG</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SHOW_COMMAND_MENU"></a>
+    <strong>SHOW_COMMAND_MENU</strong>
+    </dt>
+    <dd>
+    UI interaction: show the extended command popup (triggered by “:”).
+
+
+    <ul>
+        <li><span class="parameter">SHOW_COMMAND_MENU</span>
+         string
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-08-10 21:31:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

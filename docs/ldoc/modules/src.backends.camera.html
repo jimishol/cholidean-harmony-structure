@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Harmony Structure</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Tween_reset_orientation_state__private_">Tween/reset orientation state (private) </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/src.backends.fluidsynth.backend_controls.html">src.backends.fluidsynth.backend_controls</a></li>
+  <li><a href="../modules/src.backends.fluidsynth.command_menu.html">src.backends.fluidsynth.command_menu</a></li>
+  <li><a href="../modules/src.backends.fluidsynth.track_active_notes_thread.html">src.backends.fluidsynth.track_active_notes_thread</a></li>
+  <li><a href="../modules/src.backends.html">src.backends</a></li>
+  <li><a href="../modules/backends.note_state.html">backends.note_state</a></li>
+  <li><a href="../modules/src.backends.null.backend_controls.html">src.backends.null.backend_controls</a></li>
+  <li><a href="../modules/src.backends.null.command_menu.html">src.backends.null.command_menu</a></li>
+  <li><a href="../modules/src.backends.null.track_active_notes_thread.html">src.backends.null.track_active_notes_thread</a></li>
+  <li><a href="../modules/backends.playlist.html">backends.playlist</a></li>
+  <li><strong>src.backends.camera</strong></li>
+  <li><a href="../modules/constants.html">constants</a></li>
+  <li><a href="../modules/src.input.actions.html">src.input.actions</a></li>
+  <li><a href="../modules/src.input.init.html">src.input.init</a></li>
+  <li><a href="../modules/src.input.key_bindings.html">src.input.key_bindings</a></li>
+  <li><a href="../modules/src.scene.html">src.scene</a></li>
+  <li><a href="../modules/src.systems.note_system.html">src.systems.note_system</a></li>
+  <li><a href="../modules/src.utils.colors.html">src.utils.colors</a></li>
+  <li><a href="../modules/src.helpers.daycycle.html">src.helpers.daycycle</a></li>
+  <li><a href="../modules/src.utils.joint_layout.html">src.utils.joint_layout</a></li>
+  <li><a href="../modules/src.materials.html">src.materials</a></li>
+  <li><a href="../modules/src.utils.os_detect.html">src.utils.os_detect</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>src.backends.camera</code></h1>
+<p>Camera module for the Cholidean harmony structure viewer.</p>
+<p> Manages camera position, yaw/pitch orientation, movement, tweened resets, and input bindings.</p>
+
+
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#M">M</a></td>
+	<td class="summary">Module table</td>
+	</tr>
+</table>
+<h2><a href="#Tween_reset_orientation_state__private_">Tween/reset orientation state (private) </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#View">View</a></td>
+	<td class="summary">Public view snapshot (updated each frame)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#init">init (dream)</a></td>
+	<td class="summary">Initialize the camera module.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#update">update (dt)</a></td>
+	<td class="summary">Update the camera each frame.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#mousemoved">mousemoved (dx, dy)</a></td>
+	<td class="summary">Handle mouse‐drag movements.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pressedAction">pressedAction (action)</a></td>
+	<td class="summary">Handle action bindings (reset view or FOV).</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "M"></a>
+    <strong>M</strong>
+    </dt>
+    <dd>
+    Module table
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tween_reset_orientation_state__private_"></a>Tween/reset orientation state (private) </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "View"></a>
+    <strong>View</strong>
+    </dt>
+    <dd>
+    Public view snapshot (updated each frame)
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">yaw</span>
+         number Current yaw in radians.
+        </li>
+        <li><span class="parameter">pitch</span>
+         number Current pitch in radians.
+        </li>
+        <li><span class="parameter">Pos</span>
+         table Current position {x,y,z}.
+        </li>
+        <li><span class="parameter">fov</span>
+         number Current FOV in degrees.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "init"></a>
+    <strong>init (dream)</strong>
+    </dt>
+    <dd>
+    Initialize the camera module.
+ Sets starting position/orientation, FOV, and mouse callbacks.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dream</span>
+         table Dream framework instance containing <code>dream.camera</code>.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">camera:<span class="function-name">init</span>(dream)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "update"></a>
+    <strong>update (dt)</strong>
+    </dt>
+    <dd>
+    Update the camera each frame.
+ Handles orientation resets, FOV changes, panning, rotation, and mouse/grab toggles.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dt</span>
+         number Delta time since last update.
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">camera:<span class="function-name">update</span>(dt)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "mousemoved"></a>
+    <strong>mousemoved (dx, dy)</strong>
+    </dt>
+    <dd>
+    Handle mouse‐drag movements.
+ Right‐button rotates, middle‐button pans along view direction.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dx</span>
+         number Mouse movement in x (pixels).
+        </li>
+        <li><span class="parameter">dy</span>
+         number Mouse movement in y (pixels).
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">camera:<span class="function-name">mousemoved</span>(dx, dy)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "pressedAction"></a>
+    <strong>pressedAction (action)</strong>
+    </dt>
+    <dd>
+    Handle action bindings (reset view or FOV).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">action</span>
+         string Action constant (from <a href="../modules/src.input.actions.html#">src.input.actions</a>).
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        True if the action was handled.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">if</span> camera:<span class="function-name">pressedAction</span>(A.RESET_VIEW) <span class="keyword">then</span> …</pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-08-10 21:31:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

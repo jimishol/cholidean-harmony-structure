@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Harmony Structure</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/src.backends.fluidsynth.backend_controls.html">src.backends.fluidsynth.backend_controls</a></li>
+  <li><a href="../modules/src.backends.fluidsynth.command_menu.html">src.backends.fluidsynth.command_menu</a></li>
+  <li><a href="../modules/src.backends.fluidsynth.track_active_notes_thread.html">src.backends.fluidsynth.track_active_notes_thread</a></li>
+  <li><a href="../modules/src.backends.html">src.backends</a></li>
+  <li><a href="../modules/backends.note_state.html">backends.note_state</a></li>
+  <li><a href="../modules/src.backends.null.backend_controls.html">src.backends.null.backend_controls</a></li>
+  <li><a href="../modules/src.backends.null.command_menu.html">src.backends.null.command_menu</a></li>
+  <li><a href="../modules/src.backends.null.track_active_notes_thread.html">src.backends.null.track_active_notes_thread</a></li>
+  <li><a href="../modules/backends.playlist.html">backends.playlist</a></li>
+  <li><a href="../modules/src.backends.camera.html">src.backends.camera</a></li>
+  <li><a href="../modules/constants.html">constants</a></li>
+  <li><a href="../modules/src.input.actions.html">src.input.actions</a></li>
+  <li><a href="../modules/src.input.init.html">src.input.init</a></li>
+  <li><a href="../modules/src.input.key_bindings.html">src.input.key_bindings</a></li>
+  <li><a href="../modules/src.scene.html">src.scene</a></li>
+  <li><a href="../modules/src.systems.note_system.html">src.systems.note_system</a></li>
+  <li><a href="../modules/src.utils.colors.html">src.utils.colors</a></li>
+  <li><a href="../modules/src.helpers.daycycle.html">src.helpers.daycycle</a></li>
+  <li><a href="../modules/src.utils.joint_layout.html">src.utils.joint_layout</a></li>
+  <li><strong>src.materials</strong></li>
+  <li><a href="../modules/src.utils.os_detect.html">src.utils.os_detect</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>src.materials</code></h1>
+<p>Materials module for recoloring scene geometry based on active notes.</p>
+<p> Applies ghost/X-ray or solid-emissive materials to surfaces,
+ and recolors joints, edges, curves, and labels accordingly.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#updateSurfaceMaterial">updateSurfaceMaterial (matInst, noteColor, isActive)</a></td>
+	<td class="summary">Update a surface’s material instance to be ghost/X-ray or solid-emissive.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#init">init (dream)</a></td>
+	<td class="summary">Initialize the materials system.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#assignAll">assignAll (scene, matLib, noteSystem[, categoryMap])</a></td>
+	<td class="summary">Recolor all scene objects according to their note states.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "updateSurfaceMaterial"></a>
+    <strong>updateSurfaceMaterial (matInst, noteColor, isActive)</strong>
+    </dt>
+    <dd>
+    Update a surface’s material instance to be ghost/X-ray or solid-emissive.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">matInst</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        <pre><code>Material instance (supports &lt;code&gt;setColor&lt;/code&gt;, &lt;code&gt;setAlpha&lt;/code&gt;, &lt;code&gt;setEmission&lt;/code&gt;)
+</code></pre>
+
+        </li>
+        <li><span class="parameter">noteColor</span>
+            <span class="types"><span class="type">{number,number,number}</span></span>
+         RGB triplet <code>{r, g, b}</code>
+        </li>
+        <li><span class="parameter">isActive</span>
+            <span class="types"><span class="type">boolean</span></span>
+           Whether the surface (note) is active
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "init"></a>
+    <strong>init (dream)</strong>
+    </dt>
+    <dd>
+    Initialize the materials system.
+ Delegates to the Colors module for any setup.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dream</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         Dream framework instance
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "assignAll"></a>
+    <strong>assignAll (scene, matLib, noteSystem[, categoryMap])</strong>
+    </dt>
+    <dd>
+    Recolor all scene objects according to their note states.
+ Applies materials for joints, edges, curves, labels, and surfaces.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">scene</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        <pre><code>   Scene containing categories: &lt;code&gt;joints&lt;/code&gt;, &lt;code&gt;labels&lt;/code&gt;, &lt;code&gt;edges&lt;/code&gt;, &lt;code&gt;curves&lt;/code&gt;, &lt;code&gt;surfaces&lt;/code&gt;, etc.
+</code></pre>
+
+        </li>
+        <li><span class="parameter">matLib</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        <pre><code>  Material library (currently unused)
+</code></pre>
+
+        </li>
+        <li><span class="parameter">noteSystem</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+          Note system with a <code>.notes</code> array of note tables
+        </li>
+        <li><span class="parameter">categoryMap</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        <p> Optional map from category name to material key.</p>
+
+<pre><code>                         Defaults to:
+                         &lt;code&gt;{ joints=&amp;quot;onyx&amp;quot;, labels=&amp;quot;onyx&amp;quot;, edges=&amp;quot;metal&amp;quot;, curves=&amp;quot;metal&amp;quot; }&lt;/code&gt;
+</code></pre>
+
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-08-10 21:31:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

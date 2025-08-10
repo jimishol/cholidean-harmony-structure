@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Harmony Structure</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/src.backends.fluidsynth.backend_controls.html">src.backends.fluidsynth.backend_controls</a></li>
+  <li><a href="../modules/src.backends.fluidsynth.command_menu.html">src.backends.fluidsynth.command_menu</a></li>
+  <li><a href="../modules/src.backends.fluidsynth.track_active_notes_thread.html">src.backends.fluidsynth.track_active_notes_thread</a></li>
+  <li><a href="../modules/src.backends.html">src.backends</a></li>
+  <li><a href="../modules/backends.note_state.html">backends.note_state</a></li>
+  <li><a href="../modules/src.backends.null.backend_controls.html">src.backends.null.backend_controls</a></li>
+  <li><a href="../modules/src.backends.null.command_menu.html">src.backends.null.command_menu</a></li>
+  <li><a href="../modules/src.backends.null.track_active_notes_thread.html">src.backends.null.track_active_notes_thread</a></li>
+  <li><a href="../modules/backends.playlist.html">backends.playlist</a></li>
+  <li><a href="../modules/src.backends.camera.html">src.backends.camera</a></li>
+  <li><a href="../modules/constants.html">constants</a></li>
+  <li><a href="../modules/src.input.actions.html">src.input.actions</a></li>
+  <li><a href="../modules/src.input.init.html">src.input.init</a></li>
+  <li><a href="../modules/src.input.key_bindings.html">src.input.key_bindings</a></li>
+  <li><a href="../modules/src.scene.html">src.scene</a></li>
+  <li><a href="../modules/src.systems.note_system.html">src.systems.note_system</a></li>
+  <li><a href="../modules/src.utils.colors.html">src.utils.colors</a></li>
+  <li><a href="../modules/src.helpers.daycycle.html">src.helpers.daycycle</a></li>
+  <li><strong>src.utils.joint_layout</strong></li>
+  <li><a href="../modules/src.materials.html">src.materials</a></li>
+  <li><a href="../modules/src.utils.os_detect.html">src.utils.os_detect</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>src.utils.joint_layout</code></h1>
+<p>JointLayout helper for toroidal joint placement and billboarding.</p>
+<p> Computes 12 joint positions on a torus, four triangle centroids,
+ and the yaw angle needed to billboard a label toward the camera.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#JointLayout.getJointPositions">JointLayout.getJointPositions ()</a></td>
+	<td class="summary">Get positions of all 12 joints on the torus.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#JointLayout.getTriangleCenters">JointLayout.getTriangleCenters ()</a></td>
+	<td class="summary">Get centroids of four triangular faces on the torus.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#JointLayout.getBillboardYaw">JointLayout.getBillboardYaw (labelPos, cameraPos)</a></td>
+	<td class="summary">Compute world-Y yaw angle for a billboard to face the camera.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "JointLayout.getJointPositions"></a>
+    <strong>JointLayout.getJointPositions ()</strong>
+    </dt>
+    <dd>
+    Get positions of all 12 joints on the torus.
+ Joints are indexed 0–11 around the torus circle.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table<number,</a></span>
+        {number,number,number}><br/>
+   Map from joint index → 3‐element position array {x, y, z}
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "JointLayout.getTriangleCenters"></a>
+    <strong>JointLayout.getTriangleCenters ()</strong>
+    </dt>
+    <dd>
+    Get centroids of four triangular faces on the torus.
+ Triangles defined by joint triplets (0,8,4), (1,9,5), (2,10,6), (3,11,7).
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table<number,</a></span>
+        {number,number,number}><br/>
+   Array of 4 centroids, each a 3‐element {x, y, z} array
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "JointLayout.getBillboardYaw"></a>
+    <strong>JointLayout.getBillboardYaw (labelPos, cameraPos)</strong>
+    </dt>
+    <dd>
+    Compute world-Y yaw angle for a billboard to face the camera.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">labelPos</span>
+            <span class="types"><span class="type">{number,number,number}</span></span>
+          3-element array {x, y, z}
+        </li>
+        <li><span class="parameter">cameraPos</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+          Table with fields <code>x</code>, <code>y</code>, <code>z</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        Yaw angle in radians around the world-Y axis
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-08-10 21:31:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

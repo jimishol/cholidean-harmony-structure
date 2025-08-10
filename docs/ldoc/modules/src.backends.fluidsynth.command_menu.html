@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Harmony Structure</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/src.backends.fluidsynth.backend_controls.html">src.backends.fluidsynth.backend_controls</a></li>
+  <li><strong>src.backends.fluidsynth.command_menu</strong></li>
+  <li><a href="../modules/src.backends.fluidsynth.track_active_notes_thread.html">src.backends.fluidsynth.track_active_notes_thread</a></li>
+  <li><a href="../modules/src.backends.html">src.backends</a></li>
+  <li><a href="../modules/backends.note_state.html">backends.note_state</a></li>
+  <li><a href="../modules/src.backends.null.backend_controls.html">src.backends.null.backend_controls</a></li>
+  <li><a href="../modules/src.backends.null.command_menu.html">src.backends.null.command_menu</a></li>
+  <li><a href="../modules/src.backends.null.track_active_notes_thread.html">src.backends.null.track_active_notes_thread</a></li>
+  <li><a href="../modules/backends.playlist.html">backends.playlist</a></li>
+  <li><a href="../modules/src.backends.camera.html">src.backends.camera</a></li>
+  <li><a href="../modules/constants.html">constants</a></li>
+  <li><a href="../modules/src.input.actions.html">src.input.actions</a></li>
+  <li><a href="../modules/src.input.init.html">src.input.init</a></li>
+  <li><a href="../modules/src.input.key_bindings.html">src.input.key_bindings</a></li>
+  <li><a href="../modules/src.scene.html">src.scene</a></li>
+  <li><a href="../modules/src.systems.note_system.html">src.systems.note_system</a></li>
+  <li><a href="../modules/src.utils.colors.html">src.utils.colors</a></li>
+  <li><a href="../modules/src.helpers.daycycle.html">src.helpers.daycycle</a></li>
+  <li><a href="../modules/src.utils.joint_layout.html">src.utils.joint_layout</a></li>
+  <li><a href="../modules/src.materials.html">src.materials</a></li>
+  <li><a href="../modules/src.utils.os_detect.html">src.utils.os_detect</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>src.backends.fluidsynth.command_menu</code></h1>
+<p>Fluidsynth backend in‐game command menu.</p>
+<p> Presents a simple overlay for selecting and sending MIDI control messages
+ (tempo, speed, loop, seek, or raw) to a Fluidsynth server.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#CommandMenu:new">CommandMenu:new ()</a></td>
+	<td class="summary">Create a new command menu instance.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#CommandMenu:toggle">CommandMenu:toggle ()</a></td>
+	<td class="summary">Toggle visibility of the menu.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#CommandMenu:keypressed">CommandMenu:keypressed (key)</a></td>
+	<td class="summary">Handle a key press event.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#CommandMenu:textinput">CommandMenu:textinput (t)</a></td>
+	<td class="summary">Collect text input in input mode.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#CommandMenu:draw">CommandMenu:draw (x, y)</a></td>
+	<td class="summary">Draw the command menu overlay.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "CommandMenu:new"></a>
+    <strong>CommandMenu:new ()</strong>
+    </dt>
+    <dd>
+    Create a new command menu instance.
+ Initially hidden and in select mode.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">CommandMenu</span></span>
+        New menu object
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "CommandMenu:toggle"></a>
+    <strong>CommandMenu:toggle ()</strong>
+    </dt>
+    <dd>
+    Toggle visibility of the menu.
+ When hiding, resets state back to select and clears text.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "CommandMenu:keypressed"></a>
+    <strong>CommandMenu:keypressed (key)</strong>
+    </dt>
+    <dd>
+    Handle a key press event.
+ In select mode, chooses a command or exits.
+ In input mode, edits the text buffer or submits the command.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">key</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         The key that was pressed
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">[nil]</span></span>
+        On Enter, returns the built command string; otherwise nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "CommandMenu:textinput"></a>
+    <strong>CommandMenu:textinput (t)</strong>
+    </dt>
+    <dd>
+    Collect text input in input mode.
+ Allows only valid numeric characters for a–d modes,
+ and arbitrary text for raw mode.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         The text input (single character)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "CommandMenu:draw"></a>
+    <strong>CommandMenu:draw (x, y)</strong>
+    </dt>
+    <dd>
+    Draw the command menu overlay.
+ Renders a semi-transparent background and the current menu text.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
+         X-coordinate to start drawing (default 50)
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         Y-coordinate to start drawing (default 50)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2025-08-10 21:31:51 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
