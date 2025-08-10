@@ -72,7 +72,7 @@ M.scaleFactor         = 1.60
 M.bassScale           = 0.92
 M.surfAlpha           = 0.23
 M.sunBrightness       = 1.0
-M.defaultNoteMode     = "offset"
+M.defaultNoteMode     = "instant"
 M.offsetDuration      = 0.15
 M.bassOffsetDuration  = 0.07
 
