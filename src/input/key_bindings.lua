@@ -1,10 +1,11 @@
---- Input key-to-action mapping.
+--- Input key‐to‐action mapping.
+-- Defines which keyboard keys trigger which high‐level actions.
+--
 -- @module src.input.key_bindings
-
+-- @field bindings table Mapping from action constants to lists of Love2D key names.
 local A = require("src.input.actions")
 local M = {}
 
---- Each action constant maps to a list of key names that trigger it.
 M.bindings = {
   [A.QUIT]               = { "q" },
   [A.RESET_VIEW]         = { "space" },
@@ -25,8 +26,8 @@ M.bindings = {
 }
 
 --- Returns the action constant for a given key or nil.
--- @tparam string key
--- @treturn number|nil
+-- @tparam string key Love2D key name (e.g. "a", "space", "left")
+-- @treturn string|nil The mapped action, or nil if unmapped
 function M:actionForKey(key)
   local shiftDown = love.keyboard.isDown("lshift", "rshift")
   if shiftDown and key == "left"  then return A.ROTATE_CW  end
@@ -34,7 +35,9 @@ function M:actionForKey(key)
 
   for action, keys in pairs(self.bindings) do
     for _, k in ipairs(keys) do
-      if k == key then return action end
+      if k == key then
+        return action
+      end
     end
   end
 
