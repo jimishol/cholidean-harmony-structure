@@ -1,7 +1,7 @@
 --- Materials module for recoloring scene geometry based on active notes.
 -- Applies ghost/X-ray or solid-emissive materials to surfaces,
 -- and recolors joints, edges, curves, and labels accordingly.
--- @module materials
+-- @module src.materials
 
 local Colors    = require("src.utils.colors")
 local constants = require("src.constants")
@@ -11,15 +11,15 @@ local M = {}
 --- Check if a torus surface at index `idx` should be considered active.
 -- Evaluates the C–E, C–B, and E–G note pairs for simultaneous activation.
 -- @local
--- @tparam number idx   Surface index (1–12)
--- @tparam table  notes Array of note tables, each with an `.active` boolean
+-- @tparam number idx    Surface index (1–12)
+-- @tparam table  notes  Array of note tables, each with an `.active` boolean
 -- @treturn boolean      True if any required pair is active
 local function checkSurfState(idx, notes)
 
   --- Wrap an integer into the 1–12 range.
   -- @local
   -- @tparam number n Input index
-  -- @treturn number   Wrapped index between 1 and 12
+  -- @treturn number  Wrapped index between 1 and 12
   local function wrap12(n)
     return ((n - 1) % 12) + 1
   end
@@ -29,17 +29,17 @@ local function checkSurfState(idx, notes)
   local B = notes[wrap12(idx + 7)]
   local G = notes[wrap12(idx + 11)]
 
-  local CE_active = (C and C.active) and (E and E.active)
-  local CB_active = (C and C.active) and (B and B.active)
-  local EG_active = (E and E.active) and (G and G.active)
+  local CE_active = C and C.active and E and E.active
+  local CB_active = C and C.active and B and B.active
+  local EG_active = E and E.active and G and G.active
 
   return CE_active or CB_active or EG_active
 end
 
 --- Update a surface’s material instance to be ghost/X-ray or solid-emissive.
--- @tparam table  matInst   Material instance (supports `setColor`, `setAlpha`, `setEmission`)
--- @tparam table  noteColor RGB triplet `{ r, g, b }`
--- @tparam boolean isActive  Whether the surface (note) is active
+-- @tparam table   matInst    Material instance (supports `setColor`, `setAlpha`, `setEmission`)
+-- @tparam {number,number,number} noteColor RGB triplet `{r, g, b}`
+-- @tparam boolean isActive   Whether the surface (note) is active
 function M.updateSurfaceMaterial(matInst, noteColor, isActive)
   local r, g, b = noteColor[1], noteColor[2], noteColor[3]
   if isActive then
@@ -63,12 +63,12 @@ end
 
 --- Recolor all scene objects according to their note states.
 -- Applies materials for joints, edges, curves, labels, and surfaces.
--- @tparam table scene        Scene containing categories: `joints`, `labels`, `edges`, `curves`, `surfaces`, etc.
--- @tparam table matLib       Material library (currently unused)
--- @tparam table noteSystem   Note system with a `.notes` array of note tables
--- @tparam table[opt] categoryMap
---        Optional map from category name to material key. Defaults to:
---        `{ joints="onyx", labels="onyx", edges="metal", curves="metal" }`
+-- @tparam table       scene       Scene containing categories: `joints`, `labels`, `edges`, `curves`, `surfaces`, etc.
+-- @tparam table       matLib      Material library (currently unused)
+-- @tparam table       noteSystem  Note system with a `.notes` array of note tables
+-- @tparam[opt] table  categoryMap Optional map from category name to material key.
+--                             Defaults to:
+--                             `{ joints="onyx", labels="onyx", edges="metal", curves="metal" }`
 function M.assignAll(scene, matLib, noteSystem, categoryMap)
   local map   = categoryMap or {
     joints = "onyx",
@@ -104,7 +104,7 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
       elseif category == "edges" then shift = 4
       end
 
-      -- Wrap 1–12
+      -- Wrap into 1–12
       local useIndex = ((note.index - 1 + shift) % 12) + 1
 
       -- Apply base color
