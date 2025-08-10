@@ -7,12 +7,25 @@ local M = {}
 -- @local
 local defaultSong = "assets/Wagner_Ride_of_the_valkyries.mid"
 
---- Escape literal spaces in a path for shell compatibility.
+--- Escape a path for safe shell execution.
+-- Wraps the path in double quotes on Windows and single quotes on POSIX,
+-- escaping any internal quote characters.
 -- @local
 -- @param path string The file path to escape.
--- @treturn string The path with spaces escaped.
+-- @treturn string The safely quoted path.
 local function escapeSpaces(path)
-  return path:gsub(" ", "\\ ")
+  local osDetect = require("src.utils.os_detect")
+  local platform = osDetect.getPlatform()
+
+  if platform == "windows" then
+    -- Wrap in double quotes, escape internal "
+    local escaped = path:gsub('"', '\\"')
+    return '"' .. escaped .. '"'
+  else
+    -- Wrap in single quotes, escape internal '
+    local escaped = path:gsub("'", "'\"'\"'")
+    return "'" .. escaped .. "'"
+  end
 end
 
 --- Retrieve and process the playlist from 'play.list'.
@@ -24,9 +37,9 @@ end
 -- 1. Missing file: returns a table containing only the default song.
 -- 2. Existing file but no valid entries: returns an empty table.
 -- 3. Any non-existent path in user entries: falls back to the default song.
--- 4. Otherwise: returns all valid user paths, with spaces escaped.
+-- 4. Otherwise: returns all valid user paths, properly quoted.
 --
--- @treturn string[] A list of shell-escaped song paths.
+-- @treturn string[] A list of shell-quoted song paths.
 function M.getSelectedSongs()
   -- 1) Attempt to read play.list
   local info     = love.filesystem.getInfo("play.list")
@@ -49,13 +62,10 @@ function M.getSelectedSongs()
 
   -- 2) Decide on fallback vs. user list vs. empty
   if not info then
-    -- file missing → one default song
     rawLines = { defaultSong }
   elseif #rawLines == 0 then
-    -- file exists but no valid entries → empty playlist OK
     return {}
   else
-    -- file has entries → ensure they all exist, otherwise fallback
     for _, path in ipairs(rawLines) do
       if not love.filesystem.getInfo(path) then
         rawLines = { defaultSong }
@@ -64,7 +74,7 @@ function M.getSelectedSongs()
     end
   end
 
-  -- 3) Escape spaces and return
+  -- 3) Quote and return
   local escaped = {}
   for _, path in ipairs(rawLines) do
     escaped[#escaped + 1] = escapeSpaces(path)
