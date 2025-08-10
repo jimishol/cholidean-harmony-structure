@@ -18,7 +18,3 @@ Please refer to the corresponding files in the `THIRD_PARTY_LICENSES/` directory
 
 - MIDI files  
   [THIRD_PARTY_LICENSES/midis.md](THIRD_PARTY_LICENSES/midis.md)
-
-- SoundFonts  
-  [THIRD_PARTY_LICENSES/soundfonts.md](THIRD_PARTY_LICENSES/soundfonts.md)
-

@@ -1,7 +1,7 @@
 --- Centralized configuration constants for the structure viewer project.
 -- @module constants
 -- @field backend               string   The engine that outputs heard notes or "null" if `active_notes.lua` is edited manually.
--- @field soundfonts            string   Path to the SoundFont file to load.
+-- @field soundfonts            string   Path to the SoundFont (.sf2/.sf3) file that Fluidsynth will load for audio synthesis. Provide an absolute or project-relative path; leave empty to skip loading a soundfont.
 -- @field shellPort             number   TCP port to control the backend (e.g. fluidsynth with `-s`).
 -- @field shellHost             string   Hostname or IP of the backend.
 -- @field bck_image             string   HDRI image used as the sky background.
@@ -20,9 +20,9 @@
 -- @field offsetDuration        number   Delay (s) before sending a “note-off” when in offset mode.
 -- @field bassOffsetDuration    number   Delay (s) before sending a “note-off” for the bass note.
 -- @field initialCameraPosition table    Starting camera position in world space.
--- @field initialCameraPosition.x number X coordinate of initial camera.
--- @field initialCameraPosition.y number Y coordinate of initial camera.
--- @field initialCameraPosition.z number Z coordinate of initial camera.
+-- @field initialCameraPosition.x number  X coordinate of initial camera.
+-- @field initialCameraPosition.y number  Y coordinate of initial camera.
+-- @field initialCameraPosition.z number  Z coordinate of initial camera.
 -- @field autoExposure          table    Auto-exposure settings.
 -- @field autoExposure.enabled  boolean  Enable/disable auto-exposure.
 -- @field autoExposure.target   number   Desired average luminance.
@@ -36,10 +36,10 @@
 -- @field fov                   number   Vertical field-of-view (degrees).
 -- @field resetDuration         number   Duration (s) of the camera orientation reset tween.
 -- @field sensitivity           table    Mouse/keyboard sensitivity settings.
--- @field sensitivity.mouse_angle   number  Mouse look speed (rad/pixel).
--- @field sensitivity.mouse_height  number  Mouse vertical‐move speed.
--- @field sensitivity.mouse_zoom    number  Mouse scroll zoom multiplier.
--- @field sensitivity.invert_mouse  boolean Invert vertical mouse look.
+-- @field sensitivity.mouse_angle     number  Mouse look speed (rad/pixel).
+-- @field sensitivity.mouse_height    number  Mouse vertical‐move speed.
+-- @field sensitivity.mouse_zoom      number  Mouse scroll zoom multiplier.
+-- @field sensitivity.invert_mouse    boolean Invert vertical mouse look.
 -- @field sensitivity.keyboard_angle  number  Keyboard yaw speed (rad/s).
 -- @field sensitivity.keyboard_height number  Keyboard vertical speed (units/s).
 -- @field sensitivity.keyboard_fov    number  Keyboard FOV change speed (deg/s).
@@ -53,6 +53,7 @@
 -- @field emissionLevels.curves   table  Curve emission levels (`.active`, `.inactive`).
 -- @field emissionLevels.surfaces table  Surface emission levels (`.active`, `.inactive`).
 -- @field emissionLevels.labels   table  Label emission levels (`.active`, `.inactive`).
+
 local M = {}
 
 M.backend             = "fluidsynth"
