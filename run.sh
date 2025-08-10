@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env sh 
 # Relaunch LÖVE when the game exits with code 42.
 
 RESTART_CODE="${RESTART_CODE:-42}"
