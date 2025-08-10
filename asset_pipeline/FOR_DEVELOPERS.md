@@ -64,25 +64,7 @@ To keep the project self-contained and updatable, key third-party libraries are 
 
 ---
 
-### 1. LuaMidi
-
-🗂️ Path: `LuaMidi/src/`
-
-**Initial Integration**
-
-```bash
-git remote add -f luamidi git@github.com:PedroAlvesV/LuaMidi.git
-git merge -s ours --no-commit --allow-unrelated-histories luamidi/master
-git read-tree --prefix=LuaMidi/src/ -u luamidi/master:src
-git commit -m "Merge in LuaMidi/src subtree into MidiModules/"
-```
-
-**update**
-```
-git fetch luamidi
-git subtree pull --prefix=LuaMidi/src luamidi master --squash
-```
-### 2. 3DreamEngine
+### 3DreamEngine
 
 🗂️ Paths:
 
@@ -90,7 +72,7 @@ git subtree pull --prefix=LuaMidi/src luamidi master --squash
 
 *    Extensions: 3DreamEngine/extensions/
 
-#### 2.1 **Initial Integration** (Core)
+#### 1 **Initial Integration** (Core)
 ```
 git remote add -f 3DreamEngine https://github.com/3dreamengine/3DreamEngine.git
 git merge -s ours --no-commit --allow-unrelated-histories 3DreamEngine/master
@@ -102,7 +84,7 @@ git commit -m "Merge in 3DreamEngine/3DreamEngine subtree into 3DreamEngine/"
 git fetch 3DreamEngine
 git subtree pull --prefix=3DreamEngine/3DreamEngine 3DreamEngine master --squash
 ```
-#### 2.2 **Initial Integration** (Extensions)
+#### 2 **Initial Integration** (Extensions)
 
 ```
 git read-tree --prefix=3DreamEngine/extensions/ -u 3DreamEngine/master:extensions
