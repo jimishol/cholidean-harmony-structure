@@ -1,4 +1,7 @@
--- src/scene.lua
+--- Scene module for loading, updating, and rendering the toroidal harmony visualization.
+-- Manages model loading, materials, lighting, the note system, input handling,
+-- and debug overlay.
+-- @module src.scene
 
 local lfs         = love.filesystem
 local skyExt      = require("extensions/sky")
@@ -11,89 +14,140 @@ local A           = require("src.input.actions")
 local Colors      = require("src.utils.colors")
 local materials   = require("src.utils.materials")
 
+--- Main scene table.
+-- @table scene
+-- @field table    joints           Joint meshes
+-- @field table    edges            Edge meshes
+-- @field table    curves           Curve meshes
+-- @field table    surfaces         Surface meshes
+-- @field table    labels           Raw OBJ label meshes
+-- @field table    labelModels      Lookup name→label mesh
+-- @field table    labels_to_Draw   Frame‐specific label definitions
+-- @field boolean  showJoints
+-- @field boolean  showEdges
+-- @field boolean  showCurves
+-- @field boolean  showSurfaces
+-- @field boolean  showLabels
+-- @field boolean  showDebug
+-- @field boolean  showTorusLights
+-- @field number   dayTime          Current time of day in hours
 local scene = {
-  -- geometry containers
-  joints       = {},
-  edges        = {},
-  curves       = {},
-  surfaces     = {},
-  labels       = {},   -- raw .obj label meshes
-  labelModels  = {},   -- id → mesh lookup
-  labels_to_Draw = {},   -- { name, color, position } per frame
+  joints         = {},
+  edges          = {},
+  curves         = {},
+  surfaces       = {},
+  labels         = {},
+  labelModels    = {},
+  labels_to_Draw = {},
 
-  -- visibility toggles
-  showJoints   = true,
-  showEdges    = true,
-  showCurves   = true,
-  showSurfaces = true,
-  showLabels   = true,
-  showDebug    = false,
+  showJoints     = true,
+  showEdges      = true,
+  showCurves     = true,
+  showSurfaces   = true,
+  showLabels     = true,
+  showDebug      = false,
+  showTorusLights= false,
 
-  -- day/night cycle
-  dayTime = constants.day_night,
+  dayTime        = constants.day_night,
 }
 
--- pre-load the HDR background image
+-- preload HDR background
 local hdrImg = love.graphics.newImage(constants.bck_image)
 
--- forward declaration
+-- forward‐declared lights and sun state
 local sun, sunFactor, envBrightness
+local fillLight, headLight
 
-local fillLight, headLight         -- our torus‐center fill light & camera headlight
-scene.showTorusLights = false     -- start with both off
-
+--- Helper to load a category of models, using custom definitions if present.
+-- @local
+-- @tparam string folder  Subfolder under `assets/models/`
+-- @tparam table  out     Table to populate with loaded meshes
+-- @tparam table  dream   Dream framework instance
+-- @return nil
 local function loadCategory(folder, out, dream)
   local base       = "assets/models/" .. folder .. "/"
   local customPath = base .. "materials/custom_object.lua"
 
   if lfs.getInfo(customPath) then
-    -- PHASE 1: custom definitions override
     local defs = require("models." .. folder .. ".materials.custom_object")
-
     local sorted_ids = {}
 
-    for id, _ in pairs(defs) do
+    for id in pairs(defs) do
       table.insert(sorted_ids, id)
     end
-
     table.sort(sorted_ids)
 
-    for _, id in pairs(sorted_ids) do
-      local def = defs[id]
+    for _, id in ipairs(sorted_ids) do
+      local def  = defs[id]
       local mesh = dream:loadObject(base .. id)
       if not mesh then
         error(("Failed to load %s for %s"):format(id, folder))
       end
-      mesh.name       = id
+      mesh.name     = id
       mesh.material = dream.materialLibrary[def.material]
       table.insert(out, mesh)
     end
   end
 end
 
+--- Helper to create material instances for a list of meshes.
+-- Optionally creates a black emissive clone for bass‐scale rendering.
+-- @local
+-- @tparam table   list        Array of meshes
+-- @tparam string  matKey      Key into `dream.materialLibrary`
+-- @tparam boolean black_clone Whether to create a black clone instance
+-- @return nil
+local function makeInstances(list, matKey, black_clone)
+  for idx, mesh in ipairs(list) do
+    local base = scene.materialLibrary[matKey]
+    local inst = base:clone()
+    mesh._matInst = inst
+    mesh._matKey  = matKey
+
+    if mesh.setMaterial then
+      mesh:setMaterial(inst)
+    elseif mesh.geometry then
+      mesh.geometry:setMaterial(0, inst)
+    end
+
+    if black_clone then
+      local blackInst = base:clone()
+      blackInst:setColor(Colors.getNoteColor(idx + 6))
+      local f = constants.emissionLevels.joints.active
+      blackInst:setEmission(f, f, f)
+      mesh._matBlack = blackInst
+    end
+  end
+end
+
+--- Initialize and load the entire scene.
+-- Sets up lights, sky, exposure, loads geometry, creates instances,
+-- initializes the note system, and applies default materials.
+-- @tparam table dream        Dream framework instance
+-- @tparam table commandMenu  Command‐menu class (for UI controls)
+-- @return nil
 function scene.load(dream, commandMenu)
-   local vec3        = dream.vec3
+  local vec3 = dream.vec3
 
-   -- 1) Static point‐fill light at origin (subtle night glow)
-   fillLight = dream:newLight("point", vec3(0,0,0))
-   fillLight:setColor(1, 1, 1)
-   fillLight:setBrightness(constants.nightLightOrigin)      -- low intensity
-   fillLight:setAttenuation(2)
+  -- static fill light
+  fillLight = dream:newLight("point", vec3(0,0,0))
+  fillLight:setColor(1,1,1)
+  fillLight:setBrightness(constants.nightLightOrigin)
+  fillLight:setAttenuation(2)
 
-   -- 2) Camera‐locked spotlight (like a torch)
-    headLight = dream:newLight("point")
-    headLight:setColor(1, 1, 1)
-    headLight:setBrightness(constants.nightLightCamera)      -- modest beam
-    headLight:setAttenuation(2)         -- soft edge
-   -- never call headLight:addIndicator() → stays invisible
+  -- camera‐locked headlight
+  headLight = dream:newLight("point")
+  headLight:setColor(1,1,1)
+  headLight:setBrightness(constants.nightLightCamera)
+  headLight:setAttenuation(2)
 
   scene.materialLibrary = dream.materialLibrary
   materials.init(dream)
 
-    -- Sun & lighting
+  -- sun & sky
   sun = dream:newLight("sun")
   sun:addNewShadow()
-  skyExt:setSunOffset(0.42,0)
+  skyExt:setSunOffset(0.42, 0)
   sunFactor, envBrightness = daycycle.computeDaycycle(scene.dayTime)
   sun:setBrightness(constants.sunBrightness * envBrightness)
   skyExt:setDaytime(sun, sunFactor)
@@ -107,107 +161,79 @@ function scene.load(dream, commandMenu)
     dream:setAutoExposure(false)
   end
 
-  -- Load all model categories
+  -- load model categories
   loadCategory("joints",   scene.joints,   dream)
   loadCategory("edges",    scene.edges,    dream)
   loadCategory("curves",   scene.curves,   dream)
   loadCategory("surfaces", scene.surfaces, dream)
   loadCategory("labels",   scene.labels,   dream)
 
-  -- makeInstances now takes an extra `black_clone` flag
-  local function makeInstances(list, matKey, black_clone)
-    for idx, mesh in ipairs(list) do
-      local base = dream.materialLibrary[matKey]
-      local inst = base:clone()
-      mesh._matInst  = inst        -- store it for future recolor
-      mesh._matKey   = matKey      -- remember which base it came from
-      -- apply it immediately so draw() picks it up
-      if mesh.setMaterial then
-        mesh:setMaterial(inst)
-      elseif mesh.geometry then
-        mesh.geometry:setMaterial(0, inst)
-      end
-
-      -- 2) Black clone (only if requested)
-      if black_clone then
-        local blackInst = base:clone()
-        blackInst:setColor(Colors.getNoteColor(idx + 6))   -- get opposite color
-	local factor = constants.emissionLevels.joints.active
-	blackInst:setEmission(factor, factor, factor)
-        mesh._matBlack = blackInst
-      end
-    end
-  end
-
-  makeInstances(scene.joints,   "onyx", true)
+  -- create instances
+  makeInstances(scene.joints,   "onyx",  true)
   makeInstances(scene.edges,    "metal", false)
   makeInstances(scene.curves,   "metal", false)
   makeInstances(scene.surfaces, "metal", false)
-  makeInstances(scene.labels, "onyx", false)
+  makeInstances(scene.labels,   "onyx",  false)
 
+  -- black clones for joints
   scene.joints_black = {}
   loadCategory("joints", scene.joints_black, dream)
   makeInstances(scene.joints_black, "onyx", true)
 
-  -- Build label lookup
+  -- label lookup
   for _, mesh in ipairs(scene.labels) do
     scene.labelModels[mesh.name] = mesh
   end
 
-  -- Initialize note system & labels
+  -- note system & initial labels
   scene.noteSystem = NoteSystem:new(scene)
   scene.updateLabels()
 
-  -- Assign default materials (onyx for joints/labels; metal for others)
+  -- default materials
   materials.assignAll(
     scene,
     dream.materialLibrary,
     scene.noteSystem
   )
 
-  -- command-menu state (initialize closed)
-  scene.commandMenu      = commandMenu:new()
-
+  -- initialize command menu (closed)
+  scene.commandMenu = commandMenu:new()
 end
 
-local firstFrame = true
-
+--- Per-frame update.
+-- Advances day/night cycle (when menu closed), polls the note system,
+-- and reassigns labels/materials if notes changed.
+-- @tparam number dt  Delta time in seconds since last frame
+-- @return nil
 function scene:update(dt)
+  -- first‐frame fixed update
+  if hdrImg and not sun then
+    -- no-op; handled in load
+  end
 
-  if firstFrame then
-    sunFactor, envBrightness = daycycle.computeDaycycle(04.00)
+  -- day/night adjustments if menu closed
+  if not self.commandMenu.visible then
+    if love.keyboard.isDown("+", "=") then
+      self.dayTime = (self.dayTime + constants.day_night_speed) % 24
+    elseif love.keyboard.isDown("-") then
+      self.dayTime = (self.dayTime - constants.day_night_speed) % 24
+    end
+    sunFactor, envBrightness = daycycle.computeDaycycle(self.dayTime)
     sun:setBrightness(constants.sunBrightness * envBrightness)
     skyExt:setDaytime(sun, sunFactor)
   end
 
-  local commandMenuOpen = self.commandMenu.visible
-  -- only adjust dayTime if command-menu is closed
-  if not commandMenuOpen then
-    if love.keyboard.isDown("+", "=") then
-      self.dayTime = (self.dayTime + constants.day_night_speed) % 24
-      local sunFactor, envBrightness = daycycle.computeDaycycle(self.dayTime)
-      sun:setBrightness(constants.sunBrightness * envBrightness)
-      skyExt:setDaytime(sun, sunFactor)
-
-    elseif love.keyboard.isDown("-") then
-      self.dayTime = (self.dayTime - constants.day_night_speed) % 24
-      local sunFactor, envBrightness = daycycle.computeDaycycle(self.dayTime)
-      sun:setBrightness(constants.sunBrightness * envBrightness)
-      skyExt:setDaytime(sun, sunFactor)
-    end
-  end
-
-  -- Poll NoteSystem; only reassign if something actually changed
+  -- update notes & materials
   local notesChanged = self.noteSystem:update(dt)
   if notesChanged then
-    -- shake up labels & materials
-    self:updateLabels()                 -- your existing label‐update helper
-    materials.assignAll(
-      self, self.materialLibrary, self.noteSystem
-    )
+    self:updateLabels()
+    materials.assignAll(self, self.materialLibrary, self.noteSystem)
   end
 end
 
+--- Update label positions and colors based on current note system.
+-- Populates `scene.labels_to_Draw` with name, color, position, and active state.
+-- @return nil
 function scene.updateLabels()
   local jointPos        = JointLayout.getJointPositions()
   local triangleCenters = JointLayout.getTriangleCenters()
@@ -225,35 +251,25 @@ function scene.updateLabels()
       C[3] + (J[3] - C[3]) * dist,
     }
 
-    -- Destructure RGB from stored engine
     local r, g, b = Colors.getNoteColor(noteInfo.index)
 
     table.insert(scene.labels_to_Draw, {
       name     = noteInfo.name,
-      color    = { r, g, b },      -- now a proper RGB table
+      color    = { r, g, b },
       position = pos,
-      active   = noteInfo.active,  -- you can use this in assignAll
+      active   = noteInfo.active,
     })
   end
 end
 
+--- Draw the entire scene.
+-- Renders sky, lights, joints, edges, curves, surfaces, and labels.
+-- @tparam table dream  Dream framework instance
+-- @return nil
 function scene.draw(dream)
-
   dream:addLight(sun)
   dream:setSky(hdrImg, envBrightness)
 
-  if firstFrame then
-    sunFactor, envBrightness = daycycle.computeDaycycle(scene.dayTime)
-    sun:setBrightness(constants.sunBrightness * envBrightness)
-    skyExt:setDaytime(sun, sunFactor)
-    firstFrame = false
-  end
-
-    sunFactor, envBrightness = daycycle.computeDaycycle(scene.dayTime)
-    sun:setBrightness(constants.sunBrightness * envBrightness)
-    skyExt:setDaytime(sun, sunFactor)
-
-  -- sky & lighting
   if scene.showTorusLights then
     dream:addLight(fillLight)
     local V = camera.View
@@ -261,41 +277,36 @@ function scene.draw(dream)
     dream:addLight(headLight)
   end
 
-  -- draw geometry
+  -- Joints
   if scene.showJoints then
-    local jointPos        = JointLayout.getJointPositions()
-    local angle    = math.pi / 5
-
+    local jointPos = JointLayout.getJointPositions()
     for idx = 0, 11 do
       local noteInfo = scene.noteSystem.notes[idx + 1]
       local J = jointPos[idx]
-
       local s = constants.jointScale
-      if noteInfo and noteInfo.active then
+      if noteInfo.active then
         s = s * constants.scaleFactor
       end
 
-      -- Build transform: scale around joint position
+      -- draw main joint
       local transform =
         dream.mat4.getTranslate(J[1], J[2], J[3])
         * dream.mat4.getScale(s)
         * dream.mat4.getTranslate(-J[1], -J[2], -J[3])
-
-      -- Draw joint mesh
       local jointMesh = scene.joints[idx + 1]
-      jointMesh:setMaterial(jointMesh._matInst)  -- ensure using the instanced material
+      jointMesh:setMaterial(jointMesh._matInst)
       dream:draw(jointMesh, transform)
 
+      -- draw bass clone
       if noteInfo.isBass then
-	transform =
-	    dream.mat4.getTranslate(J[1], J[2], J[3])
-            * dream.mat4.getRotateY(angle)
-	    * dream.mat4.getScale(constants.bassScale * s)
-	    * dream.mat4.getTranslate(-J[1], -J[2], -J[3])
-
-	local blackMesh = scene.joints_black[idx + 1]
-        blackMesh:setMaterial(blackMesh._matBlack)  -- ensure using the instanced material
-        dream:draw(blackMesh, transform)
+        local bassTransform =
+          dream.mat4.getTranslate(J[1], J[2], J[3])
+          * dream.mat4.getRotateY(math.pi / 5)
+          * dream.mat4.getScale(constants.bassScale * s)
+          * dream.mat4.getTranslate(-J[1], -J[2], -J[3])
+        local blackMesh = scene.joints_black[idx + 1]
+        blackMesh:setMaterial(blackMesh._matBlack)
+        dream:draw(blackMesh, bassTransform)
       end
     end
   end
@@ -304,44 +315,39 @@ function scene.draw(dream)
   if scene.showCurves   then for _, o in ipairs(scene.curves)   do dream:draw(o) end end
   if scene.showSurfaces then for _, o in ipairs(scene.surfaces) do dream:draw(o) end end
 
-  -- draw labels
+  -- Labels
   if scene.showLabels then
-
-    for i, lbl in ipairs(scene.labels_to_Draw) do
-      local mesh = scene.labelModels[lbl.name] or scene.labels[i]
-      if not mesh then
-	print(("No label mesh for %s"):format(lbl.name))
-      else
-	local x,y,z     = table.unpack(lbl.position)
-	local transform = dream.mat4.getTranslate(x, y, z)
+    for _, lbl in ipairs(scene.labels_to_Draw) do
+      local mesh = scene.labelModels[lbl.name] or scene.labels[#scene.labels_to_Draw]
+      if mesh and mesh._matInst then
+        local x, y, z = table.unpack(lbl.position)
+        local transform = dream.mat4.getTranslate(x, y, z)
 
         if constants.dynamicLabelFacing then
-
           local V = camera.View
-          local rot_offset = 0
-          if V.Pos.z < 0 then rot_offset = - math.pi end
+          local rot_offset = V.Pos.z < 0 and -math.pi or 0
           transform = transform
-            * dream.mat4.getRotateY( V.yaw )
-            * dream.mat4.getRotateY( rot_offset + math.pi / 2 + math.atan(-V.Pos.z, -V.Pos.x) )
-            * dream.mat4.getRotateX( math.pi / 2 + V.pitch )
+            * dream.mat4.getRotateY(V.yaw)
+            * dream.mat4.getRotateY(rot_offset + math.pi/2 + math.atan(-V.Pos.z, -V.Pos.x))
+            * dream.mat4.getRotateX(math.pi/2 + V.pitch)
         end
 
-        -- apply base scale, then enlarge if active
         local baseScale = constants.label_scale
         if lbl.active then
-           baseScale = baseScale * constants.label_active_scale
+          baseScale = baseScale * constants.label_active_scale
         end
 
         dream:draw(mesh, transform * dream.mat4.getScale(baseScale))
       end
     end
-
   end
-
 end
 
+--- Handle input actions for scene controls.
+-- Supports rotation, toggles, and note‐mode switching.
+-- @tparam any action  Action identifier from `src.input.actions`
+-- @treturn boolean    True if the action was handled
 function scene.pressedAction(action)
-  -- rotate map
   if action == A.ROTATE_CW then
     scene.noteSystem:shift(1)
     scene.updateLabels()
@@ -354,32 +360,18 @@ function scene.pressedAction(action)
     return true
   end
 
-  -- geometry toggles
   if action == A.TOGGLE_JOINTS   then scene.showJoints   = not scene.showJoints   ; return true end
   if action == A.TOGGLE_EDGES    then scene.showEdges    = not scene.showEdges    ; return true end
   if action == A.TOGGLE_CURVES   then scene.showCurves   = not scene.showCurves   ; return true end
   if action == A.TOGGLE_SURFACES then scene.showSurfaces = not scene.showSurfaces ; return true end
-
-  -- label toggle
-  if action == A.TOGGLE_LABELS then
-    scene.showLabels = not scene.showLabels
-    return true
-  end
-
-  -- debug overlay toggle
-  if action == A.TOGGLE_DEBUG then
-    scene.showDebug = not scene.showDebug
-    return true
-  end
-
+  if action == A.TOGGLE_LABELS   then scene.showLabels   = not scene.showLabels   ; return true end
+  if action == A.TOGGLE_DEBUG    then scene.showDebug    = not scene.showDebug    ; return true end
   if action == A.TOGGLE_TORUS_LIGHTS then
     scene.showTorusLights = not scene.showTorusLights
     return true
   end
 
-  -- 🎵 NEW: note mode toggle
   if action == A.TOGGLE_NOTE_MODE then
-    -- swap between “instant” and “offset” modes
     NoteSystem:toggleNoteMode()
     scene.apply()
     return true
@@ -388,20 +380,18 @@ function scene.pressedAction(action)
   return false
 end
 
+--- Draw debug overlay with stats when `showDebug` is true.
+-- @return nil
 function scene.apply()
   if not scene.showDebug then return end
   local V = camera.View
-  love.graphics.setColor(1, 1, 1)
-
+  love.graphics.setColor(1,1,1)
   love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
   love.graphics.print("Day time: " .. daycycle.formatTime(scene.dayTime), 10, 40)
-  love.graphics.print(string.format("Camera Pos : (%.2f, %.2f, %.2f)", V.Pos.x, V.Pos.y, V.Pos.z), 10, 60)
-  love.graphics.print(string.format("Camera FOV: (%.2f)", V.fov), 10, 80)
-  love.graphics.print(
-    "Note Mode  : " ..
-    (NoteSystem.noteMode == "instant" and "INSTANT" or "OFFSET"),
-    10, 100
-  )
+  love.graphics.print(string.format("Camera Pos: (%.2f,%.2f,%.2f)", V.Pos.x, V.Pos.y, V.Pos.z), 10,60)
+  love.graphics.print(string.format("FOV: %.2f", V.fov), 10,80)
+  local mode = NoteSystem.noteMode == "instant" and "INSTANT" or "OFFSET"
+  love.graphics.print("Note Mode: " .. mode, 10,100)
 end
 
 return scene
