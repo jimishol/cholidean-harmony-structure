@@ -1,108 +1,128 @@
--- src/constants.lua
--- Centralized configuration constants for the structure viewer project.
+--- Centralized configuration constants for the structure viewer project.
 -- @module constants
-
+-- @field backend               string   The engine that outputs heard notes or "null" if `active_notes.lua` is edited manually.
+-- @field soundfonts            string   Path to the SoundFont file to load.
+-- @field shellPort             number   TCP port to control the backend (e.g. fluidsynth with `-s`).
+-- @field shellHost             string   Hostname or IP of the backend.
+-- @field bck_image             string   HDRI image used as the sky background.
+-- @field day_night             number   Current simulated hour (0.00–24.00).
+-- @field day_night_speed       number   Speed at which background brightness shifts with +/- keys.
+-- @field maxBright             number   Maximum daytime background brightness.
+-- @field maxNightBright        number   Maximum nighttime brightness.
+-- @field nightLightOrigin      number   Point-light brightness at origin during night.
+-- @field nightLightCamera      number   Point-light brightness at camera during night.
+-- @field jointScale            number   Scale factor for imported joint meshes.
+-- @field scaleFactor           number   Ratio of active vs. inactive joint sizes.
+-- @field bassScale             number   Depth-offset scale for bass-note joints.
+-- @field surfAlpha             number   Opacity for surface meshes.
+-- @field sunBrightness         number   Intensity of the sun light.
+-- @field defaultNoteMode       string   Note-mode, either `"instant"` or `"offset"`.
+-- @field offsetDuration        number   Delay (s) before sending a “note-off” when in offset mode.
+-- @field bassOffsetDuration    number   Delay (s) before sending a “note-off” for the bass note.
+-- @field initialCameraPosition table    Starting camera position in world space.
+-- @field initialCameraPosition.x number X coordinate of initial camera.
+-- @field initialCameraPosition.y number Y coordinate of initial camera.
+-- @field initialCameraPosition.z number Z coordinate of initial camera.
+-- @field autoExposure          table    Auto-exposure settings.
+-- @field autoExposure.enabled  boolean  Enable/disable auto-exposure.
+-- @field autoExposure.target   number   Desired average luminance.
+-- @field autoExposure.speed    number   Adaptation speed for exposure.
+-- @field torusRadius           number   Outer radius of the torus (must not change).
+-- @field torusWidth            number   Width of the torus ring (must not change).
+-- @field label_distance        number   Distance factor from triangle center to joint label.
+-- @field label_scale           number   Base scale ratio for 3D labels.
+-- @field label_active_scale    number   Scale ratio for active versus inactive labels.
+-- @field dynamicLabelFacing    boolean  Whether labels always face the camera.
+-- @field fov                   number   Vertical field-of-view (degrees).
+-- @field resetDuration         number   Duration (s) of the camera orientation reset tween.
+-- @field sensitivity           table    Mouse/keyboard sensitivity settings.
+-- @field sensitivity.mouse_angle   number  Mouse look speed (rad/pixel).
+-- @field sensitivity.mouse_height  number  Mouse vertical‐move speed.
+-- @field sensitivity.mouse_zoom    number  Mouse scroll zoom multiplier.
+-- @field sensitivity.invert_mouse  boolean Invert vertical mouse look.
+-- @field sensitivity.keyboard_angle  number  Keyboard yaw speed (rad/s).
+-- @field sensitivity.keyboard_height number  Keyboard vertical speed (units/s).
+-- @field sensitivity.keyboard_fov    number  Keyboard FOV change speed (deg/s).
+-- @field sensitivity.free_move       number  Free-fly movement speed (units/s).
+-- @field sensitivity.free_mouse      number  Free-fly mouse drag sensitivity.
+-- @field NOTE_ORDER            string[] Circle-of-fourths note sequence.
+-- @field activationThreshold   number   Volume threshold for “heard” vs “unheard.”
+-- @field emissionLevels        table    Emission intensities by category.
+-- @field emissionLevels.joints   table  Joint emission levels (`.active`, `.inactive`).
+-- @field emissionLevels.edges    table  Edge emission levels (`.active`, `.inactive`).
+-- @field emissionLevels.curves   table  Curve emission levels (`.active`, `.inactive`).
+-- @field emissionLevels.surfaces table  Surface emission levels (`.active`, `.inactive`).
+-- @field emissionLevels.labels   table  Label emission levels (`.active`, `.inactive`).
 local M = {}
 
-M.backend    = "fluidsynth" -- The engine that outputs the heard notes or "null" if active_notes.lua is edited by hand!
-M.soundfonts = "assets/FluidR3_GM.sf2"
-M.shellPort  = 9800 -- port to control backend (fluidsynth when launched with -s option)
-M.shellHost  = "localhost" -- host IP of backend
+M.backend             = "fluidsynth"
+M.soundfonts          = "assets/FluidR3_GM.sf2"
+M.shellPort           = 9800
+M.shellHost           = "localhost"
 
--- Initial camera placement
--- @field initialCameraPosition Initial camera position in world space
+M.bck_image           = "assets/sky/DaySkyHDRI021A_4K.hdr"
+M.day_night           = 8
+M.day_night_speed     = 0.15
+M.maxBright           = 1.40
+M.maxNightBright      = 0.60
+M.nightLightOrigin    = 3.0
+M.nightLightCamera    = 175
+M.jointScale          = 1.00
+M.scaleFactor         = 1.60
+M.bassScale           = 0.92
+M.surfAlpha           = 0.23
+M.sunBrightness       = 1.0
+M.defaultNoteMode     = "offset"
+M.offsetDuration      = 0.15
+M.bassOffsetDuration  = 0.07
+
 M.initialCameraPosition = {
   x = -17.3,
   y =  19.7,
-  z = -17.3
+  z = -17.3,
 }
 
-M.bck_image	  = "assets/sky/DaySkyHDRI021A_4K.hdr"
-M.day_night       = 8    -- Hour (float) 0:00-24:0.05
-M.day_night_speed = 0.15 -- greater value faster change of background brightness by +/- keys
-M.maxBright       = 1.40 -- maximum acceptable background brightness
-M.maxNightBright  = 0.60 -- maximum night bright (supposedly by moon)
-M.nightLightOrigin = 3.0 -- how bright is the point light on origin
-M.nightLightCamera = 175 -- how bright is the point light on camera
-M.jointScale      = 1.00 -- Factor to scale imported joints
-M.scaleFactor     = 1.60 -- Ratio of active over inactive joints
-M.bassScale	  = 0.92 -- Ratio of rotated bass joints over active/ Defines how much of the bass corners pops out.   
-M.surfAlpha       = 0.23
-M.sunBrightness   = 1.0
 M.autoExposure = {
-  enabled = false,     -- true to turn on, false to turn off
-  target  = 0.18,     -- desired average luminance
-  speed   = 1,     -- adaptation speed
+  enabled = false,
+  target  = 0.18,
+  speed   = 1,
 }
 
--- Torus geometry parameters
--- @field torusRadius Outer radius of torus
--- @field torusWidth Width of torus ring
--- @field steps Number of segment steps (for rendering resolution)
-M.torusRadius    = 7 -- SHOULD NOT BE ALTERED. Else joints and labels will disconnect from rest of structure
-M.torusWidth     = 3 -- SHOULD NOT BE ALTERED. Else joints and labels will disconnect from rest of structure
-M.label_distance = 1.60  -- factor the distance from center of augmented third triangles to respective joint
-M.label_scale    = 0.85  -- ratio on imported initial size of 3D labels.
-M.label_active_scale = 1.3 -- label size ratio between active and incative tones 
-M.dynamicLabelFacing = true  -- whether labels rotate to face the camera
+M.torusRadius           = 7
+M.torusWidth            = 3
+M.label_distance        = 1.60
+M.label_scale           = 0.85
+M.label_active_scale    = 1.30
+M.dynamicLabelFacing    = true
 
--- Camera projection settings for 3DreamEngine
--- @field fov Vertical field-of-view in degrees (simulates 50 mm lens)
-M.fov      = 26.8
+M.fov            = 26.8
+M.resetDuration  = 0.5
 
--- Time duration (seconds) for orientation reset tween
--- @field resetDuration Duration in seconds to interpolate orientation reset
-M.resetDuration = 0.5
-
--- Sensitivity values for camera and input controls
--- @table sensitivity
--- @field mouse_angle Mouse sensitivity for angle (radians per pixel)
--- @field mouse_height Mouse vertical translation speed
--- @field mouse_zoom Mouse scroll zoom multiplier
--- @field invert_mouse Whether to invert mouse look (boolean)
--- @field keyboard_angle Keyboard angle increment (radians per second)
--- @field keyboard_height Vertical movement speed (units per second)
--- @field keyboard_zoom Zoom amount using keys (units per second)
--- @field keyboard_fov Amount to change FOV per second with keys
--- @field free_move Speed in free-fly mode
--- @field free_mouse Sensitivity of free-fly mouse drag
 M.sensitivity = {
-  mouse_angle   = 0.005,
-  mouse_height  = 0.05,
-  mouse_zoom    = 0.1,
-  invert_mouse  = false,
-
-  keyboard_angle  = 0.20,
-  keyboard_height = 5,
-  keyboard_fov    = 8,
-
-  -- forward - backward move by keyboard
-  free_move  = 5.0,
-  free_mouse = 0.1
+  mouse_angle    = 0.005,
+  mouse_height   = 0.05,
+  mouse_zoom     = 0.1,
+  invert_mouse   = false,
+  keyboard_angle = 0.20,
+  keyboard_height= 5,
+  keyboard_fov   = 8,
+  free_move      = 5.0,
+  free_mouse     = 0.1,
 }
 
 M.NOTE_ORDER = {
   "C", "F", "Bb", "Eb", "Ab", "Db",
-  "Gb", "B", "E", "A", "D", "G"
+  "Gb", "B", "E", "A", "D", "G",
 }
 
--- global volume cutoff for “heard” vs “unheard”
 M.activationThreshold = 0.15
 
--- emission strengths by category:
---   .active   when hitVolume ≥ activationThreshold
---   .inactive when hitVolume <  activationThreshold
 M.emissionLevels = {
-  joints   = { active = 0.20, inactive = 0.005},
-  edges    = { active = 0.05, inactive = 0.005},
-  curves   = { active = 0.05, inactive = 0.005},
-  surfaces = { active = 0.10, inactive = 0.015},
-  labels   = { active = 0.40, inactive = 0.005},
+  joints   = { active = 0.20, inactive = 0.005 },
+  edges    = { active = 0.05, inactive = 0.005 },
+  curves   = { active = 0.05, inactive = 0.005 },
+  surfaces = { active = 0.10, inactive = 0.015 },
+  labels   = { active = 0.40, inactive = 0.005 },
 }
-
-M.defaultNoteMode    = "offset" -- "instant" or "offset" delayed turning OFF after note OFF event 
-
-M.offsetDuration     = 0.15 -- offset to delay OFF in seconds. At 120BPM 1 eigth lasts 0.25 seconds. 
-M.bassOffsetDuration = 0.07 -- offset to delay OFF the bass tone in seconds.
 
 return M
