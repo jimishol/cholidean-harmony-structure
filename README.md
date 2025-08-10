@@ -1,4 +1,22 @@
 
+## Prerequisites
+
+This project uses Git Large File Storage (LFS) to manage big binary assets (normal-maps, textures, etc.).  
+Before you clone, build or contribute, make sure you have Git LFS installed and initialized:
+
+```bash
+# Install Git LFS (once per machine):
+# macOS (Homebrew)
+brew install git-lfs
+
+# Windows (Chocolatey)
+choco install git-lfs
+
+# Debian/Ubuntu
+sudo apt-get install git-lfs
+
+# Initialize Git LFS
+git lfs install
 
 ## License
 
