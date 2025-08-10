@@ -1,4 +1,7 @@
--- main.lua
+--- Main module for the Cholidean Harmony Structure application.
+-- Extends Lua search paths, instantiates and initializes 3DreamEngine,
+-- loads application modules, and defines Love2D callbacks.
+-- @module main
 
 -- 1) Extend Lua’s search paths
 package.path = table.concat({
@@ -48,7 +51,7 @@ backendChannel:push(backend)
 
 local shellHostChannel = love.thread.getChannel("shellHost")
 local host = constants.shellHost
-shellHostChannel:push(shellHost)
+shellHostChannel:push(host)
 
 local shellPortChannel = love.thread.getChannel("shellPort")
 local shellPort = constants.shellPort
@@ -68,6 +71,11 @@ local songsChannel = love.thread.getChannel("songs")
 local songList = table.concat(selectedSongs, " ")
 songsChannel:push(songList)
 
+--- Callback invoked once when the Love2D application loads.
+-- Sets up window title, text input, material libraries, engine initialization,
+-- scene and camera loading, and starts the backend thread.
+-- @function love.load
+-- @return nil
 function love.load()
   love.window.setTitle("Cholidean Harmony Structure")
   love.keyboard.setTextInput(true)
@@ -89,89 +97,101 @@ function love.load()
   Backend.start()
 end
 
+--- Callback invoked every frame to update game state.
+-- Updates the rendering engine, camera, and scene logic.
+-- @function love.update
+-- @tparam number dt Delta time since last frame.
+-- @return nil
 function love.update(dt)
   dream:update(dt)
   camera:update(dt)
   scene:update(dt)
 end
 
+--- Callback invoked every frame to render the scene and overlays.
+-- Prepares the 3D engine, draws the scene, then switches to screen-space
+-- to render the HUD, debug text, command menu, and fallback messages.
+-- @function love.draw
+-- @return nil
 function love.draw()
   dream:prepare()
   scene.draw(dream)
   dream:present()
 
-  -- 2) Reset to screen‐space for HUD & overlays
   love.graphics.push()
   love.graphics.origin()
   love.graphics.setColor(1, 1, 1, 1)
 
-  -- 2.A) Re–draw debug text (since we only wanted it in screen‐space)
   scene.apply()
 
-  -- draw your command‐menu on top of the scene
   if scene.commandMenu.visible then
-    scene.commandMenu:draw(10,120)
+    scene.commandMenu:draw(10, 120)
   end
 
   if Backend.fallbackMessage then
-    love.graphics.setColor(1, 0.8, 0)      -- amber
+    love.graphics.setColor(1, 0.8, 0)
     love.graphics.print(Backend.fallbackMessage, 10, 10)
   end
 
   love.graphics.pop()
 end
 
+--- Terminates the external backend process if one was launched.
+-- Extracts the base name of the backend command and issues a platform-specific kill.
+-- @local
+-- @function genericQuit
+-- @return nil
 local function genericQuit()
-    -- if we actually launched something, kill it
-    if backend ~= "null" then
-      -- extract just the base name, remove any extension
-      local proc = backend:match("([^/\\]+)$"):gsub("%.%w+$", "")
+  if backend ~= "null" then
+    local proc = backend:match("([^/\\]+)$"):gsub("%.%w+$", "")
 
-      if platform == "windows" then
-	-- force-kill the .exe
-	os.execute(string.format(
-	  'taskkill /IM %s.exe /F >NUL 2>&1',
-	  proc
-	))
-      else
-	-- SIGKILL by name (matches scripts or binaries)
-	os.execute(string.format(
-	  'pkill -9 -f "%s" > /dev/null 2>&1',
-	  proc
-	))
-      end
+    if platform == "windows" then
+      os.execute(string.format(
+        'taskkill /IM %s.exe /F >NUL 2>&1',
+        proc
+      ))
+    else
+      os.execute(string.format(
+        'pkill -9 -f "%s" > /dev/null 2>&1',
+        proc
+      ))
     end
+  end
 end
 
-local backendCtl = backendModules.controls or {}
-
+--- Checks if either Control key is currently pressed.
+-- @local
+-- @function ctrlDown
+-- @treturn boolean true if left or right control key is down.
 local function ctrlDown()
   return love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")
 end
 
+--- Callback to handle keypress events.
+-- Processes command menu input, internal actions, and dispatches backend controls.
+-- @function love.keypressed
+-- @tparam string key Key that was pressed.
+-- @tparam string scancode Platform-specific scancode.
+-- @return nil
 function love.keypressed(key, scancode)
-
   if scene.commandMenu.visible then
     local topic = scene.commandMenu:keypressed(key, scancode)
 
     if topic then
-      if backendCtl.send_message then
-        backendCtl.send_message(topic, host, shellPort)
-        scene.commandMenu.visible = backendCtl.visible or false
+      if backendModules.controls.send_message then
+        backendModules.controls.send_message(topic, host, shellPort)
+        scene.commandMenu.visible = backendModules.controls.visible or false
       else
         print("⚠️ No backend available to send message: " .. topic)
-        scene.commandMenu.visible = false  -- fallback: hide menu
+        scene.commandMenu.visible = false
       end
     end
 
     return
   end
 
-  -- 2) When menu is closed, fall back to your normal keybindings
   local action = Input:onKey(key)
-  if not action then
-    return
-  end
+  if not action then return end
 
   if action == A.RESTART then
     genericQuit()
@@ -179,13 +199,11 @@ function love.keypressed(key, scancode)
     return
   end
 
-  -- 3) Toggle the menu on your SHOW_COMMAND_MENU action
   if action == A.SHOW_COMMAND_MENU then
     scene.commandMenu:toggle()
     return
   end
 
-  -- 4) Handle all your existing actions exactly as before
   if action == A.QUIT and ctrlDown() then
     genericQuit()
     love.event.quit()
@@ -199,8 +217,8 @@ function love.keypressed(key, scancode)
   }
 
   local methodName = backendActions[action]
-  if methodName and backendCtl[methodName] then
-    backendCtl[methodName](host, shellPort)
+  if methodName and backendModules.controls[methodName] then
+    backendModules.controls[methodName](host, shellPort)
     return
   end
 
@@ -216,24 +234,29 @@ function love.keypressed(key, scancode)
   end
 end
 
--- 2) Handle text input when the menu is open
+--- Callback to handle text input events for the command menu.
+-- Opens the menu on colon keystroke or forwards text to the menu when visible.
+-- @function love.textinput
+-- @tparam string t Text input character.
+-- @return nil
 function love.textinput(t)
-  -- 1) When menu is hidden, open on colon keystroke
   if t == ":" and not scene.commandMenu.visible then
     scene.commandMenu:toggle()
     return
   end
 
-  -- 2) When menu is open, feed text into it
   if scene.commandMenu.visible then
     scene.commandMenu:textinput(t)
     return
   end
-
-  -- 3) Otherwise ignore or dispatch to other systems
 end
 
+--- Callback invoked when the window is resized.
+-- Re-initializes the 3D engine to update viewport and projection.
+-- @function love.resize
+-- @tparam number w New window width.
+-- @tparam number h New window height.
+-- @return nil
 function love.resize(w, h)
-  -- re-initialize to update viewport, projection, etc.
   dream:init()
 end
