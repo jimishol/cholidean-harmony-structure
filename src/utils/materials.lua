@@ -1,30 +1,45 @@
--- src/utils/materials.lua
+--- Materials module for recoloring scene geometry based on active notes.
+-- Applies ghost/X-ray or solid-emissive materials to surfaces,
+-- and recolors joints, edges, curves, and labels accordingly.
+-- @module materials
+
 local Colors    = require("src.utils.colors")
 local constants = require("src.constants")
 
 local M = {}
 
+--- Check if a torus surface at index `idx` should be considered active.
+-- Evaluates the C–E, C–B, and E–G note pairs for simultaneous activation.
+-- @local
+-- @tparam number idx   Surface index (1–12)
+-- @tparam table  notes Array of note tables, each with an `.active` boolean
+-- @treturn boolean      True if any required pair is active
 local function checkSurfState(idx, notes)
 
+  --- Wrap an integer into the 1–12 range.
+  -- @local
+  -- @tparam number n Input index
+  -- @treturn number   Wrapped index between 1 and 12
   local function wrap12(n)
     return ((n - 1) % 12) + 1
   end
 
-  local C = notes[wrap12(idx + 0)]   -- C (offset 0)
-  local E = notes[wrap12(idx + 8)]   -- E (offset +8)
-  local B = notes[wrap12(idx + 7)]   -- B (offset +7)
-  local G = notes[wrap12(idx + 11)]  -- G (offset +11)
+  local C = notes[wrap12(idx + 0)]
+  local E = notes[wrap12(idx + 8)]
+  local B = notes[wrap12(idx + 7)]
+  local G = notes[wrap12(idx + 11)]
 
-  -- Check each pair for simultaneous activation
   local CE_active = (C and C.active) and (E and E.active)
   local CB_active = (C and C.active) and (B and B.active)
   local EG_active = (E and E.active) and (G and G.active)
 
-  -- Surface is active if any pair is active
   return CE_active or CB_active or EG_active
 end
 
---- Update one surface’s material to ghost/X-ray or solid-emissive
+--- Update a surface’s material instance to be ghost/X-ray or solid-emissive.
+-- @tparam table  matInst   Material instance (supports `setColor`, `setAlpha`, `setEmission`)
+-- @tparam table  noteColor RGB triplet `{ r, g, b }`
+-- @tparam boolean isActive  Whether the surface (note) is active
 function M.updateSurfaceMaterial(matInst, noteColor, isActive)
   local r, g, b = noteColor[1], noteColor[2], noteColor[3]
   if isActive then
@@ -39,21 +54,31 @@ function M.updateSurfaceMaterial(matInst, noteColor, isActive)
   end
 end
 
--- no change to init()
+--- Initialize the materials system.
+-- Delegates to the Colors module for any setup.
+-- @tparam table dream Dream framework instance
 function M.init(dream)
   Colors.init(dream)
 end
 
--- now we only recolor, never clone
+--- Recolor all scene objects according to their note states.
+-- Applies materials for joints, edges, curves, labels, and surfaces.
+-- @tparam table scene        Scene containing categories: `joints`, `labels`, `edges`, `curves`, `surfaces`, etc.
+-- @tparam table matLib       Material library (currently unused)
+-- @tparam table noteSystem   Note system with a `.notes` array of note tables
+-- @tparam table[opt] categoryMap
+--        Optional map from category name to material key. Defaults to:
+--        `{ joints="onyx", labels="onyx", edges="metal", curves="metal" }`
 function M.assignAll(scene, matLib, noteSystem, categoryMap)
   local map   = categoryMap or {
-    joints   = "onyx",
-    labels   = "onyx",    -- we’ll skip recoloring labels below
-    edges    = "metal",
-    curves   = "metal",
+    joints = "onyx",
+    labels = "onyx",
+    edges  = "metal",
+    curves = "metal",
   }
   local notes = noteSystem.notes
 
+  -- Recolor joints, edges, and curves
   for category, matKey in pairs(map) do
     local items = scene[category]
     if not items then goto continue end
@@ -64,7 +89,7 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
         error(("No note at index %d in category %q"):format(idx, category))
       end
 
-      -- skip labels entirely so they keep their original tint
+      -- Skip labels so they keep their original tint
       if category == "labels" then
         goto skip_label
       end
@@ -74,25 +99,21 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
         error("Object in " .. category .. " missing its _matInst")
       end
 
-      -- determine how many steps to shift in the 12-tone circle
       local shift = 0
-      if category == "curves" then
-        shift = 1    -- curves get next tone
-      elseif category == "edges" then
-        shift = 4    -- edges jump +4 tones
+      if category == "curves" then shift = 1
+      elseif category == "edges" then shift = 4
       end
 
-      -- wrap around 1..12
+      -- Wrap 1–12
       local useIndex = ((note.index - 1 + shift) % 12) + 1
 
-      -- recolor using the shifted index
+      -- Apply base color
       local r, g, b = Colors.getNoteColor(useIndex)
       matInst:setColor(r, g, b)
 
-      -- emission: always set the note’s color, let the factor dial the glow
+      -- Apply emission
       local levels = constants.emissionLevels[category] or { active = 0, inactive = 0 }
       local factor = note.active and levels.active or levels.inactive
-
       matInst:setEmission(factor, factor, factor)
 
       ::skip_label::
@@ -101,37 +122,32 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
     ::continue::
   end
 
+  -- Label meshes (always original tint + emission)
   for i, lbl in ipairs(scene.labels_to_Draw) do
     local mesh = scene.labelModels[lbl.name] or scene.labels[i]
     if mesh and mesh._matInst then
-      local inst = mesh._matInst
-      inst:setColor(lbl.color[1], lbl.color[2], lbl.color[3])
-
-      -- emission for labels: always use the label hue + its factor
+      local inst   = mesh._matInst
       local levels = constants.emissionLevels.labels or { active = 0, inactive = 0 }
       local factor = lbl.active and levels.active or levels.inactive
-
+      inst:setColor(lbl.color[1], lbl.color[2], lbl.color[3])
       inst:setEmission(factor, factor, factor)
     end
   end
 
-  -- now handle surfaces with our ghost/X-ray helper
+  -- Surfaces: ghost/X-ray vs solid-emissive
   for idx, obj in ipairs(scene.surfaces) do
-    local note     = noteSystem.notes[idx]
+    local note    = noteSystem.notes[idx]
     if not note then
       error(("No note at index %d for surfaces"):format(idx))
     end
 
     local matInst   = obj._matInst
-    local shift     = 0            -- surfaces don’t shift hue
-    local useIndex  = ((note.index - 1 + shift) % 12) + 1
+    local useIndex  = ((note.index - 1) % 12) + 1
     local noteColor = { Colors.getNoteColor(useIndex) }
     local isActive  = checkSurfState(idx, notes)
 
-    -- ghost ↔ solid-emissive
     M.updateSurfaceMaterial(matInst, noteColor, isActive)
   end
-
 end
 
 return M

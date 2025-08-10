@@ -186,7 +186,7 @@ function love.keypressed(key, scancode)
   end
 
   -- 4) Handle all your existing actions exactly as before
-  if action == A.QUIT and ctrlDown then
+  if action == A.QUIT and ctrlDown() then
     genericQuit()
     love.event.quit()
     return
