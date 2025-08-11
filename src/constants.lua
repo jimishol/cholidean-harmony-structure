@@ -1,6 +1,7 @@
 --- Centralized configuration constants for the structure viewer project.
 -- @module constants
 -- @field backend               string   The engine that outputs heard notes or "null" if `active_notes.lua` is edited manually.
+-- @field windowsBackendPath    string   The root path of fuidsynth that will be in ROOT of project and contain the \bin subfolder on windows
 -- @field soundfonts            string   Path to the SoundFont (.sf2/.sf3) file that Fluidsynth will load for audio synthesis. Provide an absolute or project-relative path; leave empty to skip loading a soundfont.
 -- @field shellPort             number   TCP port to control the backend (e.g. fluidsynth with `-s`).
 -- @field shellHost             string   Hostname or IP of the backend.
@@ -57,6 +58,7 @@
 local M = {}
 
 M.backend             = "fluidsynth"
+M.windowsBackendPath  = ""
 M.soundfonts          = "assets/FluidR3_GM.sf2"
 M.shellPort           = 9800
 M.shellHost           = "localhost"

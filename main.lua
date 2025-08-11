@@ -83,6 +83,10 @@ function love.load()
   -- 4) Load all materials, then init the engine in the callback
   dream:loadMaterialLibrary("assets/materials")
   if platform == "windows" then
+
+    local windowsBackendPathChannel = love.thread.getChannel("winBackPath")
+    windowsBackendPathChannel:push(constants.windowsBackendPath)
+
     dream:loadMaterialLibrary("assets/materials/materials_dx")
   end
 

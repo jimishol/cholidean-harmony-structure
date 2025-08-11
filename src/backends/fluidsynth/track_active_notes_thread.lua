@@ -74,12 +74,15 @@ dump_active()
 -- @local
 local cmd = nil
 if platform == "windows" then
+  local winBackPathChannel = love.thread.getChannel("winBackPath")
+  local winBackPath        = winBackPathChannel:peek()
+  local exeString = winBackPath .. "\\" .. "bin" .. "\\" .. backend .. ".exe"
   cmd = string.format(
     'winpty %s -ds ' ..
     '-o audio.period-size=128 ' ..
     '-o audio.periods=32 ' ..
     '-o shell.port=%d %s %s',
-    backend, shellPort, soundfont, songList
+    exeString, shellPort, soundfont, songList
   )
 else
   cmd = string.format(
