@@ -1,4 +1,12 @@
+https://github.com/FluidSynth/fluidsynth/releases -> download zip -> unzib the excecutable is Inside fluidsynth-2.4.7-win10-x64\bin\fluidsynth
+Does not include soundsfonts. Grab from https://github.com/FluidSynth/fluidsynth/blob/master/sf2/VintageDreamsWaves-v2.sf2 and right of screen Download raw file or from wherever you like. Much better are https://github.com/Jacalz/fluid-soundfont/blob/master/original-files/FluidR3_GM.sf2
 
+Shift+RMB in folder where you want command Prompt -> Open Power Shell here. give something like (don't forget TAB can complete what you are trying to write and make typing much easier)  .\fluidsynth-2.4.7-win10-x64\bin\fluidsynth.exe .\FluidR3_GM.sf2 '.\beethoven_symphony_5_1_(c)galimberti.mid'
+beethoven_symphony_5_1_(c)galimberti.mid was downloaded from assets/
+ subfolder the same way
+
+In https://github.com/love2d/love go right of screen into releases -> pick your preffered installer e.g. https://github.com/love2d/love/releases/download/11.5/love-11.5-win64.exe download and double click to install
+ 
 ## Prerequisites
 
 This project uses Git Large File Storage (LFS) to manage big binary assets (normal-maps, textures, etc.).  
