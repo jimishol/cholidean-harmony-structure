@@ -5,6 +5,8 @@
 extensions/sky/res/moon_normal.png -filter -diff -merge
 
 # Exclude dev-only folders from git archive / GitHub source ZIP
+asset_pipeline/ export-ignore
 asset_pipeline/** export-ignore
+docs/ export-ignore
 docs/** export-ignore
 
