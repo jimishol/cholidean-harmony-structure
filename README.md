@@ -1,3 +1,5 @@
+Cluck on Releases on the right screen. 
+
 Open File Explorer
     You can press Windows + E or click the folder icon on the taskbar.
 Navigate to the location where you want application to be
