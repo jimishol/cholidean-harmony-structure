@@ -1,24 +1,20 @@
-Cluck on Releases on the right screen. 
+1. Click on Releases on the right screen. Click on Assets where windows users probably will download .zip file. Move it where cholidean-structure want to build e.g. C:\Users\username\ A directory like cholidean-harmony-structure-0.1.0-alpha will be created.
 
-Open File Explorer
-    You can press Windows + E or click the folder icon on the taskbar.
-Navigate to the location where you want application to be
-Right-click in the blank sp
-    In the folder area, right-click and choose New > Folder.
-Name your folder
-    Harmony Structure (or whatever you like) and press Enter.
-      
-https://github.com/FluidSynth/fluidsynth/releases -> download zip -> move zip inside the floder you created e.g. Harmony Structure
-Unzip there. The excecutable is Inside fluidsynth-...downloaded_version...\bin\fluidsynth
-It does not include soundsfonts. Grab from https://github.com/FluidSynth/fluidsynth/blob/master/sf2/VintageDreamsWaves-v2.sf2 and right of screen Download raw file or from wherever you like. Very good are the https://github.com/Jacalz/fluid-soundfont/blob/master/original-files/FluidR3_GM.sf2
-Move them in the same file e.g. Harmony Structure.
+Unzip. (zip can be deleted) 
 
-(you can check it is working by Command Prompt.
-Shift+RMB in the folder e.g Harmony Structure, choose Open Power Shell here. give something like (don't forget TAB can complete what you are trying to write and make typing much easier)  .\fluidsynth-2.4.7-win10-x64\bin\fluidsynth.exe .\FluidR3_GM.sf2 '.\beethoven_symphony_5_1_(c)galimberti.mid'
-beethoven_symphony_5_1_(c)galimberti.mid was downloaded from assets/
- subfolder the same way
+2. fluidsynth      
+2.1 https://github.com/FluidSynth/fluidsynth/releases -> download zip -> unxip in project's directory e.g. in cholidean-harmony-structure-0.1.0-alpha\ There will be created lib\ include\ and bin\ directories (Anyway anyone is free to unzip fluidsynth anywhere he likes) Excecutable fluidsynth is inside bin\ directory. (Execute it if you like just to type "help" or "help player" to see brief explanation of usefull commands) 
+   
+2.2 sounfonts 
+fluidsynth zip does not include soundsfonts. Very good are the https://github.com/Jacalz/fluid-soundfont/blob/master/original-files/FluidR3_GM.sf2 ("Download raw file" right of the screen)
+Move them in project's folder e.g. cholidean-harmony-structure-0.1.0-alpha\
 
-In https://github.com/love2d/love go right of screen into releases -> pick your preffered installer e.g. https://github.com/love2d/love/releases/download/11.5/love-11.5-win64.exe download and double click to install
+3. winPTY
+I found easiest to download from https://sourceforge.net/projects/pcpu/files/Windows/Winpty-0.4.3-64-bits.exe/download
+Installer is autodownloaded, double click to install it. Allow installer to download files, at 100% you will think it stucked but no. Wait few minutes and eventually installation eill be finished. A rebbot will be asked.
+
+4.
+In https://github.com/love2d/love go right of screen into releases -> pick your preffered installer e.g. https://github.com/love2d/love/releases/download/11.5/love-11.5-win64.exe download and double click to install. 
  
 ## Prerequisites
 
