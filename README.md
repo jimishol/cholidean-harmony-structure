@@ -13,8 +13,7 @@ fluidsynth zip does not include soundsfonts. Very good are the https://github.co
 Move them in project's folder e.g. cholidean-harmony-structure-0.1.0-alpha\
 
 3. winPTY
-I found easiest to download from https://sourceforge.net/projects/pcpu/files/Windows/Winpty-0.4.3-64-bits.exe/download
-Installer is autodownloaded, double click to install it. Allow installer to download files, at 100% you will think it stucked but no. Wait few minutes and eventually installation eill be finished. A rebbot will be asked.
+I found easiest to download from https://github.com/git-for-windows/git/releases/tag/v2.50.1.windows.1
 
 4.
 In https://love2d.org/ download windows Vista installer for global installation or zipped for portability. 

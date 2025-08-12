@@ -76,7 +76,7 @@ local cmd = nil
 if platform == "windows" then
   local winBackPathChannel = love.thread.getChannel("winBackPath")
   local winBackPath        = winBackPathChannel:peek()
-  local exeString = winBackPath .. "\\" .. "bin" .. "\\" .. backend .. ".exe"
+  local exeString = winBackPath .. backend .. ".exe"
   cmd = string.format(
     'winpty %s -ds ' ..
     '-o audio.period-size=128 ' ..

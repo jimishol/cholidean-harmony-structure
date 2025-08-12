@@ -14,7 +14,7 @@ if ! command -v love >/dev/null 2>&1; then
 fi
 
 while :; do
-  love .
+  love --console .
   code=$?
   if [ "$code" -eq "$RESTART_CODE" ]; then
     echo "Restart requested (exit $code). Relaunching..."

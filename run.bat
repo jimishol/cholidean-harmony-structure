@@ -14,7 +14,7 @@ if exist "%~dp0%LOVE_EXE%" (
     echo Error: 'love' executable not found locally or in PATH.
     exit /b 127
   )
-  set "LOVE_CMD=love"
+  set "LOVE_CMD=love --console"
 )
 
 :LOOP

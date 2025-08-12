@@ -58,7 +58,7 @@
 local M = {}
 
 M.backend             = "fluidsynth"
-M.windowsBackendPath  = ""
+M.windowsBackendPath  = "bin\\"
 M.soundfonts          = "assets/FluidR3_GM.sf2"
 M.shellPort           = 9800
 M.shellHost           = "localhost"
