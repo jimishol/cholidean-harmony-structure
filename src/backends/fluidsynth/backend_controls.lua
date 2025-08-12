@@ -49,10 +49,8 @@ local isPlaying = true
 --   backend_controls.togglePlayback("127.0.0.1", 5555)
 function M.togglePlayback(host, port)
   if isPlaying then
-    control:push("clear")
     send_command("player_stop", host, port)
   else
-    control:push("clear")
     send_command("player_cont", host, port)
   end
 
