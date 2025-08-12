@@ -68,8 +68,8 @@ M.day_night           = 8
 M.day_night_speed     = 0.15
 M.maxBright           = 1.40
 M.maxNightBright      = 0.60
-M.nightLightOrigin    = 3.0
-M.nightLightCamera    = 175
+M.nightLightOrigin    = 4.0
+M.nightLightCamera    = 250
 M.jointScale          = 1.00
 M.scaleFactor         = 1.60
 M.bassScale           = 0.92
@@ -124,7 +124,7 @@ M.emissionLevels = {
   joints   = { active = 0.20, inactive = 0.005 },
   edges    = { active = 0.05, inactive = 0.005 },
   curves   = { active = 0.05, inactive = 0.005 },
-  surfaces = { active = 0.10, inactive = 0.015 },
+  surfaces = { active = 0.05, inactive = 0.015 },
   labels   = { active = 0.40, inactive = 0.005 },
 }
 
