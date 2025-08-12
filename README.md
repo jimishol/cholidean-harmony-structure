@@ -1,3 +1,6 @@
+In https://love2d.org/ download zipped for portability. Unzip where you like e.g. C:\Users\YourUseranme
+It will create a folder C:\Users\YourUsername\love-11.5-win64
+
 1. Click on Releases on the right screen. Click on Assets where windows users probably will download .zip file. Move it where cholidean-structure want to build e.g. C:\Users\username\ A directory like cholidean-harmony-structure-0.1.0-alpha will be created.
 
 Unzip. (zip can be deleted) 
@@ -14,6 +17,7 @@ I found easiest to download from https://sourceforge.net/projects/pcpu/files/Win
 Installer is autodownloaded, double click to install it. Allow installer to download files, at 100% you will think it stucked but no. Wait few minutes and eventually installation eill be finished. A rebbot will be asked.
 
 4.
+In https://love2d.org/ download windows Vista installer for global installation or zipped for portability. 
 In https://github.com/love2d/love go right of screen into releases -> pick your preffered installer e.g. https://github.com/love2d/love/releases/download/11.5/love-11.5-win64.exe download and double click to install. 
  
 ## Prerequisites
