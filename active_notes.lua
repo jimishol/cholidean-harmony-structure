@@ -1,5 +1,6 @@
 -- Auto‐generated active MIDI notes
 return {
+<<<<<<< HEAD
     36,
     48,
     56,
@@ -9,4 +10,8 @@ return {
     79,
     80,
     84,
+=======
+    59,
+    62,
+>>>>>>> readme
 }

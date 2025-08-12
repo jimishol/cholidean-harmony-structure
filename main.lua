@@ -81,13 +81,15 @@ function love.load()
   love.keyboard.setTextInput(true)
 
   -- 4) Load all materials, then init the engine in the callback
-  dream:loadMaterialLibrary("assets/materials")
   if platform == "windows" then
 
     local windowsBackendPathChannel = love.thread.getChannel("winBackPath")
     windowsBackendPathChannel:push(constants.windowsBackendPath)
 
-    dream:loadMaterialLibrary("assets/materials/materials_dx")
+    dream:loadMaterialLibrary("assets/materials_dx")
+  else
+    dream:loadMaterialLibrary("assets/materials_gl")
+
   end
 
   dream:init()
