@@ -1,12 +1,10 @@
 # 1) Track all normal maps
-*_normal.png filter=lfs diff=lfs merge=lfs -text
+**/*_normal.png filter=lfs diff=lfs merge=lfs -text
 
 # 2) But disable LFS for this one
 extensions/sky/res/moon_normal.png -filter -diff -merge
 
 # Exclude dev-only folders from git archive / GitHub source ZIP
 asset_pipeline/ export-ignore
-asset_pipeline/** export-ignore
 docs/ export-ignore
-docs/** export-ignore
 
