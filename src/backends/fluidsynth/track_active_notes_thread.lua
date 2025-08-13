@@ -74,11 +74,14 @@ dump_active()
 -- @local
 local cmd = nil
 if platform == "windows" then
+  local PTYChannel = love.thread.getChannel("PTYcmd")
+  local winPTYcmd        = PTYChannel:peek()
   local winBackPathChannel = love.thread.getChannel("winBackPath")
   local winBackPath        = winBackPathChannel:peek()
-  local exeString = winBackPath .. backend .. ".exe"
+
+  local exeString = winPTYcmd .. " " .. winBackPath .. backend .. ".exe"
   cmd = string.format(
-    'winpty %s -ds ' ..
+    '%s -ds ' ..
     '-o audio.period-size=128 ' ..
     '-o audio.periods=32 ' ..
     '-o shell.port=%d %s %s',
