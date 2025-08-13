@@ -1,3 +1,6 @@
+# Cholidean Harmony Structure
+
+Cholidean Harmony Structure is a tool that bridges 12-tone equal temperament (12ET) music and a two-dimensional surface strip curved in three-dimensional space to fit the surface of an [umbilic torus](https://en.wikipedia.org/wiki/Umbilic_torus). Its integration with FluidSynth as a MIDI backend player demonstrates a powerful method for visualizing and exploring harmony theories.
 
 ## Installation Prerequisites and Steps 🚀
 
