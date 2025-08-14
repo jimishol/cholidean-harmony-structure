@@ -88,9 +88,6 @@ function love.load()
     local windowsBackendPathChannel = love.thread.getChannel("winBackPath")
     windowsBackendPathChannel:push(constants.windowsBackendPath)
 
-    local PTYChannel = love.thread.getChannel("PTYcmd")
-    PTYChannel:push(constants.winPTYcommand)
-
   end
 
   dream:init()

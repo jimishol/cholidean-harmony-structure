@@ -18,9 +18,8 @@ local function escapeSpaces(path)
   local platform = osDetect.getPlatform()
 
   if platform == "windows" then
-    -- Wrap in double quotes, escape internal "
-    local escaped = path:gsub('"', '\\"')
-    return '"' .. escaped .. '"'
+    local escaped = path:gsub(' ', '\\ ')
+    return escaped
   else
     -- Wrap in single quotes, escape internal '
     local escaped = path:gsub("'", "'\"'\"'")

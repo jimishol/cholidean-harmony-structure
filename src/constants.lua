@@ -59,8 +59,7 @@
 local M = {}
 
 M.backend             = "fluidsynth"
-M.windowsBackendPath  = "bin/"
-M.winPTYcommand       = "C/'Program Files'/Git/usr/bin/winpty.exe"
+M.windowsBackendPath  = "bin\\"
 M.soundfonts          = "FluidR3_GM.sf2"
 M.shellPort           = 9800
 M.shellHost           = "localhost"
