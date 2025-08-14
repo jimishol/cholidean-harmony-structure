@@ -1,26 +1,35 @@
 # Cholidean Harmony Structure
 
-Cholidean Harmony Structure is a tool that bridges 12-tone equal temperament (12ET) music and a two-dimensional surface strip curved in three-dimensional space to fit the surface of an [umbilic torus](https://en.wikipedia.org/wiki/Umbilic_torus). Its integration with FluidSynth as a MIDI backend player demonstrates a powerful method for visualizing and exploring harmony theories.
+Cholidean Harmony Structure is a tool that bridges 12-tone equal temperament [12ET](https://en.wikipedia.org/wiki/12_equal_temperament) music and a two-dimensional surface strip curved in three-dimensional space to fit the surface of an [umbilic torus](https://en.wikipedia.org/wiki/Umbilic_torus). Its integration with [FluidSynth](https://github.com/FluidSynth/fluidsynth), as a MIDI backend player, demonstrates a powerful method for visualizing and exploring harmony theories.
 
 ## Installation Prerequisites and Steps 🚀
 
-This project is built with LÖVE (Love2D) and uses FluidSynth for MIDI playback. It runs best on Linux, but Windows support is straightforward. macOS is untested, though basic usage may work.
+This project is built with LÖVE [Love2D](https://love2d.org/) and uses FluidSynth for MIDI playback. It runs best on Linux, but Windows support is straightforward. macOS is untested, though basic usage may work.
 
 ---
 
 ### 🐧 Linux
 
-If you're on Linux and have LÖVE installed, running the project is simple:
+If you're on Linux and have LÖVE installed,
+```
+sudo zypper install love
+```
+
+ running from project's ROOT directory is simple:
 
 love .
 
 To enable MIDI playback, install FluidSynth via your package manager:
-
-sudo apt-get install fluidsynth
-
+```
+sudo zypper install fluidsynth
+```
 Then download the SoundFont `FluidR3_GM.sf2` from:
 https://github.com/Jacalz/fluid-soundfont/blob/master/original-files/FluidR3_GM.sf2  
-(use “Download raw file”) and place it in your project root.
+(use “Download raw file”) and place it in project's root or better install them, if your repository include them,
+```
+sudo zypper install fluid-soundfont-gm
+```
+There is no need to place sounfonts in project's root in that case.
 
 ---
 
@@ -43,49 +52,42 @@ Note: macOS support is currently unverified. This project was built with love an
 
 Before running the project on Windows, make sure you have a machine or VM with real GPU support, 3D acceleration, and OpenGL enabled. Without hardware acceleration, you’ll encounter a black screen and no audio output.
 
-1. **Install LÖVE (Love2D)**  
-   - Visit https://love2d.org/ and download the Windows zip (portable version).  
-   - Unzip to a folder of your choice, for example:  
-     C:\Users\<YourUsername>\love-11.5-win64  
-   - You should now have `love.exe` alongside folders like `love-11.5-win64\`.
-
-2. **Prepare the Project Directory**  
+1. **Prepare the Project Directory**  
    - Download or clone your project release zip (e.g. `cholidean-harmony-structure-0.1.0-alpha.zip`).  
    - Unzip it anywhere you like, for example:  
      C:\Users\<YourUsername>\cholidean-harmony-structure-0.1.0-alpha  
-   - Copy all project files (including `main.lua`) into the same folder where `love.exe` lives:  
-     C:\Users\<YourUsername>\love-11.5-win64\  
+
+2. **Install LÖVE (Love2D)**  
+   - Visit https://love2d.org/ and download the Windows zip (portable version).  
+   - Unzip to a folder of your choice, for example:  
+     C:\Users\<YourUsername>\love-11.5-win64  
+   - Move all contents of LÖVE folder (after all you can recreate them from the .zip file) into Project's Directory.  
    - After this step, `main.lua`, `conf.lua`, and any other project assets should sit next to `love.exe`.
 
 3. **Install FluidSynth**  
-   3.1 Download the binaries  
-       - Go to https://github.com/FluidSynth/fluidsynth/releases and grab the latest Windows zip.  
-       - Unzip it into your project folder (same place as `main.lua`), creating subfolders `lib\`, `include\`, and `bin\`.
-
-   3.2 Configure the backend path  
-       - Open `constants.lua` in your project and set:  
-         M.windowsBackendPath = "bin//"
-       - You can run `bin/fluidsynth.exe` manually (e.g. `fluidsynth.exe --help`) to verify it works.
+     Download the binaries  
+      - Go to https://github.com/FluidSynth/fluidsynth/releases and grab the latest Windows zip.  
+      - Unzip it into your Project's Directory (same place as `main.lua`). This will create lib\`, `include\`, and `bin\`subfolders in it.
 
 4. **Add SoundFonts**  
    - FluidSynth doesn’t ship with a default SoundFont.  
    - Download `FluidR3_GM.sf2` from:  
      https://github.com/Jacalz/fluid-soundfont/blob/master/original-files/FluidR3_GM.sf2  
      (use “Download raw file”)  
-   - Place `FluidR3_GM.sf2` in your project root (next to `main.lua`).
+   - Place `FluidR3_GM.sf2` in your Project's Directory (next to `main.lua`).
 
 5. **Install Git for Windows (a necessity for winpty)**  
-   - Download Git for Windows from https://github.com/git-for-windows/git/releases (e.g. `v2.50.1.windows.1`).  
+   - Download Git for Windows from https://github.com/git-for-windows/git/releases (e.g. `v2.50.1.windows.1`). Scroll down to find assets and pick the latest installer.
+    
    - Install and reboot your machine.  
-   - Open **Git Bash**, cd into your LÖVE folder:  
-     cd /c/Users/<YourUsername>/love-11.5-win64  
+   - Open **Git Bash**, cd into Project's Directory:  
    - Launch the game with console output enabled:  
      ./love.exe --console .
 
    - You should see no errors in the console, and keyboard shortcuts like Ctrl+Q will work to quit.
 
 **Known Issue:**  
-In a VM without proper GPU passthrough or 3D acceleration, you will get a black screen and no sound. For full functionality, test on a physical Windows machine or in a VM configured with a dedicated GPU.
+There is no sound, so no activity from notes ON/OFF.
 
 ---
 
