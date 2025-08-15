@@ -7,7 +7,7 @@ Project's integration with [FluidSynth](https://github.com/FluidSynth/fluidsynth
 
 ## Installation Prerequisites and Steps 🚀
 
-This project is built with LÖVE [Love2D](https://love2d.org/) and uses FluidSynth for MIDI playback. It runs best on Linux, but Windows support is straightforward. macOS is untested, though basic usage may work.
+This project embeds [3DreamEngine](https://github.com/3dreamengine/3DreamEngine) — an awesome 3D engine for [LÖVE](https://love2d.org/) — directly in its codebase. Users only need to install LÖVE to run the project; no separate installation of 3DreamEngine is required.
 
 ---
 
@@ -92,7 +92,7 @@ Before running the project on Windows, make sure you have a machine or VM with r
   
    - Launch the game by
    
-6.  **Double Click** on **run.bat** file.
+6.  **Double Click** on `run.bat` file.
 
 
 
@@ -106,7 +106,7 @@ Before running the project on Windows, make sure you have a machine or VM with r
 
 ---
 
-## Prerequisites
+### Prerequisites
 
 If you haven’t already installed the project via Releases, this project uses Git Large File Storage (LFS) to manage assets (normal maps, textures, etc.). Before you clone, build, or contribute, make sure Git LFS is installed and initialized:
 
@@ -125,6 +125,232 @@ sudo apt-get install git-lfs
 # Initialize Git LFS
 git lfs install
 ```
+---
+
+## 🚀 Basic Usage & Developer Integration
+### 🎧 For Regular Users
+
+This project works like a minimalist music player — but with a twist. Instead of just playing sound, it visually projects musical harmony into a 3D space, offering a unique and immersive way to experience music.
+
+   - Supported Format: Currently supports MIDI files, thanks to FluidSynth’s ability to emit real-time note ON/OFF events.
+
+   - Interactive Controls: Users can pause playback or slow down tempo, making it ideal for music students or harmony learners.
+
+   - No Technical Setup Required: Just launch the app, load a MIDI file, and enjoy the visual harmony.
+
+📝 Note: Future versions may support additional formats, depending on backend contributions.
+
+### 🛠️ For Backend Developers
+
+The project is designed to be extensible. Developers can integrate alternative backends as long as they can emit note ON/OFF events in real time.
+#### 🔄 How It Works
+
+   - The core visual engine watches a file called active_notes.lua on disk.
+
+   - This file contains a list of currently active notes, which the engine reads and renders in 3D.
+
+   - A backend thread (e.g., FluidSynth) updates this file in real time based on backend playback.
+
+#### 🧪 Backend Options
+
+   * FluidSynth Backend:
+
+      - Launched as a thread by the project.
+
+      - Outputs note events via terminal stdout.
+
+      - Accepts playback commands via TCP.
+
+      - A watcher thread connects via TCP and sends commands (e.g., play, pause, tempo).
+
+      - Updates active_notes.lua based on parsed output.
+
+   * Null Backend (Manual Mode):
+
+      - Teachers or developers can manually edit active_notes.lua to simulate note activity.
+
+      - Useful for demonstrations, teaching, or testing without a live music source.
+
+🔧 Future Improvement
+
+   * Direct Terminal Parsing:
+
+      - Instead of writing to disk, the watcher may read directly from FluidSynth’s terminal output.
+
+      - This would improve performance but may remove support for manual editing.
+
+      - Decision pending based on community interest and use cases.
+
+---
+
+## 📦 Example Usage Scenarios
+
+### 🎼 1. MIDI Playback Mode
+
+Launch the visualizer with FluidSynth to render harmony in 3D space using real-time MIDI input.
+
+**Linux:**
+```bash
+./run.sh
+```
+
+**Windows:**
+```bat
+Double-click run.bat
+```
+
+FluidSynth playback will follow the playlist defined in `play.list`.
+
+**Playlist Format:**
+The `play.list` file should contain a comma-separated list of MIDI file paths:
+
+```
+assets/beethoven_symphony_5_1_(c)galimberti.mid,
+assets/moonlight_sonata_1_(c)galimberti.mid,
+assets/fur_elise_(c)galimberti.mid,
+```
+Each entry should be a relative or absolute path to a `.mid` file. Trailing commas are allowed but not required.
+
+---
+
+### 🎹 2. Live MIDI Input with Fluidsynth Backend
+
+Even when the playlist is empty or playback has ended, the Fluidsynth backend remains active and can receive live MIDI input from a connected device.
+
+#### 🧩 Why Use This Mode?
+
+- Ideal for **teachers** demonstrating chords, scales, or harmonic concepts live.
+- Enables **interactive performances** without relying on preloaded MIDI files.
+- Keeps the system responsive and visual even after automated playback ends.
+
+#### 🔌 Connect Your MIDI Device (Linux)
+
+Use `aconnect` to route your USB MIDI device to the Fluidsynth backend.
+
+1. **List available MIDI ports:**
+
+```bash
+aconnect -l
+```
+
+Example output:
+
+```
+client 24: 'USB Midi' [type=kernel]
+    0 'USB Midi MIDI 1 '
+client 128: 'FLUID Synth' [type=user]
+    0 'FLUID Synth MIDI Input'
+```
+
+2. **Connect your device to Fluidsynth:**
+
+```bash
+aconnect 24:0 128:0
+```
+
+Replace `24:0` and `128:0` with the actual port numbers from your system.
+
+#### 🧠 What Happens Next?
+
+- Notes played on the MIDI device are routed directly to Fluidsynth.
+- The backend thread listens for `noteon` and `noteoff` events.
+- `active_notes.lua` is updated in real time, allowing the main thread to visualize the notes.
+
+#### 🔄 Tip: Use This as a Fallback
+
+If the playlist is empty or has finished playing, this setup allows users to continue interacting with the system using a physical MIDI device — no need to restart or reconfigure the backend.
+
+---
+
+### 🧑‍🏫 3. Teaching Mode (Null Backend)
+
+Use this mode to visualize harmonic structures without requiring live MIDI input or audio playback.
+
+**Configuration:**
+```lua
+M.backend = "null"
+```
+
+**Manual Note Definition:**
+Create or edit `active_notes.lua` with your desired notes:
+
+```lua
+-- Manually defined active MIDI notes
+return {
+    60, 64, 67, -- C major triad
+}
+```
+
+This mode is ideal for instructors, presentations, or debugging visual harmony logic.
+
+---
+
+## 🎮 Keybindings & Controls
+
+Once launched, users can interact with playback and visualization using the following keys:
+
+| Key | Function |
+|-----|----------|
+| `p` | Toggle play/pause |
+| `:` | Open control menu |
+| `a` (in menu) | Set tempo in BPM |
+| `b` (in menu) | Set relative speed (e.g. `0.5` = half speed) |
+| `v` | Toggle visibility of visual elements |
+| `d` | Toggle debug information |
+| `l` | Toggle lighting effects |
+| Arrow keys / WASD | Shift or move notes in space |
+
+> 🧠 These controls make the tool ideal for teaching, experimenting, or simply enjoying music in a new dimension.
+
+---
+
+## 🔄 Fluidsynth Backend Integration
+
+The Fluidsynth backend is launched as a separate thread and communicates with the main visualizer via shared Lua channels. It handles MIDI playback and tracks active notes in real time.
+
+### 🧠 How It Works
+
+- A thread spawns the Fluidsynth process using platform-specific commands.
+- Fluidsynth outputs `noteon` and `noteoff` events to its terminal (`stdout`).
+- The thread reads these events line-by-line and maintains a table of currently active notes.
+- These notes are written to `active_notes.lua`, which the main thread reads to render harmony in 3D.
+
+### 📁 Output Format
+
+The `active_notes.lua` file is auto-generated and looks like this:
+
+```lua
+-- Auto‐generated active MIDI notes
+return {
+    60, 64, 67, -- C major triad
+}
+```
+
+### ⚙️ Configuration Channels
+
+The backend thread receives its configuration via Love2D thread channels:
+
+| Channel Name      | Purpose                          |
+|-------------------|----------------------------------|
+| `backend`         | Executable name (e.g. `fluidsynth`) |
+| `soundfonts`      | Path to the SoundFont file       |
+| `songs`           | Comma-separated list of MIDI files |
+| `shellPort`       | TCP port for backend control     |
+| `shellHost`       | Hostname/IP of backend           |
+| `platform`        | OS identifier (`windows`, `linux`, etc.) |
+| `track_control`   | Signal to clear active notes     |
+
+### 🧪 Notes on Stability
+
+This system depends on:
+- FluidSynth emitting clean, parseable output
+- Channels being correctly populated before launch
+- The subprocess staying alive and responsive
+
+If any part fails (e.g. malformed output, missing soundfont, broken pipe), the tracker may silently stop updating. For this reason, a fallback mode (`null` backend) is available for manual control.
+
+---
+
 ## License 📝
 
 This project is licensed under the **GNU General Public License v3.0**.  
