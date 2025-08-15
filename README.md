@@ -1,6 +1,6 @@
 # Cholidean Harmony Structure
 
-Cholidean Harmony Structure is a projection of 12-tone equal temperament [12ET](https://en.wikipedia.org/wiki/12_equal_temperament) music systems into 3D space. The tones are placed on a 3D parametric closed curve. The fact that each tone is related to two and only two other tones, creates strongly the perception of a two-dimensional surface strip that curves in three-dimensional space to fit the surface of an [umbilic torus](https://en.wikipedia.org/wiki/Umbilic_torus).
+Cholidean Harmony Structure is a projection of 12-tone equal temperament [12ET](https://en.wikipedia.org/wiki/12_equal_temperament) music systems into 3D space. The twelve tones are placed on a 3D parametric closed curve. The fact that each tone is related to two and only two other tones, creates strongly the perception of a two-dimensional surface strip that curves in three-dimensional space to fit the surface of an [umbilic torus](https://en.wikipedia.org/wiki/Umbilic_torus).
 
 
 Project's integration with [FluidSynth](https://github.com/FluidSynth/fluidsynth), as a MIDI backend player, demonstrates a powerful method for visualizing and exploring harmony theories.
@@ -26,7 +26,7 @@ or
 ```
 ./run.sh
 ```
- in order to have restart capability.
+ this way enables the restart capability.
 
 To enable MIDI playback, install FluidSynth via your package manager:
 ```
@@ -34,7 +34,7 @@ sudo zypper install fluidsynth
 ```
 Then download the SoundFont `FluidR3_GM.sf2` from:
 https://github.com/Jacalz/fluid-soundfont/blob/master/original-files/FluidR3_GM.sf2  
-(use “Download raw file”) and place it in project's root or better install them, if your repository include them,
+(use “Download raw file”) and place it in project's root or even better, if your repository include them, install them
 ```
 sudo zypper install fluid-soundfont-gm
 ```
@@ -62,7 +62,7 @@ Note: macOS support is currently unverified. This project was built with love an
 Before running the project on Windows, make sure you have a machine or VM with real GPU support, 3D acceleration, and OpenGL enabled. 
 
 1. **Prepare the Project Directory**  
-   - Clone (if you want asset_pipeline and/or docs floder) or Download release zip (e.g. `cholidean-harmony-structure-0.1.2-alpha.zip`).  
+   - Clone (if you want asset_pipeline and/or docs folders) or Download release zip (e.g. `cholidean-harmony-structure-0.1.2-alpha.zip`).  
    - Unzip it anywhere you like, for example:  
      C:\Users\<YourUsername>\  
 
@@ -108,7 +108,7 @@ Before running the project on Windows, make sure you have a machine or VM with r
 
 ### Prerequisites
 
-If you haven’t already installed the project via Releases, this project uses Git Large File Storage (LFS) to manage assets (normal maps, textures, etc.). Before you clone, build, or contribute, make sure Git LFS is installed and initialized:
+If you haven’t already installed the project via Releases, this project uses Git Large File Storage (LFS) to manage assets (mainly normal maps). Before you clone, build, or contribute, make sure Git LFS is installed and initialized:
 
 ```bash
 # Install Git LFS (once per machine):
@@ -142,7 +142,8 @@ This project works like a minimalist music player — but with a twist. Instead 
 
 ### 🛠️ For Backend Developers
 
-The project is designed to be extensible. Developers can integrate alternative backends as long as they can emit note ON/OFF events in real time.
+The project is designed to be extensible. Developers can integrate alternative backends as long as they can emit note ON/OFF events in real time. The backend manager is src/backends/init.lua file.
+
 #### 🔄 How It Works
 
    - The core visual engine watches a file called active_notes.lua on disk.
@@ -206,8 +207,8 @@ The `play.list` file should contain a comma-separated list of MIDI file paths:
 
 ```
 assets/beethoven_symphony_5_1_(c)galimberti.mid,
-assets/moonlight_sonata_1_(c)galimberti.mid,
-assets/fur_elise_(c)galimberti.mid,
+assets/moonlight_sonata.mid,
+assets/fur_elise.mid,
 ```
 Each entry should be a relative or absolute path to a `.mid` file. Trailing commas are allowed but not required.
 
@@ -266,7 +267,7 @@ If the playlist is empty or has finished playing, this setup allows users to con
 
 Use this mode to visualize harmonic structures without requiring live MIDI input or audio playback.
 
-**Configuration:**
+**Configuration:** (src/constants.lua)
 ```lua
 M.backend = "null"
 ```
