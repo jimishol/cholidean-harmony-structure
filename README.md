@@ -190,6 +190,8 @@ The project is designed to be extensible. Developers can integrate alternative b
 
       - Decision pending based on community interest and use cases.
 
+For a deep dive into the asset pipeline, see [FOR_DEVELOPERS](asset_pipeline/FOR_DEVELOPERS.md).
+
 ---
 
 ## 📦 Example Usage Scenarios

@@ -110,3 +110,8 @@ git subtree pull --prefix=3DreamEngine/extensions 3DreamEngine master --squash
 ```
    to automate library updates. You’ll see the subtrees update, followed by the message:
    ✅ All subtrees updated and version log written to asset_pipeline/lib_versions.md
+
+---
+
+[← Back to Main README](../README.md)
+
