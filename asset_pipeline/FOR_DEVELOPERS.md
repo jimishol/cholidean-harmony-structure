@@ -109,4 +109,5 @@ git subtree pull --prefix=3DreamEngine/extensions 3DreamEngine master --squash
    ✅ All subtrees updated and version log written to asset_pipeline/lib_versions.md
 
 ⚠️ Caution: Using Git LFS with an embedded 3DreamEngine can easily push your repository beyond 5 GB due to ~4+ GB of unnecessary history blobs. Review your workflow carefully—certain commands that add large binaries or rewrite history can trigger a data flood.
+
 ---
