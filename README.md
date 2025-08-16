@@ -40,13 +40,13 @@ To enable MIDI playback, install FluidSynth via your package manager:
 ```
 sudo zypper install fluidsynth
 ```
-Then download the SoundFont `FluidR3_GM.sf2` from:
-https://github.com/Jacalz/fluid-soundfont/blob/master/original-files/FluidR3_GM.sf2  
-(use “Download raw file”) and place it in project's root or even better, if your repository include them, install them
+Then download some nice SoundFont like `FluidR3_GM.sf2`:
+
+If your repository include them, install
 ```
 sudo zypper install fluid-soundfont-gm
 ```
-There is no need to place sounfonts in project's root in that case.
+or take them from https://github.com/Jacalz/fluid-soundfont/blob/master/original-files/FluidR3_GM.sf2 (use “Download raw file”) and place it in project's root. There is no need to place sounfonts in project's root in that case.
 
 ---
 
@@ -298,20 +298,35 @@ This mode is ideal for instructors, presentations, or debugging visual harmony l
 
 ## 🎮 Keybindings & Controls
 
-Once launched, users can interact with playback and visualization using the following keys:
+Once launched, you can drive playback, toggle modes, and open the command menu with these keys:
 
-| Key | Function |
-|-----|----------|
-| `p` | Toggle play/pause |
-| `:` | Open control menu |
-| `a` (in menu) | Set tempo in BPM |
-| `b` (in menu) | Set relative speed (e.g. `0.5` = half speed) |
-| `v` | Toggle visibility of visual elements |
-| `d` | Toggle debug information |
-| `l` | Toggle lighting effects |
-| Arrow keys / WASD | Shift or move notes in space |
+### Playback Controls
 
-> 🧠 These controls make the tool ideal for teaching, experimenting, or simply enjoying music in a new dimension.
+| Key     | Function                                  |
+|---------|-------------------------------------------|
+| p       | Toggle play / pause                       |
+| tab     | Play current song from start              |
+| Enter   | Move to next song                         |
+| h       | Toggle “instant” vs “offset” note-off mode|
+| d       | Toggle debug overlay (FPS, camera info)   |
+
+### Command-Menu Controls
+
+| Key         | Function                                                                                       |
+|-------------|------------------------------------------------------------------------------------------------|
+| :           | Open the command menu                                                                          |
+| a (in menu) | Set tempo in BPM                                                                               |
+| b (in menu) | Set relative speed (e.g. `0.5` = half speed)                                                   |
+| c           | Play through the file once, then repeat it `<count>` more times. `<count>` = `0`, `<count> = -1` infinite loop |
+| d           | Jump to absolute tick within current MIDI file. The length of a quarter note on 100BPM has 600 ticks.|
+| e (in menu) | Send raw commands to Fluidsynth (run fluidsynth in a terminal and type `help` for commands)    |
+
+---
+
+## 📖 Documentation
+
+- [Feature Overview & Configuration](docs/FEATURES_AND_CONFIG.md)  
+- [Full Keybindings Reference](docs/KEYBINDINGS.md)
 
 ---
 

@@ -38,7 +38,7 @@ This project visualizes harmonic relationships in 12-tone equal temperament (12E
      ...
      ```
      This mapping continues cyclically for all 12 tones, assigning suffixes `00–11` and preserving type prefixes (`joint_`, `edge_`, `curve_`, `surface_`).
-     Materials in textures/ subfolder of blender is copied in assets/materials/ subfolders and renamed accordingly with the exception that ...Color.png renamed as albedo.png
+     Materials in textures/ subfolder of blender is copied in assets/materials_gl/materials/ subfolder and renamed accordingly with the exception that ...Color.png renamed as albedo.png
 
 5. 🎮 **Love2D + 3DreamEngine**  
    - Load processed models and render with real-time shading and interactive behavior.
@@ -47,14 +47,11 @@ This project visualizes harmonic relationships in 12-tone equal temperament (12E
 
 ## 🎶 Harmony Structure Notes
 
-- Rooted in **Riemannian music theory** and **cyclic tonal topology**
-- Each tone represented by a **dodecahedron** on a toroidal helix (Circle of Fifths)
+- Each tone represented by a **dodecahedron** on a toroidal helix (Circle of Fourths)
 - **Modulatory pathways** represented by curved surfaces and edges
 - Entire system is parametric and customizable
 
 Learn more about the theory at [Cholidean Harmony Structure blog post](https://jimishol.github.io/post/tonality/)
-
-🎶 _Harmony as structure. Structure as sound. Geometry as song._
 
 ---
 
@@ -111,4 +108,5 @@ git subtree pull --prefix=3DreamEngine/extensions 3DreamEngine master --squash
    to automate library updates. You’ll see the subtrees update, followed by the message:
    ✅ All subtrees updated and version log written to asset_pipeline/lib_versions.md
 
+⚠️ Caution: Using Git LFS with an embedded 3DreamEngine can easily push your repository beyond 5 GB due to ~4+ GB of unnecessary history blobs. Review your workflow carefully—certain commands that add large binaries or rewrite history can trigger a data flood.
 ---
