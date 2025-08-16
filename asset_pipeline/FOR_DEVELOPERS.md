@@ -1,5 +1,3 @@
-[← Back to Main README](../README.md)
-
 # 💡 Developer Integration Guide
 
 This file outlines the geometric modeling pipeline, asset preparation steps, and Git subtree integrations used to build the **Cholidean Harmony Structure** — a spatial-musical framework rendered in Love2D using 3DreamEngine.
@@ -114,6 +112,3 @@ git subtree pull --prefix=3DreamEngine/extensions 3DreamEngine master --squash
    ✅ All subtrees updated and version log written to asset_pipeline/lib_versions.md
 
 ---
-
-[← Back to Main README](../README.md)
-
