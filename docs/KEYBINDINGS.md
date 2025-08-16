@@ -9,9 +9,9 @@
 | q              | QUIT                    | Quit the application                   |
 | f10            | RESTART                 | Restart the application                |
 | space          | RESET_VIEW              | Reset camera orientation toward structure               |
-| f              | RESET_FOV               | Reset camera field of view             |
 | Ctrl + ↑         | ZOOM_IN          | Narrow (zoom-in) field of view               |
 | Ctrl + ↓         | ZOOM_OUT         | Widen (zoom-out) field of view               |
+| f              | RESET_FOV               | Reset camera field of view             |
 | d              | TOGGLE_DEBUG            | Show/hide debug overlay                |
 | Shift + ←      | ROTATE_CW               | Rotate the 12-note map clockwise       |
 | Shift + →      | ROTATE_CCW              | Rotate the 12-note map counterclockwise|
@@ -20,7 +20,7 @@
 | e              | TOGGLE_EDGES            | Show/hide edges                   |
 | c              | TOGGLE_CURVES           | Show/hide parametric curve               |
 | s              | TOGGLE_SURFACES         | Show/hide surfaces               |
-| b              | TOGGLE_TORUS_LIGHTS     | Toggle camera and origin lighting effects          |
+| b              | TOGGLE_TORUS_LIGHTS     | Toggle lights on/off          |
 | ←                | ROTATE_LEFT      | Rotate camera yaw left                       |
 | →                | ROTATE_RIGHT     | Rotate camera yaw right                      |
 | ↑                | PITCH_UP         | Tilt camera up                               |
@@ -34,10 +34,10 @@
 | :              | SHOW_COMMAND_MENU       | Pass direct commands to fluidsynth                  |
 | a                | SET_TEMPO                | Set tempo in BPM (e.g. `120`)                       |
 | b                | SET_SPEED                | Set relative speed (e.g. `0.5` = half speed)        |
-| c                | <COMMAND_MENU_C>         | Play through the file once, then repeat it `<count>` more times. `<count>` = `0`, `<count> = -1` infinite loop |
+| c                | <COMMAND_MENU_C>         | Play through the file once, then repeat it `<count>` more times. `<count>` = `0`cancels loop, `<count> = -1` infinite loop |
 | d                | <COMMAND_MENU_D>         | Jump to absolute tick within current MIDI file. The length of a quarter note on 100BPM has 600 ticks.|
-| e                | PASS_FLUIDSYNTH_COMMAND  | Send raw commands to FluidSynth shell (`help` for list) |
-|--------------------------------------|----------------------------------------|--------------------------------------|
+| e                | PASS_FLUIDSYNTH_COMMAND  | Send raw commands to FluidSynth shell (In seperate terminal launch fluidsynth and type `help` [Enter] for list of available commands.) |
+|-------------------------------------------|---------------------------------------------|-------------------------------------------|
 | Hold Right Mouse + Drag              | Rotate view (yaw/pitch)                |                                      |
 | Hold Middle Mouse + Drag Up/Down     | Pan camera forward/back along view     |                                      |
-| Any Mouse Button Press               | Toggle relative-mode & cursor grab     |                                      |
+| - or +     | Simulate hour of day for background lightning     |                                      |

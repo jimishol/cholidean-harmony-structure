@@ -212,7 +212,9 @@ Double-click run.bat
 
 FluidSynth playback will follow the playlist defined in `play.list`.
 
-**Playlist Format:**
+* **Playlist Format:**
+
+
 The `play.list` file should contain a comma-separated list of MIDI file paths:
 
 ```
@@ -221,6 +223,10 @@ assets/moonlight_sonata.mid,
 assets/fur_elise.mid,
 ```
 Each entry should be a relative or absolute path to a `.mid` file. Trailing commas are allowed but not required.
+
+- Most likely, when examining the structure, you will find some position more suitable than others in terms of understanding it. Press `d` and copy the camera position to the `M.initialCameraPosition` field in `src/constants.lua`, so that you always start from that position. If you have prefered lightning copy `Day time` to the `M.day_night` field of the same file.
+
+- Quite often, you will feel that the scale of a piece is such that you would like its tonic to be in a different position than it is. With `Shift + ←` or →`, you can move the tonic to the position you desire.
 
 ---
 
@@ -308,18 +314,18 @@ Once launched, you can drive playback, toggle modes, and open the command menu w
 | tab     | Play current song from start              |
 | Enter   | Move to next song                         |
 | h       | Toggle “instant” vs “offset” note-off mode|
-| d       | Toggle debug overlay (FPS, camera info)   |
+| d       | Toggle debug overlay (FPS, camera info, note OFF mode)   |
 
 ### Command-Menu Controls
 
 | Key         | Function                                                                                       |
 |-------------|------------------------------------------------------------------------------------------------|
 | :           | Open the command menu                                                                          |
-| a (in menu) | Set tempo in BPM                                                                               |
-| b (in menu) | Set relative speed (e.g. `0.5` = half speed)                                                   |
-| c           | Play through the file once, then repeat it `<count>` more times. `<count>` = `0`, `<count> = -1` infinite loop |
+| a  | Set tempo in BPM                                                                               |
+| b  | Set relative speed (e.g. `0.5` = half speed)                                                   |
+| c           | Play through the file once, then repeat it `<count>` more times. `<count>` = `0` cancels loop, `<count> = -1` infinite loop |
 | d           | Jump to absolute tick within current MIDI file. The length of a quarter note on 100BPM has 600 ticks.|
-| e (in menu) | Send raw commands to Fluidsynth (run fluidsynth in a terminal and type `help` for commands)    |
+| e  | Send raw commands to Fluidsynth (run fluidsynth in a terminal and type `help` for commands)    |
 
 ---
 

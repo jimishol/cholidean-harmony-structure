@@ -7,7 +7,7 @@
 | Option                 | Default             | Description                                   |
 |------------------------|---------------------|-----------------------------------------------|
 | `backend`              | `"fluidsynth"`      | External audio backend executable             |
-| `windowsBackendPath`   | `"bin\\"`           | Root path of Fluidsynth on Windows (`\bin`)   |
+| `windowsBackendPath`   | `"bin\\"`           | Root path of Fluidsynth on Windows (`bin\`)   |
 | `shellHost`            | `"localhost"`       | Hostname or IP of the backend                 |
 | `shellPort`            | `9800`              | TCP port to control the backend               |
 | `soundfonts`           | `"FluidR3_GM.sf2"`  | Path to SoundFont file for Fluidsynth         |
@@ -23,8 +23,8 @@
 | `day_night_speed`    | `0.15`                              | Speed of background brightness shift                    |
 | `maxBright`          | `1.40`                              | Maximum daytime brightness                              |
 | `maxNightBright`     | `0.60`                              | Maximum nighttime brightness                            |
-| `nightLightOrigin`   | `5.0`                               | Point-light brightness at origin during night           |
-| `nightLightCamera`   | `250`                               | Point-light brightness at camera during night           |
+| `nightLightOrigin`   | `5.0`                               | Point-light brightness at origin          |
+| `nightLightCamera`   | `250`                               | Point-light brightness at camera           |
 | `sunBrightness`      | `1.0`                               | Intensity of the sun light                              |
 
 ### Auto-Exposure
@@ -48,12 +48,12 @@
 
 | Option               | Default | Description                                      |
 |----------------------|---------|--------------------------------------------------|
-| `jointScale`         | `1.00`  | Scale factor for imported joint meshes           |
+| `jointScale`         | `1.00`  | Scale factor for inactive joint meshes           |
 | `scaleFactor`        | `1.60`  | Ratio of active vs. inactive joint sizes         |
-| `bassScale`          | `0.92`  | Depth-offset scale for bass-note joints          |
-| `surfAlpha`          | `0.23`  | Opacity for surface meshes                       |
-| `label_distance`     | `1.60`  | Distance factor from center to joint labels      |
-| `label_scale`        | `0.85`  | Base scale ratio for 3D labels                   |
+| `bassScale`          | `0.92`  | Ratio of bass-note rotated joint vs normal inactive joint          |
+| `surfAlpha`          | `0.23`  | Opacity for inactive surface meshes                       |
+| `label_distance`     | `1.60`  | Distance factor for labels (from augmented triangle center to relative joint)       |
+| `label_scale`        | `0.85`  | Base scale ratio for 3D labels vs what initially imported              |
 | `label_active_scale` | `1.30`  | Scale ratio for active vs. inactive labels       |
 | `dynamicLabelFacing` | `true`  | Whether labels always face the camera            |
 
@@ -64,7 +64,7 @@
 | Option                     | Default                | Description                                           |
 |----------------------------|------------------------|-------------------------------------------------------|
 | `initialCameraPosition`    | `{-17.3, 19.7, -17.3}` | Starting world coordinates                            |
-| `fov`                      | `26.8`                 | Vertical field of view (degrees)                      |
+| `fov`                      | `26.8`                 | Field Of View (degrees)                      |
 | `resetDuration`            | `0.5`                  | Tween duration to reset camera orientation            |
 
 ### Sensitivity Settings
@@ -88,9 +88,9 @@
 | Option                  | Default             | Description                                            |
 |-------------------------|---------------------|--------------------------------------------------------|
 | `defaultNoteMode`       | `"instant"`         | Note mode: `"instant"` or `"offset"`                   |
-| `offsetDuration`        | `0.15`              | Delay before sending note-off in `"offset"` mode       |
+| `offsetDuration`        | `0.15`              | Delay before sending note-off in `"offset"` mode in seconds      |
 | `bassOffsetDuration`    | `0.07`              | Delay before sending note-off for the bass note        |
-| `activationThreshold`   | `0.15`              | Volume threshold for “heard” vs. “unheard”             |
+| `activationThreshold`   | `0.15`              | Volume threshold for “heard” vs. “unheard” UNUSED as volume information after note OFF was not possible.             Note Mode and offset duration used instead.|
 | `NOTE_ORDER`            | Circle of fourths   | `["C","F","Bb","Eb","Ab","Db","Gb","B","E","A","D","G"]` |
 
 ---
