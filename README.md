@@ -333,6 +333,7 @@ Once launched, you can drive playback, toggle modes, and open the command menu w
 
 - [Feature Overview & Configuration](docs/FEATURES_AND_CONFIG.md)  
 - [Full Keybindings Reference](docs/KEYBINDINGS.md)
+- [For Developers](docs/ldoc/index.html)
 
 ---
 
