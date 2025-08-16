@@ -32,8 +32,9 @@ local function checkSurfState(idx, notes)
   local CE_active = C and C.active and E and E.active
   local CB_active = C and C.active and B and B.active
   local EG_active = E and E.active and G and G.active
+  local BG_active = B and B.active and G and G.active
 
-  return CE_active or CB_active or EG_active
+  return CE_active or CB_active or EG_active or BG_active
 end
 
 --- Update a surface’s material instance to be ghost/X-ray or solid-emissive.
