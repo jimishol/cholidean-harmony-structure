@@ -6,7 +6,7 @@
 
 | Key(s)         | Action                  | Description                            |
 |----------------|-------------------------|----------------------------------------|
-| q              | QUIT                    | Quit the application                   |
+| Ctrl + Q              | QUIT                    | Quit the application                   |
 | f10            | RESTART                 | Restart the application                |
 | space          | RESET_VIEW              | Reset camera orientation toward structure               |
 | Ctrl + ↑         | ZOOM_IN          | Narrow (zoom-in) field of view               |

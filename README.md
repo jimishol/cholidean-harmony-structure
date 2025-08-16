@@ -315,6 +315,7 @@ Once launched, you can drive playback, toggle modes, and open the command menu w
 | Enter   | Move to next song                         |
 | h       | Toggle “instant” vs “offset” note-off mode|
 | d       | Toggle debug overlay (FPS, camera info, note OFF mode)   |
+| Ctrl + Q       | Quit                       |
 
 ### Command-Menu Controls
 
@@ -333,7 +334,7 @@ Once launched, you can drive playback, toggle modes, and open the command menu w
 
 - [Feature Overview & Configuration](docs/FEATURES_AND_CONFIG.md)  
 - [Full Keybindings Reference](docs/KEYBINDINGS.md)
-- [For Developers](docs/ldoc/index.html)
+- [For Developers](https://github.com/jimishol/jimishol.github.io/blob/main/ldoc/index.html)
 
 ---
 
