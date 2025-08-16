@@ -385,6 +385,15 @@ If any part fails (e.g. malformed output, missing soundfont, broken pipe), the t
 
 ---
 
+## 💬 Community & Discussions
+
+Your feedback drives this project! Join one of our GitHub Discussions below:
+
+- 💭 [Tool Usage & Feedback](https://github.com/jimishol/cholidean-harmony-structure/discussions/categories/tool-usage-feedback) –  share your experiences and questions about the project itself. 
+- 🎼[Interpretation of structure](https://github.com/jimishol/cholidean-harmony-structure/discussions/categories/interpretation-of-structure) – Share ideas on different interpretations of the structure’s elements.
+
+---
+
 ## License 📝
 
 This project is licensed under the **GNU General Public License v3.0**.  
