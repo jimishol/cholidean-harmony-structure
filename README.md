@@ -40,13 +40,13 @@ To enable MIDI playback, install FluidSynth via your package manager:
 ```
 sudo zypper install fluidsynth
 ```
-Then download the SoundFont `FluidR3_GM.sf2` from:
-https://github.com/Jacalz/fluid-soundfont/blob/master/original-files/FluidR3_GM.sf2  
-(use “Download raw file”) and place it in project's root or even better, if your repository include them, install them
+Then download some nice SoundFont like `FluidR3_GM.sf2`:
+
+If your repository include them, install
 ```
 sudo zypper install fluid-soundfont-gm
 ```
-There is no need to place sounfonts in project's root in that case.
+or take them from https://github.com/Jacalz/fluid-soundfont/blob/master/original-files/FluidR3_GM.sf2 (use “Download raw file”) and place it in project's root. There is no need to place sounfonts in project's root in that case.
 
 ---
 
