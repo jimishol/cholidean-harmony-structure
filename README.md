@@ -1,8 +1,8 @@
-<center>
+<<div align="center">
 
 # Cholidean Harmony Structure
 
-</center>
+</div>
 
 <p align="center">
   <img src="https://github.com/jimishol/jimishol.github.io/blob/main/tonality/cholidean_structure.png" alt="Theme Image" width="600" />
