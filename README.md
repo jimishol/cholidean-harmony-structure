@@ -70,7 +70,7 @@ Note: macOS support is currently unverified. This project was built with love an
 Before running the project on Windows, make sure you have a machine or VM with real GPU support, 3D acceleration, and OpenGL enabled. 
 
 1. **Prepare the Project Directory**  
-   - Clone (if you want asset_pipeline and/or docs folders) or Download release zip (e.g. `cholidean-harmony-structure-0.1.2-alpha.zip`).  
+   - Clone (if you want asset_pipeline and/or docs folders aimed for developers) or Download release zip (e.g. `cholidean-harmony-structure-0.1.2-alpha.zip`).  
    - Unzip it anywhere you like, for example:  
      C:\Users\<YourUsername>\  
 
@@ -289,7 +289,7 @@ M.backend = "null"
 ```
 
 **Manual Note Definition:**
-Create or edit `active_notes.lua` with your desired notes:
+Edit `active_notes.lua` with your desired notes:
 
 ```lua
 -- Manually defined active MIDI notes
@@ -389,7 +389,7 @@ If any part fails (e.g. malformed output, missing soundfont, broken pipe), the t
 
 Your feedback drives this project! Join one of our GitHub Discussions below:
 
-- 💭 [Tool Usage & Feedback](https://github.com/jimishol/cholidean-harmony-structure/discussions/categories/tool-usage-feedback) –  share your experiences and questions about the project itself. 
+- 💭 [Project's Usage & Feedback](https://github.com/jimishol/cholidean-harmony-structure/discussions/categories/project-s-usage-feedback) –  share your experiences and questions about the project itself. 
 - 🎼[Interpretation of structure](https://github.com/jimishol/cholidean-harmony-structure/discussions/categories/interpretation-of-structure) – Share ideas on different interpretations of the structure’s elements.
 
 ---
@@ -416,7 +416,7 @@ Please refer to the individual files in the `THIRD_PARTY_LICENSES/` directory fo
 
 ## Acknowledgments 🙏
 
-This project took shape thanks to the insight and encouragement of [**E.... D...... V...**](https://github.com/USERNAME).
+This project took shape thanks to the insight and encouragement of [**Edgar Delgado Vega**](https://github.com/edelveart).
 
 Although the idea had been explored by 20th‑century music–math theorists, it was only when E.D.V. encountered the concept that he immediately recognized its potential for new approaches in 12ET harmony. He urged me to share it more widely and encouraged me to bring it into academic and creative circles. 
 
