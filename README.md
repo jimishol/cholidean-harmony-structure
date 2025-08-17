@@ -334,7 +334,7 @@ Once launched, you can drive playback, toggle modes, and open the command menu w
 
 - [Feature Overview & Configuration](docs/FEATURES_AND_CONFIG.md)  
 - [Full Keybindings Reference](docs/KEYBINDINGS.md)
-- [For Developers](https://jimishol.github.io/ldoc/)
+- [For Developers - A.I generated ldoc documantation](https://jimishol.github.io/ldoc/)
 
 ---
 
