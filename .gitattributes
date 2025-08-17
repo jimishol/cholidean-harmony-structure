@@ -1,5 +1,6 @@
 # 1) Track all normal maps
 **/*_normal.png filter=lfs diff=lfs merge=lfs -text
+**/*_NormalGL.png filter=lfs diff=lfs merge=lfs -text
 
 # 2) But disable LFS for this one
 extensions/sky/res/moon_normal.png -filter -diff -merge
