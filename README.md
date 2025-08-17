@@ -140,8 +140,6 @@ git lfs install
 
 This project works like a minimalist music player — but with a twist. Instead of just playing sound, it visually projects musical harmony into a 3D space, offering a unique and immersive way to experience music. The active joints (notes) become self-illuminating and grow in size. Of these, the bass notes strive valiantly to stand out with distinctive dots. The outgoing edges emit light discreetly to activate their destination. Spectral surfaces, when unambiguously indicated by active joints, materialize and emit light to attract the attention of minor or major scales that could incorporate them. The compositions are visualized in an anticipated dance of surprising steps.
 
-Translated with DeepL.com (free version)
-
    - Supported Format: Currently supports MIDI files, thanks to FluidSynth’s ability to emit real-time note ON/OFF events.
 
    - Interactive Controls: Users can pause playback or slow down tempo, making it ideal for music students or harmony learners.
