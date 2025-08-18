@@ -25,6 +25,7 @@ The Priest gave a doubtful hum. “Perhaps. But here you will be tested for your
 ---
 
 His eyes drifted once more from the watch to the boy’s face — and for a moment, the brass‑ringed dial seemed to hold the air itself still.
+![](https://github.com/jimishol/jimishol.github.io/blob/main/images/music-clock-sun.jpg)
 
 The Priest’s gaze locked onto him. “Tell me, boy… what time gathers four flats?”
 
