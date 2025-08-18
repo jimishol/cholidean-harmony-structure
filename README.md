@@ -68,10 +68,10 @@ Note: macOS support is currently unverified. This project was built with love an
 
 ### 🪟 Windows
 
-Before running the project on Windows, make sure you have a machine or VM with real GPU support, 3D acceleration, and OpenGL enabled. 
+📌 **Note:** Before launching on Windows, we recommend reviewing the [Known Issues](#known-issues) section below. It covers important platform-specific limitation like the real-time output quirks. Also, make sure you have a machine or VM with real GPU support, 3D acceleration, and OpenGL enabled. 
 
 1. **Prepare the Project Directory**  
-   - Clone (if you want asset_pipeline and/or docs folders aimed for developers) or Download release zip (e.g. `cholidean-harmony-structure-0.1.2-alpha.zip`).  
+   - Clone (if you want asset_pipeline and/or docs folders aimed for developers) or Download release zip (e.g. `cholidean-harmony-structure-1.0.0.zip`).  
    - Unzip it anywhere you like, for example:  
      C:\Users\<YourUsername>\  
 
@@ -108,6 +108,9 @@ Before running the project on Windows, make sure you have a machine or VM with r
 **Known Issue:**
 
 ⚠️ Windows‑specific notes
+
+- **Line-buffered output isn’t working**  
+  We expect Fluidsynth’s note-on/off events to stream line-by-line, but under Windows, even through winpty layer, block buffering is forced. As a result, active note events may arrive in batches or with a delay, breaking real-time tracking. If you have a workaround or patch, please [share it in this issue](https://github.com/jimishol/cholidean-harmony-structure/issues/4#issue-3329738061) or contribute it via a comment or pull request — I’d love to improve Windows support together.
 
 * No spaces in song filenames — The current backend passes song paths directly to FluidSynth under Bash. On Windows, spaces in filenames can break playback due to how arguments are parsed through the winpty layer. Please rename files or use underscores instead. (Example: My Song.mid → My_Song.mid)
 
