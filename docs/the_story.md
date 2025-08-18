@@ -33,7 +33,7 @@ The Priest gave a doubtful hum. “Perhaps. But here you will be tested for your
 <p>His eyes drifted once more from the watch to the boy’s face — and for a moment, the brass‑ringed dial seemed to hold the air itself still.</p>
 
 <div align="center">
-  <img src="https://github.com/jimishol/jimishol.github.io/blob/main/images/music-clock-sun.jpg" alt="Music Clock Sun" style="max-width: 500px; width: 25%; margin-top: 10px;"/>
+  <img src="https://github.com/jimishol/jimishol.github.io/blob/main/images/music-clock-sun.jpg" alt="Music Clock Sun" style="max-width: 500px; width: 30%; margin-top: 10px;"/>
 </div>
 
 The Priest’s gaze locked onto him. “Tell me, boy… what time gathers four flats?”
