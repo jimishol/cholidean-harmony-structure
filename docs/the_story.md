@@ -101,8 +101,8 @@ On the morning of the fourth day, he carried his work into the circular chamber.
 The Priest circled it slowly, awe in his eyes. “This,” he said at last, “is the world of notes.”
 
 The Priest was thrilled, utterly satisfied.  
-“You never told me your last name, boy,” he said.  
-“It is Cholidis, my holy Father.”  
+“You never told me your full name, boy,” he said.  
+“It is Dimitrios Cholidis, my holy Father.”  
 “Then from now on — at least for me — I shall refer to this fine artifact as the *Cholidean Harmony Structure*.”
 
 He laughed, and the boy joined in, perhaps a little awkwardly, taken aback by the unexpected — and perhaps somewhat excessive — recognition from the Priest.
