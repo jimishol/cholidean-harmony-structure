@@ -68,7 +68,9 @@ Note: macOS support is currently unverified. This project was built with love an
 
 ### 🪟 Windows
 
-📌 **Note:** Before launching on Windows, we recommend reviewing the [Known Issues](###known-issues) section below. It covers important platform-specific limitation like the real-time output quirks. Also, make sure you have a machine or VM with real GPU support, 3D acceleration, and OpenGL enabled. 
+📌 **Note:** Before launching on Windows, we recommend reviewing the **Known Issues** section below. It covers important platform-specific limitation like the real-time output quirks. Also, make sure you have a machine or VM with real GPU support, 3D acceleration, and OpenGL enabled. 
+
+0. **WSL** Because of Line-buffered issue, a not tested workarround would be to install [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) and then follow Linux instructions instead of Windows. 
 
 1. **Prepare the Project Directory**  
    - Clone (if you want asset_pipeline and/or docs folders aimed for developers) or Download release zip (e.g. `cholidean-harmony-structure-1.0.0.zip`).  
@@ -105,7 +107,7 @@ Note: macOS support is currently unverified. This project was built with love an
 
 
 
-#### **Known Issues**
+**Known Issues:**
 
 ⚠️ Windows‑specific notes
 
