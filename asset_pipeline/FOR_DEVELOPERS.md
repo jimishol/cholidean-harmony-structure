@@ -48,7 +48,7 @@ This project visualizes harmonic relationships in 12-tone equal temperament (12E
 ## 🎶 Harmony Structure Notes
 
 - Each tone represented by a **dodecahedron** on a toroidal helix (Circle of Fourths)
-- **Modulatory pathways** represented by curved surfaces and edges
+- **Modulatory pathways** represented by curves and edges
 - Entire system is parametric and customizable
 
 Learn more about the theory at [Cholidean Harmony Structure blog post](https://jimishol.github.io/post/tonality/)
