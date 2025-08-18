@@ -227,7 +227,7 @@ Each entry should be a relative or absolute path to a `.mid` file. Trailing comm
 
 * **Camera Position Setup:**
 
-Most likely, when examining the structure, you will find some position more suitable than others in terms of understanding it. Press `d` and copy the camera position to the `M.initialCameraPosition` field in `src/constants.lua`, so that you always start from that position. If you have prefered lightning copy `Day time` to the `M.day_night` field of the same file.
+Most likely, when examining the structure, you will find some position more suitable than others in terms of understanding it. Press `d` and copy the camera position to the `M.initialCameraPosition` field in `src/constants.lua`, so that you always start from that position. If you have prefered lightning, copy `Day time` to the `M.day_night` field of the same file.
 
 * **Tonic Repositioning:**
 
@@ -425,4 +425,4 @@ This project took shape thanks to the insight and encouragement of [**Edgar Delg
 
 Although the idea had been explored by 20th‑century music–math theorists, it was only when E.D.V. encountered the concept that he immediately recognized its potential for new approaches in 12ET harmony. He urged me to share it more widely and encouraged me to bring it into academic and creative circles. 
 
-That encouragement transformed a dormant idea into a living project. From OpenSCAD to MeshLab, to Blender, to 3DreamEngine, to MIDI events, each stage brought new challenges and discoveries. Without E.D.V.’s vision and determination, this journey might never have begun.
+That encouragement transformed a dormant idea into a living project. From OpenSCAD to MeshLab, to Blender, to 3DreamEngine, to MIDI events, each stage brought new challenges and discoveries. Without Edgar Delgado’s vision and determination, this journey might never have begun.
