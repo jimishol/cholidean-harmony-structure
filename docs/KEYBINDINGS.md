@@ -42,3 +42,8 @@
 | Hold Right Mouse + Drag              | Rotate view (yaw/pitch)                |                                      |
 | Hold Middle Mouse + Drag Up/Down     | Pan camera forward/back along view     |                                      |
 | -/_ or =/+     | Simulate hour of day for background lightning     |                                      |
+
+
+<p align="right">
+  <a href="../README.md">← Back to Main README</a>
+</p>

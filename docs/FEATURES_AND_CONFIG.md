@@ -1,3 +1,5 @@
+[Back to Main README](../README.md]
+
 # Extended Configuration Options
 
 ---
@@ -104,3 +106,8 @@
 | `curves`  | `0.05`  | `0.005`  | Curve emission levels         |
 | `surfaces`| `0.05`  | `0.015`  | Surface emission levels       |
 | `labels`  | `0.40`  | `0.005`  | Label emission levels         |
+
+
+<p align="right">
+  <a href="../README.md">← Back to Main README</a>
+</p>

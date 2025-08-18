@@ -1,5 +1,9 @@
+[← Back to Main README](../README.md)
+
+<div align="center">
 # The Watch and the Twelve Realms  
 (read the first watch story at jimishol.github.io/post/diatonic)
+</div>
 
 The boy was on the cusp of manhood, with the restless energy of youth still clinging to him. He stood in the dim, echoing hall, waiting for his turn before the High Priest of the Temple of Music.
 
@@ -97,3 +101,7 @@ The Priest was thrilled, utterly satisfied.
 “Then from now on — at least for me — I shall refer to this fine artifact as the *Cholidean Harmony Structure*.”
 
 He laughed, and the boy joined in, perhaps a little awkwardly, taken aback by the unexpected — and perhaps somewhat excessive — recognition from the Priest.
+
+<p align="right">
+  <a href="../README.md">← Back to Main README</a>
+</p>
