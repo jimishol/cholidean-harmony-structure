@@ -36,7 +36,7 @@ The Priest gave a doubtful hum. “Perhaps. But here you will be tested for your
   <img src="https://github.com/jimishol/jimishol.github.io/blob/main/images/music-clock-sun.jpg" alt="Music Clock Sun" style="max-width: 500px; width: 30%; margin-top: 10px;"/>
 </div>
 
-The Priest’s gaze locked onto him. “Tell me, boy… what time gathers four flats?”
+The Priest’s gaze locked onto him. “Tell me, boy… what time do four flats gather?”
 
 The words struck like the snap of a trigger. Four flats. The boy’s mind jerked to the watch: a glint of metal, the crisp markings — and there it was, the tiny ♭. In music, a flat. But here, on this watch, **b** meant 5. It was written right on the face: *b = 5*.
 
@@ -46,7 +46,7 @@ At eight o’clock on this dial, A♭ major lived in place of the hour.
 
 “It will be A♭ major, Father,” he said — hesitant, as though the answer might still turn to smoke between them.
 
-“Correct,” the Priest said. “But if you’d been any slower, you’d be back where you came from, boy. Don’t stall over something so simple. Now — your last reply is not yet secure; answer swiftly, if you wish to go on to the final test — what time gathers three sharps?”
+“Correct,” the Priest said. “But if you’d been any slower, you’d be back where you came from, boy. Don’t stall over something so simple. Now — your last reply is not yet secure; answer swiftly, if you wish to go on to the final test — what time do three sharps gather?”
 
 ---
 
