@@ -2,8 +2,8 @@
 
 <div align="center">
 
-# The Watch and the Twelve Realms  
-(read the first watch story at jimishol.github.io/post/diatonic)
+<h1>The Watch and the Twelve Realms</h1>
+<p><em><a href="https://jimishol.github.io/post/diatonic" style="text-decoration: none; color: gray;">Read the first watch story</a></em></p>
 
 </div>
 
