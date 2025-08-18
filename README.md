@@ -225,7 +225,11 @@ assets/fur_elise.mid,
 ```
 Each entry should be a relative or absolute path to a `.mid` file. Trailing commas are allowed but not required.
 
+* **Camera Position Setup:**
+
 - Most likely, when examining the structure, you will find some position more suitable than others in terms of understanding it. Press `d` and copy the camera position to the `M.initialCameraPosition` field in `src/constants.lua`, so that you always start from that position. If you have prefered lightning copy `Day time` to the `M.day_night` field of the same file.
+
+* **Tonic Repositioning:**
 
 - Quite often, you will feel that the scale of a piece is such that you would like its tonic to be in a different position than it is. With `Shift + ←` or →`, you can move the tonic to the position you desire.
 
