@@ -73,26 +73,12 @@ dump_active()
 -- On other systems, uses `stdbuf -oL` for line‐buffered output.
 -- @local
 -- local cmd = nil
--- if platform == "windows" then
---   local PTYChannel = love.thread.getChannel("PTYcmd")
---   local winPTYcmd        = PTYChannel:peek()
---   local winBackPathChannel = love.thread.getChannel("winBackPath")
---   local winBackPath        = winBackPathChannel:peek()
---
---   local exeString = winPTYcmd .. " " .. winBackPath .. backend .. ".exe"
---   cmd = string.format(
---     '%s -ds ' ..
---     '-o audio.period-size=128 ' ..
---     '-o audio.periods=32 ' ..
---     '-o shell.port=%d %s %s',
---     exeString, shellPort, soundfont, songList
---   )
 local cmd = nil
 if platform == "windows" then
   local winBackPathChannel = love.thread.getChannel("winBackPath")
   local winBackPath        = winBackPathChannel:peek()
   local exeString = winBackPath .. backend .. ".exe"
-print("winBackPath= ", winBackPath, "backend= ", backend, "exeString= ", exeString)
+
   cmd = string.format(
     '"%s" -d -s ' ..
     '-o audio.period-size=128 ' ..
