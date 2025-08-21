@@ -6,11 +6,7 @@
 
   <img src="https://github.com/jimishol/jimishol.github.io/blob/main/tonality/cholidean_structure.png" alt="Theme Image" width="100%" />
 
-This is a [Video screen record](https://jimishol.github.io/tonality/cholidean-harmony-structure.webm)
-
-<video src="https://github.com/jimishol/jimishol.github.io/blob/main/tonality/cholidean-harmony-structure.webm" controls width="100%">
-</video>
-
+This is a [Video screen record.](https://github.com/jimishol/jimishol.github.io/blob/main/tonality/cholidean-harmony-structure.webm)
 
 Cholidean Harmony Structure is a projection of 12-tone Equal Temperament ([12ET](https://en.wikipedia.org/wiki/12_equal_temperament)) music systems into 3D space. The twelve tones are placed on a 3D parametric closed curve. The fact that each tone is related to two and only two other tones, creates strongly the perception of a two-dimensional surface strip that curves in three-dimensional space to fit the surface of an [umbilic torus](https://en.wikipedia.org/wiki/Umbilic_torus).
 
