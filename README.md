@@ -68,9 +68,9 @@ Note: macOS support is currently unverified. This project was built with love an
 
 ### 🪟 Windows
 
-📌 **Note:** Before launching on Windows, we recommend reviewing the **Known Issues** section below. It covers important platform-specific limitation like the real-time output quirks. Also, make sure you have a machine or VM with real GPU support, 3D acceleration, and OpenGL enabled. 
+⚠️📌 **Note:** Before installing on Windows, we recommend reviewing the **Known Issues** section below. It covers important platform-specific limitation like the real-time output quirks. Also, make sure you have a machine or VM with real GPU support, 3D acceleration, and OpenGL enabled. In order just to explore structure ommit 3-5 steps below and, in src/constants.lua, set backend as "null". 
 
-0. **WSL** Because of Line-buffered issue, a not tested workarround would be to install [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) and then follow Linux instructions instead of Windows. 
+0. **WSL** Because of Line-buffered issue, [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) tested as workarround and seems to fail on line buffer too, despite the presence of `stdbuf -oL`. 
 
 1. **Prepare the Project Directory**  
    - Clone (if you want asset_pipeline and/or docs folders aimed for developers) or Download release zip (e.g. `cholidean-harmony-structure-1.0.0.zip`).  
