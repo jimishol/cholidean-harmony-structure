@@ -112,7 +112,7 @@ Note: macOS support is currently unverified. This project was built with love an
 ⚠️ Windows‑specific notes
 
 - **Line-buffered output isn’t working**  
-  We expect Fluidsynth’s note-on/off events to stream line-by-line, but under Windows, even through winpty layer, block buffering is forced. As a result, active note events may arrive in batches or with a delay, breaking real-time tracking. If you have a workaround or patch, please [share it in this issue](https://github.com/jimishol/cholidean-harmony-structure/issues/4#issue-3329738061) or contribute it via a comment or pull request — I’d love to improve Windows support together.
+  We expect Fluidsynth’s note-on/off events to stream line-by-line, but under Windows, even through winpty layer, block buffering is forced. As a result, active note events may arrive in batches or with a delay, breaking real-time tracking. If you have a workaround or patch, please [share it in this issue](https://github.com/jimishol/cholidean-harmony-structure/issues/4#issue-3329738061) or contribute it via a comment or pull request.
 
 * No spaces in song filenames — The current backend passes song paths directly to FluidSynth under Bash. On Windows, spaces in filenames can break playback due to how arguments are parsed through the winpty layer. Please rename files or use underscores instead. (Example: My Song.mid → My_Song.mid)
 
