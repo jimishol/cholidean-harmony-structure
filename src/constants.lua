@@ -60,7 +60,7 @@ local M = {}
 
 M.backend             = "fluidsynth"
 M.windowsBackendPath  = "bin\\"
-M.soundfonts          = "FluidR3_GM.sf2"
+M.soundfonts          = "FluidR3_GM.sf2" -- soundfonts/musyng-kite/Musyng-Kite.sf2" -- "FluidR3_GM.sf2"
 M.shellPort           = 9800
 M.shellHost           = "localhost"
 
