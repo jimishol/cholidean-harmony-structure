@@ -60,16 +60,32 @@ shellPortChannel:push(shellPort)
 local soundfontChannel = love.thread.getChannel("soundfonts")
 soundfontChannel:push(constants.soundfonts)
 
--- ✅ Load backend-neutral playlist
-local ok_playlist, playlist = pcall(require, "src.backends.playlist")
-backendModules.playlist = ok_playlist and playlist or {
-  getSelectedSongs = function() return {} end  -- empty playlist in manual mode
-}
-local selectedSongs = backendModules.playlist.getSelectedSongs()
+local playlist = require("src.backends.playlist")
+backendModules.playlist = playlist
 
-local songsChannel = love.thread.getChannel("songs")
-local songList = table.concat(selectedSongs, " ")
-songsChannel:push(songList)
+-- Now it’s safe to require and use the playlist backend:
+local playlist = require("src.backends.playlist")
+backendModules.playlist = playlist
+local playlist      = require("src.backends.playlist")
+local selectedSongs = playlist.getSelectedSongs()
+
+-- If empty, push "" so Fluidsynth sees no MIDI args.
+-- If non-empty, join with spaces.
+local songList = (#selectedSongs > 0)
+  and table.concat(selectedSongs, " ")
+  or ""
+
+love.thread.getChannel("songs"):push(songList)
+-- -- ✅ Load backend-neutral playlist
+-- local ok_playlist, playlist = pcall(require, "src.backends.playlist")
+-- backendModules.playlist = ok_playlist and playlist or {
+--   getSelectedSongs = function() return {} end  -- empty playlist in manual mode
+-- }
+-- local selectedSongs = backendModules.playlist.getSelectedSongs()
+--
+-- local songsChannel = love.thread.getChannel("songs")
+-- local songList = table.concat(selectedSongs, " ")
+-- songsChannel:push(songList)
 
 --- Callback invoked once when the Love2D application loads.
 -- Sets up window title, text input, material libraries, engine initialization,

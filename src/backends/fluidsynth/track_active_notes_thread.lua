@@ -4,58 +4,33 @@
 -- to a Lua file (`active_notes.lua`) for consumption by the main thread.
 -- @module src.backends.fluidsynth.track_active_notes_thread
 
---- Love Thread channels for control and configuration.
--- @section Channels
-
---- Channel on which “clear” commands arrive to reset active notes.
--- @local
-local clearChannel = love.thread.getChannel("track_control")
-
---- Channel from the main thread carrying the platform identifier.
--- @local
+local clearChannel    = love.thread.getChannel("track_control")
 local platformChannel = love.thread.getChannel("platform")
 local platform        = platformChannel:peek()
 
---- Channels carrying backend executable name, soundfont path, and song list.
--- @local
 local backendChannel   = love.thread.getChannel("backend")
 local soundfontChannel = love.thread.getChannel("soundfonts")
 local songsChannel     = love.thread.getChannel("songs")
 
---- Retrieve configuration values from their channels.
--- @local
 local backend   = backendChannel:peek()
-local soundfont = soundfontChannel:peek()
-local songList  = songsChannel:peek()
+local soundfont = soundfontChannel:peek()   -- may be nil or "" for system default
+local songList  = songsChannel:peek()       -- space-separated VFS paths
 local shellPort = love.thread.getChannel("shellPort"):peek()
-local shellHost = love.thread.getChannel("shellHost"):peek()
 
---- Output file path for the auto‐generated active notes list.
--- @local
-local output_file  = "active_notes.lua"
-
---- Internal table mapping “channel:key” to note info.
--- @local
+local output_file = "active_notes.lua"
 local active_notes = {}
 
---- Dump the current set of active notes to `active_notes.lua`.
--- Serializes the unique MIDI key numbers into a sorted Lua array.
--- @local
+-- Dump active notes to disk
 local function dump_active()
-  -- Build a set of unique keys
   local set = {}
   for _, note in pairs(active_notes) do
     set[note.key] = true
   end
 
-  -- Convert set to sorted list
   local list = {}
-  for k in pairs(set) do
-    table.insert(list, k)
-  end
+  for k in pairs(set) do table.insert(list, k) end
   table.sort(list)
 
-  -- Write out as a Lua module
   local f = assert(io.open(output_file, "w"))
   f:write("-- Auto‐generated active MIDI notes\nreturn {\n")
   for _, n in ipairs(list) do
@@ -65,67 +40,112 @@ local function dump_active()
   f:close()
 end
 
--- Immediately clear any stale notes on startup
 dump_active()
 
---- Construct the Fluidsynth launch command, wrapped for platform.
--- On Windows, prefixes with `winpty` to allocate a console.
--- On other systems, uses `stdbuf -oL` for line‐buffered output.
--- @local
--- local cmd = nil
-local cmd = nil
-if platform == "windows" then
-  local winBackPathChannel = love.thread.getChannel("winBackPath")
-  local winBackPath        = winBackPathChannel:peek()
-  local exeString = winBackPath .. backend .. ".exe"
+-- read a VFS file and write it to a real temp file
+local function dumpToTemp(vpath)
+  local data = assert(love.filesystem.read(vpath),
+                      "Cannot read virtual asset: "..vpath)
+  local tmp  = os.tmpname()
+  if package.config:sub(1,1) == "\\" then
+    tmp = love.filesystem.getWorkingDirectory() .. tmp
+  end
+  local basename = vpath:match("[^/]+$")
+  local out      = tmp .. "_" .. basename
+  local f = assert(io.open(out, "wb"), "Failed to open temp file: "..out)
+  f:write(data)
+  f:close()
+  return out
+end
 
-  cmd = string.format(
-    '"%s" -d -s ' ..
-    '-o audio.period-size=128 ' ..
-    '-o audio.periods=32 ' ..
-    '-o shell.port=%d %s %s',
-    exeString, shellPort, soundfont, songList
+-- shell-escape an OS path
+local function shellEscape(path)
+  if platform == "windows" then
+    -- wrap in double-quotes
+    return '"' .. path:gsub('"', '\\"') .. '"'
+  else
+    -- wrap in single-quotes, escape internal single-quotes
+    local escaped = path:gsub("'", "'\\''")
+    return "'" .. escaped .. "'"
+  end
+end
+
+-- Resolve SoundFont: explicit, root-dropped, or system default
+local sfPathOS
+if soundfont and soundfont ~= "" and love.filesystem.getInfo(soundfont, "file") then
+  sfPathOS = dumpToTemp(soundfont)
+else
+  for _, fname in ipairs(love.filesystem.getDirectoryItems("")) do
+    if fname:lower():match("%.sf2$") then
+      sfPathOS = dumpToTemp(fname)
+      break
+    end
+  end
+  -- if still nil, omit and let Fluidsynth load its system default
+end
+
+-- Build a list of real OS MIDIs (dumped then escaped)
+local songListOS = {}
+for token in songList:gmatch("%S+") do
+  local vpath = token:gsub("^['\"]*(.-)['\"]*$", "%1")
+  if love.filesystem.getInfo(vpath, "file") then
+    local realPath = dumpToTemp(vpath)
+    table.insert(songListOS, shellEscape(realPath))
+  end
+end
+-- (optional) fallback:
+-- if #songListOS == 0 then
+--   table.insert(songListOS,
+--     shellEscape(dumpToTemp("assets/Beethoven_Fur_Elise.mid"))
+--   )
+-- end
+
+-- Construct the executable + options prefix
+local prefix
+if platform == "windows" then
+  local winBackPath = love.thread.getChannel("winBackPath"):peek()
+  prefix = string.format(
+    '"%s.exe" -d -s -o shell.port=%d',
+     winBackPath .. backend, shellPort
   )
 else
-  cmd = string.format(
-    'stdbuf -oL %s -ds ' ..
-    '-o audio.period-size=128 ' ..
-    '-o audio.periods=32 ' ..
-    '-o shell.port=%d %s %s',
-    backend, shellPort, soundfont, songList
+  prefix = string.format(
+    'stdbuf -oL %s -ds -o shell.port=%d',
+    backend, shellPort
   )
 end
 
--- Launch Fluidsynth subprocess and capture its stdout
+-- Assemble final command
+local cmd = prefix
+
+if sfPathOS then
+  cmd = cmd .. " " .. shellEscape(sfPathOS)
+end
+
+if #songListOS > 0 then
+  cmd = cmd .. " " .. table.concat(songListOS, " ")
+end
+
+print(">> Fluidsynth command:", cmd)
 local pipe = assert(io.popen(cmd, "r"))
 
--- Main event loop: read lines and update active_notes
 while true do
-  -- Handle explicit “clear” requests
   if clearChannel:pop() == "clear" then
     active_notes = {}
     dump_active()
   end
 
-  -- Read the next line of Fluidsynth output
   local line = pipe:read("*l")
-  if not line then
-    break
-  end
+  if not line then break end
 
-  -- Parse `noteon` events
   local ch, key = line:match("noteon%s+(%d+)%s+(%d+)%s+%d+")
   if ch then
-    active_notes[ch .. ":" .. key] = {
-      channel = tonumber(ch),
-      key     = tonumber(key),
-    }
+    active_notes[ch..":"..key] = { channel=tonumber(ch), key=tonumber(key) }
     dump_active()
   else
-    -- Parse `noteoff` events
     local ch2, key2 = line:match("noteoff%s+(%d+)%s+(%d+)")
     if ch2 then
-      active_notes[ch2 .. ":" .. key2] = nil
+      active_notes[ch2..":"..key2] = nil
       dump_active()
     end
   end

@@ -217,20 +217,7 @@ Launch the visualizer with FluidSynth to render harmony in 3D space using real-t
 ```bat
 Double-click run.bat
 ```
-
-FluidSynth playback will follow the playlist defined in `play.list`.
-
-* **Playlist Format:**
-
-
-The `play.list` file should contain a comma-separated list of MIDI file paths:
-
-```
-assets/beethoven_symphony_5_1_(c)galimberti.mid,
-assets/moonlight_sonata.mid,
-midi_files/fur_elise.mid,
-```
-Each entry should be a relative path to a `.mid` file. Trailing commas are allowed but not required.
+FluidSynth playback will follow whatever exist in `midi_files/` folder.
 
 * **Camera Position Setup:**
 
