@@ -1,5 +1,6 @@
 # Ignore everything inside midi_files
 midi_files/*
+soundfonts/*
 
 # Keep the directory itself (required for re-includes to work reliably)
 !midi_files/
