@@ -1,0 +1,8 @@
+# Ignore everything inside midi_files
+midi_files/*
+
+# Keep the directory itself (required for re-includes to work reliably)
+!midi_files/
+
+# Allow only this specific file
+!midi_files/beethoven_symphony_5_1_(c)galimberti.mid
