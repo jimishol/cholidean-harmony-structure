@@ -94,12 +94,6 @@ for token in songList:gmatch("%S+") do
     table.insert(songListOS, shellEscape(realPath))
   end
 end
--- (optional) fallback:
--- if #songListOS == 0 then
---   table.insert(songListOS,
---     shellEscape(dumpToTemp("assets/Beethoven_Fur_Elise.mid"))
---   )
--- end
 
 -- Fallback if no host is set
 shellHost = (shellHost and shellHost ~= "") and shellHost or "localhost"
