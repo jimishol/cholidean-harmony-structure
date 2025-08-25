@@ -16,6 +16,7 @@ local backend   = backendChannel:peek()
 local soundfont = soundfontChannel:peek()   -- may be nil or "" for system default
 local songList  = songsChannel:peek()       -- space-separated VFS paths
 local shellPort = love.thread.getChannel("shellPort"):peek()
+local shellHost = love.thread.getChannel("shellHost"):peek()
 
 local output_file = "active_notes.lua"
 local active_notes = {}
@@ -100,20 +101,29 @@ end
 --   )
 -- end
 
+-- Fallback if no host is set
+shellHost = (shellHost and shellHost ~= "") and shellHost or "localhost"
+
 -- Construct the executable + options prefix
 local prefix
 if platform == "windows" then
   local winBackPath = love.thread.getChannel("winBackPath"):peek()
+  -- Wrap backend path, and pass host:port as a single string if needed
   prefix = string.format(
     '"%s.exe" -d -s -o shell.port=%d',
-     winBackPath .. backend, shellPort
+    winBackPath .. backend,
+    shellPort
   )
 else
   prefix = string.format(
     'stdbuf -oL %s -ds -o shell.port=%d',
-    backend, shellPort
+    backend,
+    shellPort
   )
 end
+
+-- If you want to expose host info for logging or for a wrapper command:
+print(string.format("Binding Fluidsynth shell to %s:%d", shellHost, shellPort))
 
 -- Assemble final command
 local cmd = prefix
