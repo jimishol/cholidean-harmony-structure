@@ -10,7 +10,7 @@ Cholidean Harmony Structure projects 12-tone Equal Temperament (12ET) music syst
 
 ## Two Ways Into This World
 
-- **The Watch and the Twelve Realms** — read the origin fable in [docs/the_story.md](docs/the_story.md) (or first watch the story at https://jimishol.github.io/post/circle_of_fifths).  
+- **The Watch and the Twelve Realms** — read the origin fable in [the_story.md](docs/the_story.md) (or first watch the story at https://jimishol.github.io/post/circle_of_fifths).  
 - **Tonality Structure in Music** — read the tonal structure article at https://jimishol.github.io/post/tonality/.
 
 ---
@@ -103,25 +103,25 @@ git lfs install
 
 This is a minimalist music player that projects harmony into 3D:
 
-- Supports MIDI files via FluidSynth.  
-- Interactive controls for play/pause, tempo, and debugging.  
-- No extra setup: just launch and load a MIDI file.
+- Supports MIDI files via FluidSynth  
+- Interactive controls for play/pause, tempo, and debugging  
+- No extra setup: just launch and load a MIDI file
 
 ### For Backend Developers
 
-Backends must emit real-time note ON/OFF events. The manager is `src/backends/init.lua`.
+Backends now stream active notes directly to the note-state server via TCP. No disk writes are required.
 
-#### How It Works
+#### 🔄 Live TCP Note Tracking
 
-- The visual engine watches `active_notes.lua`.  
-- A backend thread (FluidSynth or null) updates this file in real time.
+All backends — including Fluidsynth, telnet, and external tools — communicate with the note-state server at:
 
-#### Backend Options
+```
+localhost:9810
+```
 
-- **FluidSynth**  
-  - Launched in a thread, parses `noteon`/`noteoff` from stdout, accepts TCP commands, writes `active_notes.lua`.  
-- **Null**  
-  - Manual mode: edit `active_notes.lua` by hand for demos or testing.
+If your tool or backend can emit a comma-separated list of active MIDI notes (e.g. `60,64,67`), you can connect to this port and stream updates directly. The `"null"` backend enables this mode and requires no Lua integration.
+
+🎶 Harmony can be visualized not only from MIDI, but also from audio formats like `.mp3`, `.ogg`, `.wav`, or even live concert feeds — as long as the system can extract and expose active notes via TCP.
 
 ---
 
@@ -155,26 +155,8 @@ Backends must emit real-time note ON/OFF events. The manager is `src/backends/in
 
 - [Feature Overview & Configuration](docs/FEATURES_AND_CONFIG.md)  
 - [Full Keybindings Reference](docs/KEYBINDINGS.md)  
-- [For Developers (AI-generated ldoc)](https://jimishol.github.io/ldoc/)
-
----
-
-## Fluidsynth Backend Integration ⚙️
-
-- A thread spawns FluidSynth, reads `noteon`/`noteoff` from stdout, updates `active_notes.lua`.  
-- Configuration channels (via Love2D threads):
-
-  | Channel       | Purpose                           |
-  | ------------- | --------------------------------- |
-  | `backend`     | Executable name (`fluidsynth`)    |
-  | `soundfonts`  | Path to SoundFont file            |
-  | `songs`       | Comma-separated list of MIDI files |
-  | `shellPort`   | TCP port for commands             |
-  | `shellHost`   | Hostname/IP for control           |
-  | `platform`    | OS identifier (`windows`, `linux`)|
-  | `track_control` | Clear active notes signal        |
-
-- Fallback null backend is available for manual control.
+- [Developer Integration Guide](asset_pipeline/FOR_DEVELOPERS.md)  
+- [Generated API Docs (ldoc)](https://jimishol.github.io/ldoc/)
 
 ---
 
@@ -193,18 +175,17 @@ Licensed under **GNU GPL v3.0**. See [LICENSE](LICENSE) for details.
 
 ### Third-Party Licenses 📦
 
-
 | Asset Type                | License File                                                        |
 | ------------------------- | ------------------------------------------------------------------- |
-| 3D Engine components      | [3dreamengine.md](THIRD_PARTY_LICENSES/3dreamengine.md) |
-| Material textures & HDRIs | [materials.md](THIRD_PARTY_LICENSES/materials.md)         |
-| MIDI files                | [midis.md](THIRD_PARTY_LICENSES/midis.md)               |
+| 3D Engine components      | [3dreamengine.md](THIRD_PARTY_LICENSES/3dreamengine.md)             |
+| Material textures & HDRIs | [materials.md](THIRD_PARTY_LICENSES/materials.md)                   |
+| MIDI files                | [midis.md](THIRD_PARTY_LICENSES/midis.md)                           |
 
 ---
 
 ## Acknowledgments 🙏
 
-This project took shape thanks to the insight and encouragement of Edgar Delgado Vega.
+This project took shape thanks to the insight and encouragement of [Edgar Delgado Vega](https://github.com/edelveart).
 
 Although the idea had been explored by 20th‑century music–math theorists, it was only when E.D.V. encountered the concept that he immediately recognized its potential for new approaches in 12ET harmony. He urged me to share it more widely and encouraged me to bring it into academic and creative circles.
 

@@ -1,6 +1,6 @@
 # 💡 Developer Integration Guide
 
-This file outlines the geometric modeling pipeline, asset preparation steps, and Git subtree integrations used to build the **Cholidean Harmony Structure** — a spatial-musical framework rendered in Love2D using 3DreamEngine.
+This file outlines the geometric modeling pipeline, asset preparation steps, Git subtree integrations, and backend architecture used to build the **Cholidean Harmony Structure** — a spatial-musical framework rendered in Love2D using 3DreamEngine.
 
 ---
 
@@ -120,9 +120,19 @@ git subtree pull --prefix=3DreamEngine/extensions 3DreamEngine master --squash
 
 ## 🛠️ For Backend Developers
 
-Any backend just needs to emit real-time note ON/OFF events. Under the hood, `src/backends/init.lua` looks for a module implementing this **Backend API**:
+### 🔄 Live TCP Note Tracking
 
-### Backend API
+The system now supports real-time MIDI note tracking via TCP. All backends — including Fluidsynth, telnet, and external tools — communicate directly with the note-state server at:
+
+```
+localhost:9810
+```
+
+If your tool or backend can emit a comma-separated list of active MIDI notes (e.g. 60,64,67), you can connect to localhost:9810 and stream updates directly. The "null" backend enables this mode and requires no disk writes or Lua integration.
+
+🎶 Note: Harmony can be visualized not only from MIDI, but also from audio formats like .mp3, .ogg, .wav, or even live concert feeds — as long as the system can extract and expose active notes via TCP. This opens the door to real-time visualizations from DAWs, audio analysis tools, or live performance setups.
+
+### ✅ Backend API
 
 Each backend module (e.g., `fluidsynth.lua`, `null.lua`) must return a table with:
 
@@ -132,12 +142,13 @@ Each backend module (e.g., `fluidsynth.lua`, `null.lua`) must return a table wit
      - `backend` (string): executable name (e.g., `"fluidsynth"`)  
      - `soundfonts` (string): path to SoundFont file  
      - `songs` (string): comma-separated MIDI file list  
-     - `shellHost` / `shellPort` (string/int): TCP host & port  
+     - `shellHost` / `shellPort` (string/int): TCP host & port for Fluidsynth shell  
+     - `noteStateHost` / `noteStatePort` (string/int): TCP host & port for note-state server  
      - `platform` (string): OS identifier (`"linux"`, `"windows"`, etc.)  
      - `track_control` (boolean): whether to clear active notes on start
 
 2. `stop()`  
-   - Gracefully stops playback, kills the subprocess or thread, closes all channels, and ensures `active_notes.lua` is not left behind.  
+   - Gracefully stops playback, kills the subprocess or thread, and closes all channels.  
    - Invoked when switching backends or on application exit.
 
 3. `sendCommand(cmd: string)` _(optional)_  
@@ -147,12 +158,13 @@ Each backend module (e.g., `fluidsynth.lua`, `null.lua`) must return a table wit
    - Called from `love.quit()` for final cleanup.
 
 > **Note:**  
-> - `stop()` and `quit()` must finish synchronously—no orphaned processes or hanging threads.  
-> - Failure to shut down cleanly will leave zombie backends or stale `active_notes.lua` files.
+> - `active_notes.lua` is no longer used for runtime state.  
+> - All note tracking is handled via TCP.  
+> - External tools do not need to be written in Lua — any environment that can open a TCP socket and send a comma-separated list of MIDI notes is compatible.
 
 Once implemented, the core engine will:
-- Spawn your backend in a Love2D thread.  
-- Manage shared channels.  
-- Read `active_notes.lua` each frame for live visualization.
+- Spawn your backend in a Love2D thread  
+- Manage shared channels  
+- Merge note input from all clients for unified visualization
 
-That’s it—drop your Lua module in `src/backends/`, follow this API, and your backend will “just work.” 🎹🔗
+That’s it — drop your Lua module in `src/backends/`, follow this API, and your backend will “just work.” 🎹🔗
