@@ -59,6 +59,13 @@ local function sendActiveNotes()
   end
 end
 
+-- Clear active_notes.lua to ensure a clean start
+local file = io.open("active_notes.lua", "w")
+if file then
+  file:write("return {}\n")
+  file:close()
+end
+
 -- Send once at startup (initial state)
 sendActiveNotes()
 

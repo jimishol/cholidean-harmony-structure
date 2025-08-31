@@ -112,7 +112,6 @@ local function startServer()
       local c = clients[i]
       local line, err = c:receive("*l")
       if line then
-        print("Received line from TCP client:", line)
         local newNotes = {}
         for token in line:gmatch("%d+") do
           local note = tonumber(token)
