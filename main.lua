@@ -28,8 +28,8 @@ local Input  = require("src.input")
 local A      = require("src.input.actions")
 local Colors = require("src.utils.colors")
 
-local os_detect = require("os_detect")
-local platform = os_detect.getPlatform()
+local os_detect       = require("os_detect")
+local platform        = os_detect.getPlatform()
 local platformChannel = love.thread.getChannel("platform")
 platformChannel:push(platform)
 
@@ -46,46 +46,24 @@ local backendModules = {
   commandMenu = Backend.commandMenu,
 }
 
-local backendChannel = love.thread.getChannel("backend")
+local backendChannel     = love.thread.getChannel("backend")
+local shellHostChannel   = love.thread.getChannel("shellHost")
+local shellPortChannel   = love.thread.getChannel("shellPort")
+local soundfontChannel   = love.thread.getChannel("soundfonts")
+
 backendChannel:push(backend)
-
-local shellHostChannel = love.thread.getChannel("shellHost")
-local host = constants.shellHost
-shellHostChannel:push(host)
-
-local shellPortChannel = love.thread.getChannel("shellPort")
-local shellPort = constants.shellPort
-shellPortChannel:push(shellPort)
-
-local soundfontChannel = love.thread.getChannel("soundfonts")
+shellHostChannel:push(constants.shellHost)
+shellPortChannel:push(constants.shellPort)
 soundfontChannel:push(constants.soundfonts)
 
 local playlist = require("src.backends.playlist")
 backendModules.playlist = playlist
 
--- Now it’s safe to require and use the playlist backend:
-local playlist = require("src.backends.playlist")
-backendModules.playlist = playlist
-local playlist      = require("src.backends.playlist")
 local selectedSongs = playlist.getSelectedSongs()
-
--- If empty, push "" so Fluidsynth sees no MIDI args.
--- If non-empty, join with spaces.
 local songList = (#selectedSongs > 0)
   and table.concat(selectedSongs, " ")
   or ""
-
 love.thread.getChannel("songs"):push(songList)
--- -- ✅ Load backend-neutral playlist
--- local ok_playlist, playlist = pcall(require, "src.backends.playlist")
--- backendModules.playlist = ok_playlist and playlist or {
---   getSelectedSongs = function() return {} end  -- empty playlist in manual mode
--- }
--- local selectedSongs = backendModules.playlist.getSelectedSongs()
---
--- local songsChannel = love.thread.getChannel("songs")
--- local songList = table.concat(selectedSongs, " ")
--- songsChannel:push(songList)
 
 --- Callback invoked once when the Love2D application loads.
 -- Sets up window title, text input, material libraries, engine initialization,
@@ -96,24 +74,20 @@ function love.load()
   love.window.setTitle("Cholidean Harmony Structure")
   love.keyboard.setTextInput(true)
 
-  -- 4) Load all materials, then init the engine in the callback
-    dream:loadMaterialLibrary("assets/materials_gl")
+  dream:loadMaterialLibrary("assets/materials_gl")
 
   if platform == "windows" then
-
-    local windowsBackendPathChannel = love.thread.getChannel("winBackPath")
-    windowsBackendPathChannel:push(constants.windowsBackendPath)
-
+    love.thread.getChannel("winBackPath")
+        :push(constants.windowsBackendPath)
   end
 
   dream:init()
   Colors.init(dream)
 
-  -- 5) Only now that the engine is initialized and textures are loaded do we load the scene & camera
   scene.load(dream, backendModules.commandMenu)
   camera:init(dream)
 
-  -- Start the correct backend thread
+  -- Start the active‐notes tracker thread
   Backend.start()
 end
 
@@ -129,8 +103,7 @@ function love.update(dt)
 end
 
 --- Callback invoked every frame to render the scene and overlays.
--- Prepares the 3D engine, draws the scene, then switches to screen-space
--- to render the HUD, debug text, command menu, and fallback messages.
+-- Draws 3D scene, HUD, debug text, command menu, and fallback messages.
 -- @function love.draw
 -- @return nil
 function love.draw()
@@ -156,33 +129,10 @@ function love.draw()
   love.graphics.pop()
 end
 
---- Terminates the external backend process if one was launched.
--- Extracts the base name of the backend command and issues a platform-specific kill.
--- @local
--- @function genericQuit
--- @return nil
-local function genericQuit()
-  if backend ~= "null" then
-    local proc = backend:match("([^/\\]+)$"):gsub("%.%w+$", "")
-
-    if platform == "windows" then
-      os.execute(string.format(
-        'taskkill /IM %s.exe /F >NUL 2>&1',
-        proc
-      ))
-    else
-      os.execute(string.format(
-        'pkill -9 -f "%s" > /dev/null 2>&1',
-        proc
-      ))
-    end
-  end
-end
-
 --- Checks if either Control key is currently pressed.
 -- @local
 -- @function ctrlDown
--- @treturn boolean true if left or right control key is down.
+-- @treturn boolean true if left or right Control key is down.
 local function ctrlDown()
   return love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")
 end
@@ -196,17 +146,15 @@ end
 function love.keypressed(key, scancode)
   if scene.commandMenu.visible then
     local topic = scene.commandMenu:keypressed(key, scancode)
-
     if topic then
       if backendModules.controls.send_message then
-        backendModules.controls.send_message(topic, host, shellPort)
+        backendModules.controls.send_message(topic, constants.shellHost, constants.shellPort)
         scene.commandMenu.visible = backendModules.controls.visible or false
       else
         print("⚠️ No backend available to send message: " .. topic)
         scene.commandMenu.visible = false
       end
     end
-
     return
   end
 
@@ -214,7 +162,6 @@ function love.keypressed(key, scancode)
   if not action then return end
 
   if action == A.RESTART then
-    genericQuit()
     love.event.quit(42)
     return
   end
@@ -225,7 +172,6 @@ function love.keypressed(key, scancode)
   end
 
   if action == A.QUIT and ctrlDown() then
-    genericQuit()
     love.event.quit()
     return
   end
@@ -238,7 +184,7 @@ function love.keypressed(key, scancode)
 
   local methodName = backendActions[action]
   if methodName and backendModules.controls[methodName] then
-    backendModules.controls[methodName](host, shellPort)
+    backendModules.controls[methodName](constants.shellHost, constants.shellPort)
     return
   end
 
@@ -255,16 +201,15 @@ function love.keypressed(key, scancode)
 end
 
 --- Callback to handle text input events for the command menu.
--- Opens the menu on colon keystroke or forwards text to the menu when visible.
+-- Opens the menu on colon keystroke or forwards text when visible.
 -- @function love.textinput
--- @tparam string t Text input character.
+-- @tparam string t Character input.
 -- @return nil
 function love.textinput(t)
   if t == ":" and not scene.commandMenu.visible then
     scene.commandMenu:toggle()
     return
   end
-
   if scene.commandMenu.visible then
     scene.commandMenu:textinput(t)
     return
@@ -279,4 +224,13 @@ end
 -- @return nil
 function love.resize(w, h)
   dream:init()
+end
+
+--- Callback invoked when the game is quitting.
+-- Signals the backend manager to stop its thread and kill the external process.
+-- @function love.quit
+-- @return boolean false to allow LÖVE to terminate normally.
+function love.quit()
+  Backend.stop()
+  return false
 end

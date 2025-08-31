@@ -2,6 +2,7 @@
 -- Spawns the Fluidsynth process, listens for MIDI note‐on/off events,
 -- maintains a table of currently active notes, and writes them
 -- to a Lua file (`active_notes.lua`) for consumption by the main thread.
+-- Listens for "clear" to reset the note table and "quit" to exit cleanly.
 -- @module src.backends.fluidsynth.track_active_notes_thread
 
 local clearChannel    = love.thread.getChannel("track_control")
@@ -13,15 +14,16 @@ local soundfontChannel = love.thread.getChannel("soundfonts")
 local songsChannel     = love.thread.getChannel("songs")
 
 local backend   = backendChannel:peek()
-local soundfont = soundfontChannel:peek()   -- may be nil or "" for system default
-local songList  = songsChannel:peek()       -- space-separated VFS paths
+local soundfont = soundfontChannel:peek()
+local songList  = songsChannel:peek()
 local shellPort = love.thread.getChannel("shellPort"):peek()
 local shellHost = love.thread.getChannel("shellHost"):peek()
 
-local output_file = "active_notes.lua"
+local output_file  = "active_notes.lua"
 local active_notes = {}
 
--- Dump active notes to disk
+--- Dump active notes to disk
+-- Writes a sorted list of unique MIDI note keys into `active_notes.lua`.
 local function dump_active()
   local set = {}
   for _, note in pairs(active_notes) do
@@ -41,9 +43,12 @@ local function dump_active()
   f:close()
 end
 
+-- initial dump (empty set)
 dump_active()
 
--- read a VFS file and write it to a real temp file
+--- Read a VFS file and write it to a real temp file
+-- @tparam string vpath  Virtual path inside LÖVE's filesystem
+-- @treturn string       OS path to the temporary file
 local function dumpToTemp(vpath)
   local data = assert(love.filesystem.read(vpath),
                       "Cannot read virtual asset: "..vpath)
@@ -59,19 +64,19 @@ local function dumpToTemp(vpath)
   return out
 end
 
--- shell-escape an OS path
+--- Escape an OS path for safe shell invocation
+-- @tparam string path  Raw OS file path
+-- @treturn string      Quoted/escaped shell path
 local function shellEscape(path)
   if platform == "windows" then
-    -- wrap in double-quotes
     return '"' .. path:gsub('"', '\\"') .. '"'
   else
-    -- wrap in single-quotes, escape internal single-quotes
     local escaped = path:gsub("'", "'\\''")
     return "'" .. escaped .. "'"
   end
 end
 
--- Resolve SoundFont: explicit, root-dropped, or system default
+-- Resolve SoundFont: explicit, root‐dropped, or system default
 local sfPathOS
 if soundfont and soundfont ~= "" and love.filesystem.getInfo(soundfont, "file") then
   sfPathOS = dumpToTemp(soundfont)
@@ -82,7 +87,7 @@ else
       break
     end
   end
-  -- if still nil, omit and let Fluidsynth load its system default
+  -- if still nil, let Fluidsynth load its system default
 end
 
 -- Build a list of real OS MIDIs (dumped then escaped)
@@ -95,14 +100,13 @@ for token in songList:gmatch("%S+") do
   end
 end
 
--- Fallback if no host is set
+-- Fallback host
 shellHost = (shellHost and shellHost ~= "") and shellHost or "localhost"
 
--- Construct the executable + options prefix
+-- Construct Fluidsynth command prefix
 local prefix
 if platform == "windows" then
   local winBackPath = love.thread.getChannel("winBackPath"):peek()
-  -- Wrap backend path, and pass host:port as a single string if needed
   prefix = string.format(
     '"%s.exe" -d -s -o shell.port=%d',
     winBackPath .. backend,
@@ -116,16 +120,13 @@ else
   )
 end
 
--- If you want to expose host info for logging or for a wrapper command:
 print(string.format("Binding Fluidsynth shell to %s:%d", shellHost, shellPort))
 
 -- Assemble final command
 local cmd = prefix
-
 if sfPathOS then
   cmd = cmd .. " " .. shellEscape(sfPathOS)
 end
-
 if #songListOS > 0 then
   cmd = cmd .. " " .. table.concat(songListOS, " ")
 end
@@ -133,10 +134,14 @@ end
 print(">> Fluidsynth command:", cmd)
 local pipe = assert(io.popen(cmd, "r"))
 
+--- Main loop reads control messages and MIDI output lines
 while true do
-  if clearChannel:pop() == "clear" then
+  local cmd = clearChannel:pop()
+  if cmd == "clear" then
     active_notes = {}
     dump_active()
+  elseif cmd == "quit" then
+    break
   end
 
   local line = pipe:read("*l")

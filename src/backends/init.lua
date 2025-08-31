@@ -1,6 +1,7 @@
 --- Central backend loader and manager.
 -- Detects available backends, issues warnings on fallback,
--- and launches the active‐notes tracking thread.
+-- launches the active‐notes tracking thread, and provides
+-- a unified shutdown hook for all backends.
 -- @module src.backends
 
 local M = {}
@@ -73,7 +74,6 @@ function M.setup(backendName)
   M.name        = candidate
   M.controls    = loadModule(candidate, "backend_controls")
   M.commandMenu = loadModule(candidate, "command_menu")
-  -- thread will be assigned when .start() is called
   M.thread      = nil
 
   return M
@@ -82,11 +82,38 @@ end
 --- Start (or restart) the backend’s active‐notes thread.
 -- Spawns `track_active_notes_thread.lua` from the selected backend directory
 -- and saves the thread handle in `M.thread`.
+-- @return nil
 function M.start()
   local path = ("src/backends/%s/track_active_notes_thread.lua"):format(M.name)
   local th   = love.thread.newThread(path)
   th:start()
   M.thread = th
+end
+
+--- Stop the backend: signal tracker thread to exit and kill external process.
+-- Pushes `"quit"` into the `track_control` channel so the tracker thread can
+-- tear down, then issues a platform‐specific kill on the backend executable
+-- (no‐op for the `null` backend).
+-- @return nil
+function M.stop()
+  -- signal the active‐notes tracker thread to quit
+  love.thread.getChannel("track_control"):push("quit")
+
+  -- kill the external backend process if not null
+  if M.name ~= "null" then
+    local proc = M.name
+    if love.system.getOS() == "Windows" then
+      os.execute(string.format(
+        'taskkill /IM %s.exe /F >NUL 2>&1',
+        proc
+      ))
+    else
+      os.execute(string.format(
+        'pkill -9 -f "%s" > /dev/null 2>&1',
+        proc
+      ))
+    end
+  end
 end
 
 return M
