@@ -34,6 +34,7 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Fields">Fields</a></li>
 </ul>
 
 
@@ -68,32 +69,48 @@
 
 <h1>Module <code>backends.note_state</code></h1>
 <p>Active MIDI note state backend.</p>
-<p> Reads a user‐maintained <code>active_notes.lua</code> file, caches its list of MIDI notes,
- and exposes lookup functions for whether a given circle‐of‐fourths step is active
- or is the bass (lowest) note.</p>
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">local note_state = require(&quot;backends.note_state&quot;)
-local raw = note_state.getActiveNotes()
-local isActive = note_state.isNoteActive(5)
-local isBass   = note_state.isNoteBass(5)
-</pre>
-    </ul>
+<p> Listens on a TCP socket for incoming note updates from the backend thread,
+ reads a local <code>active_notes.lua</code> file, and merges both sources into a unified
+ list of active MIDI notes. Exposes lookup functions for whether a given
+ circle-of-fourths step is active or is the bass (lowest) note.</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
+	<td class="name" nowrap><a href="#tryReloadNotes">tryReloadNotes ()</a></td>
+	<td class="summary">Reloads notes from <code>active_notes.lua</code> if available.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rebuildState">rebuildState ()</a></td>
+	<td class="summary">Rebuilds merged state from file and socket sources.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#startServer">startServer ()</a></td>
+	<td class="summary">Starts TCP listener and returns polling function.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#poll">poll ()</a></td>
+	<td class="summary">Polls TCP socket and reloads file-based notes.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#getActiveNotes">getActiveNotes ()</a></td>
-	<td class="summary">Returns the raw list of active MIDI notes.</td>
+	<td class="summary">Returns merged list of active MIDI notes.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#isNoteActive">isNoteActive (stepIndex)</a></td>
-	<td class="summary">Check if a given circle‐of‐fourths step is active.</td>
+	<td class="summary">Checks if a given circle-of-fourths step is active.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#isNoteBass">isNoteBass (stepIndex)</a></td>
-	<td class="summary">Check if a given step is the bass (lowest) active note.</td>
+	<td class="summary">Checks if a given step is the bass (lowest) active note.</td>
+	</tr>
+</table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#minNote">minNote</a></td>
+	<td class="summary">Smallest MIDI note currently active.</td>
 	</tr>
 </table>
 
@@ -105,20 +122,86 @@ local isBass   = note_state.isNoteBass(5)
 
     <dl class="function">
     <dt>
-    <a name = "getActiveNotes"></a>
-    <strong>getActiveNotes ()</strong>
+    <a name = "tryReloadNotes"></a>
+    <strong>tryReloadNotes ()</strong>
     </dt>
     <dd>
-    Returns the raw list of active MIDI notes.
- Re‐reads the file if it’s been modified.
+    Reloads notes from <code>active_notes.lua</code> if available.
 
 
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">int[]</span></span>
-        list of MIDI note numbers
+        boolean success
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rebuildState"></a>
+    <strong>rebuildState ()</strong>
+    </dt>
+    <dd>
+    Rebuilds merged state from file and socket sources.
+ Updates <code>activeNotes</code>, <code>activeSteps</code>, and <a href="../modules/backends.note_state.html#minNote">minNote</a>.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "startServer"></a>
+    <strong>startServer ()</strong>
+    </dt>
+    <dd>
+    Starts TCP listener and returns polling function.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        function poll
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "poll"></a>
+    <strong>poll ()</strong>
+    </dt>
+    <dd>
+    Polls TCP socket and reloads file-based notes.
+ Should be called once per frame.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "getActiveNotes"></a>
+    <strong>getActiveNotes ()</strong>
+    </dt>
+    <dd>
+    Returns merged list of active MIDI notes.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table
     </ol>
 
 
@@ -130,22 +213,20 @@ local isBass   = note_state.isNoteBass(5)
     <strong>isNoteActive (stepIndex)</strong>
     </dt>
     <dd>
-    Check if a given circle‐of‐fourths step is active.
+    Checks if a given circle-of-fourths step is active.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">stepIndex</span>
-            <span class="types"><span class="type">int</span></span>
-         1–12 (will be converted internally to 0–11)
+         number Step index (1–12)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">boolean</span></span>
-        true if that step is set in <code>activeSteps</code>
+        boolean
     </ol>
 
 
@@ -157,24 +238,44 @@ local isBass   = note_state.isNoteBass(5)
     <strong>isNoteBass (stepIndex)</strong>
     </dt>
     <dd>
-    Check if a given step is the bass (lowest) active note.
- Compares against the circle‐of‐fourths index of <code>minNote</code>.
+    Checks if a given step is the bass (lowest) active note.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">stepIndex</span>
-            <span class="types"><span class="type">int</span></span>
-         1–12 (converted internally to 0–11)
+         number Step index (1–12)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">boolean</span></span>
-        true if that step equals the bass step
+        boolean
     </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "minNote"></a>
+    <strong>minNote</strong>
+    </dt>
+    <dd>
+    Smallest MIDI note currently active.
+
+
+    <ul>
+        <li><span class="parameter">minNote</span>
+         number
+        </li>
+    </ul>
+
 
 
 
@@ -187,7 +288,7 @@ local isBass   = note_state.isNoteBass(5)
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2025-08-31 17:02:01 </i>
+<i style="float:right;">Last updated 2025-09-01 00:33:59 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

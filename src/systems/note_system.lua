@@ -124,6 +124,7 @@ end
 -- @tparam number dt  Delta time in seconds since last frame
 -- @treturn boolean True if any note or bass state changed
 function NoteSystem:update(dt)
+  NoteState.poll()  -- receive live TCP updates from backend thread
   local changed   = false
   local useOffset = (self.noteMode == "offset")
 

@@ -134,7 +134,7 @@ end
 print(">> Fluidsynth command:", cmd)
 local pipe = assert(io.popen(cmd, "r"))
 
---- Main loop reads control messages and MIDI output lines
+-- Main loop reads control messages and MIDI output lines
 while true do
   local cmd = clearChannel:pop()
   if cmd == "clear" then

@@ -58,11 +58,21 @@
 
 local M = {}
 
-M.backend             = "fluidsynth"
+M.backend             = "null" --fluidsynth"
 M.windowsBackendPath  = "bin\\"
 M.soundfonts          = "FluidR3_GM.sf2" -- soundfonts/musyng-kite/Musyng-Kite.sf2" -- "FluidR3_GM.sf2"
 M.shellPort           = 9800
 M.shellHost           = "localhost"
+
+--- Hostname or IP for the note-state TCP server.
+-- Used by backend threads to send active MIDI notes.
+-- @field noteStateHost string
+M.noteStateHost = "localhost"
+
+--- TCP port for the note-state server.
+-- Backend threads send active MIDI notes to this port.
+-- @field noteStatePort number
+M.noteStatePort = 9810
 
 M.bck_image           = "assets/sky/DaySkyHDRI021A_4K.hdr"
 M.day_night           = 8

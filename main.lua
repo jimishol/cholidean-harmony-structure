@@ -56,6 +56,12 @@ shellHostChannel:push(constants.shellHost)
 shellPortChannel:push(constants.shellPort)
 soundfontChannel:push(constants.soundfonts)
 
+local noteStateHostChannel = love.thread.getChannel("noteStateHost")
+local noteStatePortChannel = love.thread.getChannel("noteStatePort")
+
+noteStateHostChannel:push(constants.noteStateHost)
+noteStatePortChannel:push(constants.noteStatePort)
+
 local playlist = require("src.backends.playlist")
 backendModules.playlist = playlist
 
