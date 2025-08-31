@@ -1,4 +1,5 @@
 # Cholidean Harmony Structure
+![Live TCP Enabled](https://img.shields.io/badge/Live_TCP-Enabled-brightgreen)
 
 [![Theme Image](https://github.com/jimishol/jimishol.github.io/raw/main/tonality/cholidean_structure.png)](https://github.com/jimishol/jimishol.github.io/blob/main/tonality/cholidean_structure.png)
 
