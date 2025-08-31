@@ -17,41 +17,43 @@ This project visualizes harmonic relationships in 12-tone equal temperament (12E
    - Models parametric dodecahedra, joints, ribbon surfaces, and curves arranged in a toroidal helix.
 
 2. 🎛️ **Export**  
-   - Use `export_tones_and_surfaces.sh` to batch export `.stl` files.
+   - Use `export_tones_and_surfaces.sh` to batch-export `.stl` files.
 
 3. 🧽 **MeshLab**  
-   - Apply smoothing using `smoothing_objects.mlx` script.
+   - Apply smoothing using the `smoothing_objects.mlx` script.
 
 4. 🎨 **Blender**  
-   - Import `.obj` files (`Up Axis: Z`)  
-   - Assign materials & HDRI (from [ambientCG](https://ambientcg.com/))  
-   - Use `.hdr` backgrounds (converted from `.exr` via GIMP)  
-   - For normals, `.png` files are used with `Roughness = 1`  
-   - Export `.obj` files (`Up Axis: Y`)  
+   - Import `.obj` files (Up Axis: Z)  
+   - Assign PBR materials & HDRI (from [ambientCG](https://ambientcg.com/))  
+   - Convert `.exr` backgrounds to `.hdr` via GIMP  
+   - Use `.png` normal maps with Roughness = 1  
+   - Export `.obj` files (Up Axis: Y)  
    - **Final Renaming for 3DreamEngine Compatibility:**  
-     To allow correct asset linking and indexing inside the engine, all objects were renamed based on their tonal label following the **circle of perfect fourths**:
+     Rename objects by tonal label following the **circle of perfect fourths**:
+
      ```
      joints_C      → joint_00
      edges_F       → edge_01
      curves_Bb     → curve_02
      surfaces_Eb   → surface_03
-     ...
+     …
      ```
-     This mapping continues cyclically for all 12 tones, assigning suffixes `00–11` and preserving type prefixes (`joint_`, `edge_`, `curve_`, `surface_`).
-     Materials in textures/ subfolder of blender is copied in assets/materials_gl/materials/ subfolder and renamed accordingly with the exception that ...Color.png renamed as albedo.png
+     This continues cyclically for all 12 tones, assigning suffixes `00–11` and preserving type prefixes (`joint_`, `edge_`, `curve_`, `surface_`).
+
+   - Copy Blender’s `textures/` folder into `assets/materials_gl/materials/` and rename files accordingly, except that `*Color.png` becomes `*albedo.png`.
 
 5. 🎮 **Love2D + 3DreamEngine**  
-   - Load processed models and render with real-time shading and interactive behavior.
+   - Load processed models under `assets/models/` and render with real-time shading and interactive behavior.
 
 ---
 
 ## 🎶 Harmony Structure Notes
 
-- Each tone represented by a **dodecahedron** on a toroidal helix (Circle of Fourths)
-- **Modulatory pathways** represented by curves and edges
-- Entire system is parametric and customizable
+- Each tone is represented by a **dodecahedron** on a toroidal helix (Circle of Fourths).  
+- **Modulatory pathways** are represented by curves and edges.  
+- The entire system is parametric and customizable.
 
-Learn more about the theory at [Cholidean Harmony Structure blog post](https://jimishol.github.io/post/tonality/)
+Learn more about the theory at [Cholidean Harmony Structure blog post](https://jimishol.github.io/post/tonality/).
 
 ---
 
@@ -59,55 +61,98 @@ Learn more about the theory at [Cholidean Harmony Structure blog post](https://j
 
 To keep the project self-contained and updatable, key third-party libraries are included using Git subtrees.
 
----
-
 ### 3DreamEngine
 
 🗂️ Paths:
 
-*    Core: 3DreamEngine/3DreamEngine/
+- Core: `3DreamEngine/3DreamEngine/`  
+- Extensions: `3DreamEngine/extensions/`
 
-*    Extensions: 3DreamEngine/extensions/
+#### 1. Initial Integration (Core)
 
-#### 1 **Initial Integration** (Core)
-```
+```bash
 git remote add -f 3DreamEngine https://github.com/3dreamengine/3DreamEngine.git
 git merge -s ours --no-commit --allow-unrelated-histories 3DreamEngine/master
 git read-tree --prefix=3DreamEngine/3DreamEngine/ -u 3DreamEngine/master:3DreamEngine
-git commit -m "Merge in 3DreamEngine/3DreamEngine subtree into 3DreamEngine/"
+git commit -m "Merge in 3DreamEngine/3DreamEngine subtree"
 ```
-**Update** (Core)
-```
+
+**Update (Core)**
+
+```bash
 git fetch 3DreamEngine
 git subtree pull --prefix=3DreamEngine/3DreamEngine 3DreamEngine master --squash
 ```
-#### 2 **Initial Integration** (Extensions)
 
-```
+#### 2. Initial Integration (Extensions)
+
+```bash
 git read-tree --prefix=3DreamEngine/extensions/ -u 3DreamEngine/master:extensions
-git commit -m "Import 3DreamEngine extensions into root/Extensions/"
+git commit -m "Import 3DreamEngine extensions subtree"
 ```
-**Update** (Extensions)
-```
+
+**Update (Extensions)**
+
+```bash
 git fetch 3DreamEngine
 git subtree pull --prefix=3DreamEngine/extensions 3DreamEngine master --squash
 ```
 
-🧰 Tips for Development & Branching
+**Tips for Development & Branching**
 
-   Use feature branches (e.g. insert_mats) to test integrations before merging to main
+- Use feature branches (e.g., `insert_mats`) to test integrations before merging to `main`.  
+- Commit or stash local changes before running any subtree pull.  
+- Automate updates with:
 
-   All subtree operations should be committed with descriptive messages
+  ```bash
+  ./asset_pipeline/update-libs.sh
+  ```
 
-   Always commit or stash local changes before running subtree pull
+  You’ll see:
+  
+  ```
+  ✅ All subtrees updated and version log written to asset_pipeline/lib_versions.md
+  ```
 
-   From project's root directory, you can run
-```    
-    ./asset_pipeline/update-libs.sh
-```
-   to automate library updates. You’ll see the subtrees update, followed by the message:
-   ✅ All subtrees updated and version log written to asset_pipeline/lib_versions.md
-
-⚠️ Caution: Using Git LFS with an embedded 3DreamEngine can easily push your repository beyond 5 GB due to ~4+ GB of unnecessary history blobs. Review your workflow carefully—certain commands that add large binaries or rewrite history can trigger a data flood.
+⚠️ **Caution:** Avoid adding large binaries or full histories via Git LFS; keep the repo under 5 GB.
 
 ---
+
+## 🛠️ For Backend Developers
+
+Any backend just needs to emit real-time note ON/OFF events. Under the hood, `src/backends/init.lua` looks for a module implementing this **Backend API**:
+
+### Backend API
+
+Each backend module (e.g., `fluidsynth.lua`, `null.lua`) must return a table with:
+
+1. `start(config)`  
+   - Launches the backend thread or subprocess.  
+   - Receives a `config` table with these Love2D channel keys:
+     - `backend` (string): executable name (e.g., `"fluidsynth"`)  
+     - `soundfonts` (string): path to SoundFont file  
+     - `songs` (string): comma-separated MIDI file list  
+     - `shellHost` / `shellPort` (string/int): TCP host & port  
+     - `platform` (string): OS identifier (`"linux"`, `"windows"`, etc.)  
+     - `track_control` (boolean): whether to clear active notes on start
+
+2. `stop()`  
+   - Gracefully stops playback, kills the subprocess or thread, closes all channels, and ensures `active_notes.lua` is not left behind.  
+   - Invoked when switching backends or on application exit.
+
+3. `sendCommand(cmd: string)` _(optional)_  
+   - Pushes a raw command (play, pause, set tempo, etc.) to the backend’s stdin or TCP socket.
+
+4. `quit()` _(alias of `stop()`)_  
+   - Called from `love.quit()` for final cleanup.
+
+> **Note:**  
+> - `stop()` and `quit()` must finish synchronously—no orphaned processes or hanging threads.  
+> - Failure to shut down cleanly will leave zombie backends or stale `active_notes.lua` files.
+
+Once implemented, the core engine will:
+- Spawn your backend in a Love2D thread.  
+- Manage shared channels.  
+- Read `active_notes.lua` each frame for live visualization.
+
+That’s it—drop your Lua module in `src/backends/`, follow this API, and your backend will “just work.” 🎹🔗
