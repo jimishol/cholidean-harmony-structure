@@ -1,30 +1,40 @@
---- Active‐notes tracker thread for the Fluidsynth backend.
--- Spawns the Fluidsynth process, listens for MIDI note‐on/off events,
--- maintains a table of currently active notes, and writes them
--- to a Lua file (`active_notes.lua`) for consumption by the main thread.
--- Listens for "clear" to reset the note table and "quit" to exit cleanly.
+--- Active-notes tracker thread for the Fluidsynth backend.
+-- Spawns the Fluidsynth process, listens for MIDI note-on/off events,
+-- maintains a table of currently active notes, and sends them
+-- over TCP to the note-state server. Listens for "clear" to reset
+-- the note table and "quit" to exit cleanly.
 -- @module src.backends.fluidsynth.track_active_notes_thread
+
+local socket = require("socket")
+local timer  = require("love.timer")
 
 local clearChannel    = love.thread.getChannel("track_control")
 local platformChannel = love.thread.getChannel("platform")
-local platform        = platformChannel:peek()
-
-local backendChannel   = love.thread.getChannel("backend")
+local backendChannel  = love.thread.getChannel("backend")
 local soundfontChannel = love.thread.getChannel("soundfonts")
 local songsChannel     = love.thread.getChannel("songs")
 
-local backend   = backendChannel:peek()
-local soundfont = soundfontChannel:peek()
-local songList  = songsChannel:peek()
-local shellPort = love.thread.getChannel("shellPort"):peek()
-local shellHost = love.thread.getChannel("shellHost"):peek()
+local platform   = platformChannel:peek()
+local backend    = backendChannel:peek()
+local soundfont  = soundfontChannel:peek()
+local songList   = songsChannel:peek()
+local shellPort  = love.thread.getChannel("shellPort"):peek()
+local shellHost  = love.thread.getChannel("shellHost"):peek()
 
-local output_file  = "active_notes.lua"
+local noteStateHost = love.thread.getChannel("noteStateHost"):peek() or "localhost"
+local noteStatePort = tonumber(love.thread.getChannel("noteStatePort"):peek()) or 9810
+
 local active_notes = {}
 
---- Dump active notes to disk
--- Writes a sorted list of unique MIDI note keys into `active_notes.lua`.
-local function dump_active()
+local client = assert(socket.tcp())
+client:settimeout(0)
+client:connect(noteStateHost, noteStatePort)
+print("Connected to note-state server:", noteStateHost, noteStatePort)
+
+--- Sends the current set of active notes to the TCP server.
+-- Converts the internal note table to a comma-separated list.
+-- @local
+local function send_active()
   local set = {}
   for _, note in pairs(active_notes) do
     set[note.key] = true
@@ -34,21 +44,14 @@ local function dump_active()
   for k in pairs(set) do table.insert(list, k) end
   table.sort(list)
 
-  local f = assert(io.open(output_file, "w"))
-  f:write("-- Auto‐generated active MIDI notes\nreturn {\n")
-  for _, n in ipairs(list) do
-    f:write(string.format("    %d,\n", n))
-  end
-  f:write("}\n")
-  f:close()
+  local payload = table.concat(list, ",")
+  client:send(payload .. "\n")
 end
 
--- initial dump (empty set)
-dump_active()
-
---- Read a VFS file and write it to a real temp file
--- @tparam string vpath  Virtual path inside LÖVE's filesystem
--- @treturn string       OS path to the temporary file
+--- Reads a virtual file and writes it to a temporary OS file.
+-- Used for SoundFont and MIDI asset preparation.
+-- @param vpath string Virtual path inside LÖVE filesystem
+-- @return string OS path to the dumped file
 local function dumpToTemp(vpath)
   local data = assert(love.filesystem.read(vpath),
                       "Cannot read virtual asset: "..vpath)
@@ -64,9 +67,9 @@ local function dumpToTemp(vpath)
   return out
 end
 
---- Escape an OS path for safe shell invocation
--- @tparam string path  Raw OS file path
--- @treturn string      Quoted/escaped shell path
+--- Escapes an OS path for safe shell usage.
+-- @param path string Raw path
+-- @return string Escaped shell-safe path
 local function shellEscape(path)
   if platform == "windows" then
     return '"' .. path:gsub('"', '\\"') .. '"'
@@ -76,7 +79,6 @@ local function shellEscape(path)
   end
 end
 
--- Resolve SoundFont: explicit, root‐dropped, or system default
 local sfPathOS
 if soundfont and soundfont ~= "" and love.filesystem.getInfo(soundfont, "file") then
   sfPathOS = dumpToTemp(soundfont)
@@ -87,10 +89,8 @@ else
       break
     end
   end
-  -- if still nil, let Fluidsynth load its system default
 end
 
--- Build a list of real OS MIDIs (dumped then escaped)
 local songListOS = {}
 for token in songList:gmatch("%S+") do
   local vpath = token:gsub("^['\"]*(.-)['\"]*$", "%1")
@@ -100,10 +100,8 @@ for token in songList:gmatch("%S+") do
   end
 end
 
--- Fallback host
 shellHost = (shellHost and shellHost ~= "") and shellHost or "localhost"
 
--- Construct Fluidsynth command prefix
 local prefix
 if platform == "windows" then
   local winBackPath = love.thread.getChannel("winBackPath"):peek()
@@ -122,7 +120,6 @@ end
 
 print(string.format("Binding Fluidsynth shell to %s:%d", shellHost, shellPort))
 
--- Assemble final command
 local cmd = prefix
 if sfPathOS then
   cmd = cmd .. " " .. shellEscape(sfPathOS)
@@ -134,12 +131,11 @@ end
 print(">> Fluidsynth command:", cmd)
 local pipe = assert(io.popen(cmd, "r"))
 
--- Main loop reads control messages and MIDI output lines
 while true do
   local cmd = clearChannel:pop()
   if cmd == "clear" then
     active_notes = {}
-    dump_active()
+    send_active()
   elseif cmd == "quit" then
     break
   end
@@ -150,14 +146,16 @@ while true do
   local ch, key = line:match("noteon%s+(%d+)%s+(%d+)%s+%d+")
   if ch then
     active_notes[ch..":"..key] = { channel=tonumber(ch), key=tonumber(key) }
-    dump_active()
+    send_active()
   else
     local ch2, key2 = line:match("noteoff%s+(%d+)%s+(%d+)")
     if ch2 then
       active_notes[ch2..":"..key2] = nil
-      dump_active()
+      send_active()
     end
   end
 end
 
+client:send("\n")
+client:close()
 pipe:close()
