@@ -1,8 +1,7 @@
---- Active‐notes tracker thread for the Fluidsynth backend.
+--- Active‐notes tracker thread for the Fluidsynth backend (Channel version).
 -- Spawns the Fluidsynth process, listens for MIDI note‐on/off events,
--- maintains a table of currently active notes, and writes them
--- to a Lua file (`active_notes.lua`) for consumption by the main thread.
--- @module src.backends.fluidsynth.track_active_notes_thread
+-- maintains a table of currently active notes, and publishes them
+-- to a shared thread channel ("active_notes") for consumption by the main thread.
 
 local clearChannel    = love.thread.getChannel("track_control")
 local platformChannel = love.thread.getChannel("platform")
@@ -17,11 +16,13 @@ local soundfont = soundfontChannel:peek()   -- may be nil or "" for system defau
 local songList  = songsChannel:peek()       -- space-separated VFS paths
 local shellPort = love.thread.getChannel("shellPort"):peek()
 
-local output_file = "active_notes.lua"
+-- NEW: channel for publishing active notes
+local notesChannel = love.thread.getChannel("active_notes")
+
 local active_notes = {}
 
--- Dump active notes to disk
-local function dump_active()
+-- Publish active notes to channel (instead of writing to disk)
+local function publish_active()
   local set = {}
   for _, note in pairs(active_notes) do
     set[note.key] = true
@@ -31,16 +32,13 @@ local function dump_active()
   for k in pairs(set) do table.insert(list, k) end
   table.sort(list)
 
-  local f = assert(io.open(output_file, "w"))
-  f:write("-- Auto‐generated active MIDI notes\nreturn {\n")
-  for _, n in ipairs(list) do
-    f:write(string.format("    %d,\n", n))
-  end
-  f:write("}\n")
-  f:close()
+  -- Clear old snapshot so peek() always sees the latest
+  notesChannel:clear()
+  notesChannel:push(list)
 end
 
-dump_active()
+-- Initial publish (empty list)
+publish_active()
 
 -- read a VFS file and write it to a real temp file
 local function dumpToTemp(vpath)
@@ -61,10 +59,8 @@ end
 -- shell-escape an OS path
 local function shellEscape(path)
   if platform == "windows" then
-    -- wrap in double-quotes
     return '"' .. path:gsub('"', '\\"') .. '"'
   else
-    -- wrap in single-quotes, escape internal single-quotes
     local escaped = path:gsub("'", "'\\''")
     return "'" .. escaped .. "'"
   end
@@ -81,7 +77,6 @@ else
       break
     end
   end
-  -- if still nil, omit and let Fluidsynth load its system default
 end
 
 -- Build a list of real OS MIDIs (dumped then escaped)
@@ -93,12 +88,6 @@ for token in songList:gmatch("%S+") do
     table.insert(songListOS, shellEscape(realPath))
   end
 end
--- (optional) fallback:
--- if #songListOS == 0 then
---   table.insert(songListOS,
---     shellEscape(dumpToTemp("assets/Beethoven_Fur_Elise.mid"))
---   )
--- end
 
 -- Construct the executable + options prefix
 local prefix
@@ -117,11 +106,9 @@ end
 
 -- Assemble final command
 local cmd = prefix
-
 if sfPathOS then
   cmd = cmd .. " " .. shellEscape(sfPathOS)
 end
-
 if #songListOS > 0 then
   cmd = cmd .. " " .. table.concat(songListOS, " ")
 end
@@ -132,7 +119,7 @@ local pipe = assert(io.popen(cmd, "r"))
 while true do
   if clearChannel:pop() == "clear" then
     active_notes = {}
-    dump_active()
+    publish_active()
   end
 
   local line = pipe:read("*l")
@@ -141,12 +128,12 @@ while true do
   local ch, key = line:match("noteon%s+(%d+)%s+(%d+)%s+%d+")
   if ch then
     active_notes[ch..":"..key] = { channel=tonumber(ch), key=tonumber(key) }
-    dump_active()
+    publish_active()
   else
     local ch2, key2 = line:match("noteoff%s+(%d+)%s+(%d+)")
     if ch2 then
       active_notes[ch2..":"..key2] = nil
-      dump_active()
+      publish_active()
     end
   end
 end

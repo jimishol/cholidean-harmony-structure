@@ -1,47 +1,60 @@
---- Null backend stub for the active‐notes tracking thread.
--- Clears any initial channel data so real backends aren’t confused,
--- then idles until the main thread signals it to quit.
--- @module src.backends.null.track_active_notes_thread
+--- Null backend stub for the active‐notes tracking thread (Channel + file pass-through).
+-- Clears active_notes.lua at startup, then reads it from disk and pushes its contents
+-- into the "active_notes" channel so note_state.lua can still work in channel mode.
 
---- Channel on which a “quit” signal is sent by the main thread.
--- @local quit_channel love.thread.Channel
 local quit_channel    = love.thread.getChannel("quit")
-
---- Incoming backend identifier channel (cleared and ignored).
--- @local backend_channel love.thread.Channel
 local backend_channel = love.thread.getChannel("backend")
-
---- Incoming shellPort channel (cleared and ignored).
--- @local port_channel love.thread.Channel
 local port_channel    = love.thread.getChannel("shellPort")
-
---- Incoming shellHost channel (cleared and ignored).
--- @local host_channel love.thread.Channel
 local host_channel    = love.thread.getChannel("shellHost")
-
---- Incoming soundfont channel (cleared and ignored).
--- @local font_channel love.thread.Channel
 local font_channel    = love.thread.getChannel("soundfont")
-
---- Incoming songs list channel (cleared and ignored).
--- @local songs_channel love.thread.Channel
 local songs_channel   = love.thread.getChannel("songs")
 
--- clear any startup chatter so real backends aren’t confused
+-- Channel for active notes
+local notesChannel    = love.thread.getChannel("active_notes")
+
+-- clear any startup chatter
 backend_channel:pop()
 port_channel:pop()
 host_channel:pop()
 font_channel:pop()
 songs_channel:pop()
 
---- Love timer module for sleeping in the idle loop.
--- @local timer love.timer
 local timer = require("love.timer")
 
--- Idle loop: sleeps until the main thread pushes “quit” onto quit_channel.
+-- Path to the file we want to pass through
+local notesFile = "active_notes.lua"
+
+-- Clear the file at startup so we don't start with stale notes
+local function clear_notes_file()
+    local f = io.open(notesFile, "w")
+    if f then
+        f:write("-- Auto‐generated active MIDI notes\nreturn {}\n")
+        f:close()
+    end
+end
+
+-- Function to try reading the file and pushing it to the channel
+local function publish_from_file()
+    local ok, data = pcall(dofile, notesFile)
+    if ok and type(data) == "table" then
+        notesChannel:clear()
+        notesChannel:push(data)
+    else
+        -- If file missing or invalid, push empty list
+        notesChannel:clear()
+        notesChannel:push({})
+    end
+end
+
+-- Clear file and publish empty list immediately
+clear_notes_file()
+publish_from_file()
+
+-- Idle loop: refresh from file until quit
 while true do
-  if quit_channel:peek() == "quit" then
-    break
-  end
-  timer.sleep(1)
+    if quit_channel:peek() == "quit" then
+        break
+    end
+    publish_from_file()
+    timer.sleep(0.05) -- refresh every 50ms
 end
