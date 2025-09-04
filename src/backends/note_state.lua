@@ -4,16 +4,25 @@
 
 local notesChannel = love.thread.getChannel("active_notes")
 
+-- Cached raw list of active MIDI notes
 local activeNotes = {}
+
+-- Cached map of active circle‐of‐fourths steps → boolean
 local activeSteps = {}
+
+-- Cached smallest MIDI note number seen
 local minNote
 
+-- Circle‐of‐fourths reverse map (pc 0–11 → step0 0–11)
 local circleOfFourthsPC = { 0, 5, 10, 3, 8, 1, 6, 11, 4, 9, 2, 7 }
+
+-- Reverse lookup table (pc → step0)
 local fourthIndex = {}
 for i, pc in ipairs(circleOfFourthsPC) do
   fourthIndex[pc] = i - 1
 end
 
+-- Reload from the "active_notes" channel and rebuild activeSteps and minNote
 local function reloadFromChannel()
   local newList = notesChannel:peek()
   if type(newList) == "table" then
@@ -35,21 +44,25 @@ local function reloadFromChannel()
   end
 end
 
+-- Initialize state on module load
 reloadFromChannel()
 
 local M = {}
 
+-- Returns the raw list of active MIDI notes
 function M.getActiveNotes()
   reloadFromChannel()
   return activeNotes
 end
 
+-- Check if a given circle‐of‐fourths step is active
 function M.isNoteActive(stepIndex)
   reloadFromChannel()
   local step0 = (stepIndex - 1) % 12
   return activeSteps[step0] == true
 end
 
+-- Check if a given step is the bass (lowest) active note
 function M.isNoteBass(stepIndex)
   reloadFromChannel()
   local step0 = (stepIndex - 1) % 12

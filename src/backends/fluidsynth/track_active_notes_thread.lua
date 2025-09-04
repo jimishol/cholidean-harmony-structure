@@ -1,27 +1,47 @@
 --- Active‐notes tracker thread for the Fluidsynth backend (Channel version).
 -- Spawns the Fluidsynth process, listens for MIDI note‐on/off events,
 -- maintains a table of currently active notes, and publishes them
--- to a shared thread channel ("active_notes") for consumption by the main thread.
+-- to a shared thread channel (`"active_notes"`) for consumption by the main thread.
+-- @module src.backends.fluidsynth.track_active_notes_thread
 
+--- Channel for receiving "clear" commands from the main thread.
+-- @local
 local clearChannel    = love.thread.getChannel("track_control")
+
+--- Channel providing the current platform name (e.g. "windows", "linux").
+-- @local
 local platformChannel = love.thread.getChannel("platform")
 local platform        = platformChannel:peek()
 
+--- Channel providing the backend executable name/path.
+-- @local
 local backendChannel   = love.thread.getChannel("backend")
+
+--- Channel providing the selected SoundFont path (may be nil or empty).
+-- @local
 local soundfontChannel = love.thread.getChannel("soundfonts")
+
+--- Channel providing the list of songs to play (space‐separated VFS paths).
+-- @local
 local songsChannel     = love.thread.getChannel("songs")
 
 local backend   = backendChannel:peek()
-local soundfont = soundfontChannel:peek()   -- may be nil or "" for system default
-local songList  = songsChannel:peek()       -- space-separated VFS paths
+local soundfont = soundfontChannel:peek()
+local songList  = songsChannel:peek()
 local shellPort = love.thread.getChannel("shellPort"):peek()
 
--- NEW: channel for publishing active notes
+--- Channel for publishing the current active notes list to the main thread.
+-- @local
 local notesChannel = love.thread.getChannel("active_notes")
 
+--- Table of currently active notes, keyed by "channel:key" string.
+-- Each value is a table with `channel` and `key` fields.
+-- @local
 local active_notes = {}
 
--- Publish active notes to channel (instead of writing to disk)
+--- Publish the current active notes to the `"active_notes"` channel.
+-- Deduplicates by note key, sorts ascending, clears the channel, and pushes the list.
+-- @local
 local function publish_active()
   local set = {}
   for _, note in pairs(active_notes) do
@@ -40,7 +60,9 @@ end
 -- Initial publish (empty list)
 publish_active()
 
--- read a VFS file and write it to a real temp file
+--- Read a VFS file and write it to a real temporary file.
+-- @tparam string vpath Virtual filesystem path
+-- @treturn string OS path to the temporary file
 local function dumpToTemp(vpath)
   local data = assert(love.filesystem.read(vpath),
                       "Cannot read virtual asset: "..vpath)
@@ -56,7 +78,9 @@ local function dumpToTemp(vpath)
   return out
 end
 
--- shell-escape an OS path
+--- Shell‐escape an OS path for safe command‐line usage.
+-- @tparam string path OS path
+-- @treturn string Escaped path
 local function shellEscape(path)
   if platform == "windows" then
     return '"' .. path:gsub('"', '\\"') .. '"'
@@ -66,7 +90,7 @@ local function shellEscape(path)
   end
 end
 
--- Resolve SoundFont: explicit, root-dropped, or system default
+-- Resolve SoundFont: explicit, root‐dropped, or system default
 local sfPathOS
 if soundfont and soundfont ~= "" and love.filesystem.getInfo(soundfont, "file") then
   sfPathOS = dumpToTemp(soundfont)
@@ -116,6 +140,7 @@ end
 print(">> Fluidsynth command:", cmd)
 local pipe = assert(io.popen(cmd, "r"))
 
+-- Main event loop: listens for clear commands and note events
 while true do
   if clearChannel:pop() == "clear" then
     active_notes = {}
