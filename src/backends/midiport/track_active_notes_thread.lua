@@ -1,4 +1,4 @@
---- Null backend stub for the active‐notes tracking thread (Channel + file pass-through).
+--- midiport backend stub for the active‐notes tracking thread (Channel + file pass-through).
 local quit_channel    = love.thread.getChannel("quit")
 local backend_channel = love.thread.getChannel("backend")
 local port_channel    = love.thread.getChannel("shellPort")
@@ -7,6 +7,7 @@ local font_channel    = love.thread.getChannel("soundfont")
 local songs_channel   = love.thread.getChannel("songs")
 local notesChannel    = love.thread.getChannel("active_notes")
 
+-- Clear startup chatter
 backend_channel:pop()
 port_channel:pop()
 host_channel:pop()
@@ -16,6 +17,7 @@ songs_channel:pop()
 local timer     = require("love.timer")
 local notesFile = "active_notes.lua"
 
+-- Clear the file at startup
 local function clear_notes_file()
     local f = io.open(notesFile, "w")
     if f then
@@ -43,30 +45,36 @@ local function merge_unique(t1, t2)
 end
 
 ---------------------------------------------------------
--- Pseudo-sniffer: simulates reading from ALSA port 14:0
+-- Pseudo-sniffer: continuous looping simulation
 ---------------------------------------------------------
 local active_notes = {} -- keyed by "channel:key"
 
-local function sniff()
-    -- Simulate some note events
-    -- In real code, this would read from ALSA and update active_notes
-    -- Here we just fake a sequence
+-- Define a repeating pattern of events: {step, channel, key, velocity}
+local events = {
+    {0, 0, 62, 100}, {0, 0, 71, 100}, -- D4, B4 on
+    {1, 0, 62,   0}, {1, 0, 67, 100}, -- D4 off, G4 on
+    {2, 0, 71,   0},                   -- B4 off
+    {3, 0, 67, 100}, {3, 0, 60, 100}, {3, 0, 53, 100}, -- chord
+}
 
-    -- Example: toggle some notes every call
-    local t = os.time() % 4
-    if t == 0 then
-        active_notes["0:62"] = { channel=0, key=62 } -- D4
-        active_notes["0:71"] = { channel=0, key=71 } -- B4
-    elseif t == 1 then
-        active_notes["0:62"] = nil -- note off D4
-        active_notes["0:67"] = { channel=0, key=67 } -- D5
-    elseif t == 2 then
-        active_notes["0:60"] = nil -- note off B4
-    elseif t == 3 then
-        active_notes["0:67"] = { channel=0, key=67 }
-        active_notes["0:60"] = { channel=0, key=60 }
-        active_notes["0:53"] = { channel=0, key=53 }
+local step = 0
+local max_step = 3 -- highest step index in events
+
+local function sniff()
+    -- Apply all events for this step
+    for _, ev in ipairs(events) do
+        local ev_step, ch, key, vel = ev[1], ev[2], ev[3], ev[4]
+        if ev_step == step and ch ~= 9 then
+            if vel > 0 then
+                active_notes[ch..":"..key] = { channel = ch, key = key }
+            else
+                active_notes[ch..":"..key] = nil
+            end
+        end
     end
+
+    -- Advance step, loop back to 0
+    step = (step + 1) % (max_step + 1)
 
     -- Deduplicate by key and return sorted list
     local set, list = {}, {}
@@ -93,14 +101,25 @@ local function publish_from_file(sniff_list)
 end
 
 ---------------------------------------------------------
--- Main loop
+-- Main loop: fast sniff, throttled publish
 ---------------------------------------------------------
 clear_notes_file()
 publish_from_file({})
 
+local last_publish = 0
 while true do
     if quit_channel:peek() == "quit" then break end
-    local sniff_list = sniff() -- get pseudo-active notes
-    publish_from_file(sniff_list)
-    timer.sleep(0.05)
+
+    -- Always sniff quickly
+    local sniff_list = sniff()
+
+    -- Publish only if enough time has passed
+    local now = love.timer.getTime()
+    if now - last_publish >= 0.02 then -- ~50 Hz publish
+        publish_from_file(sniff_list)
+        last_publish = now
+    end
+
+    -- Small sleep to avoid pegging CPU
+    timer.sleep(0.002) -- ~500 Hz sniff
 end
