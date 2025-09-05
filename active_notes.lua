@@ -1,2 +1,2 @@
--- Auto‐generated active MIDI notes
+-- Auto-generated active MIDI notes
 return {}

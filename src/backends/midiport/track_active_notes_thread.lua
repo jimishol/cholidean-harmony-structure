@@ -1,4 +1,8 @@
---- midiport backend stub for the active‐notes tracking thread (Channel + file pass-through).
+-- midiport backend thread: active-notes tracking via ALSA FFI
+
+---------------------------------------------------------
+-- Thread channels
+---------------------------------------------------------
 local quit_channel    = love.thread.getChannel("quit")
 local backend_channel = love.thread.getChannel("backend")
 local port_channel    = love.thread.getChannel("shellPort")
@@ -14,19 +18,20 @@ host_channel:pop()
 font_channel:pop()
 songs_channel:pop()
 
+---------------------------------------------------------
+-- Utilities
+---------------------------------------------------------
 local timer     = require("love.timer")
 local notesFile = "active_notes.lua"
 
--- Clear the file at startup
 local function clear_notes_file()
     local f = io.open(notesFile, "w")
     if f then
-        f:write("-- Auto‐generated active MIDI notes\nreturn {}\n")
+        f:write("-- Auto-generated active MIDI notes\nreturn {}\n")
         f:close()
     end
 end
 
--- Merge two lists without duplicates
 local function merge_unique(t1, t2)
     local seen, result = {}, {}
     for _, v in ipairs(t1) do
@@ -45,43 +50,113 @@ local function merge_unique(t1, t2)
 end
 
 ---------------------------------------------------------
--- Pseudo-sniffer: continuous looping simulation
+-- ALSA FFI setup
 ---------------------------------------------------------
-local active_notes = {} -- keyed by "channel:key"
+local ffi = require("ffi")
+local bit = require("bit")
 
--- Define a repeating pattern of events: {step, channel, key, velocity}
-local events = {
-    {0, 0, 62, 100}, {0, 0, 71, 100}, -- D4, B4 on
-    {1, 0, 62,   0}, {1, 0, 67, 100}, -- D4 off, G4 on
-    {2, 0, 71,   0},                   -- B4 off
-    {3, 0, 67, 100}, {3, 0, 60, 100}, {3, 0, 53, 100}, -- chord
-}
+ffi.cdef[[
+typedef struct _snd_seq snd_seq_t;
+typedef struct _snd_seq_event snd_seq_event_t;
 
-local step = 0
-local max_step = 3 -- highest step index in events
+typedef struct {
+    unsigned char channel;
+    unsigned char note;
+    unsigned char velocity;
+    unsigned char off_velocity;
+    unsigned int  duration;
+} snd_seq_ev_note_t;
+
+typedef union {
+    snd_seq_ev_note_t note;
+    unsigned char raw8[12];
+    unsigned int  raw32[3];
+} snd_seq_event_data_t;
+
+struct _snd_seq_event {
+    unsigned char type;
+    unsigned char flags;
+    unsigned char tag;
+    unsigned char queue;
+    unsigned char dest_client;
+    unsigned char dest_port;
+    unsigned char src_client;
+    unsigned char src_port;
+    unsigned char reserved[8];
+    snd_seq_event_data_t data;
+};
+
+int snd_seq_open(snd_seq_t **handle, const char *name, int streams, int mode);
+int snd_seq_set_client_name(snd_seq_t *handle, const char *name);
+int snd_seq_create_simple_port(snd_seq_t *handle, const char *name,
+                               unsigned int caps, unsigned int type);
+int snd_seq_connect_from(snd_seq_t *handle, int myport, int src_client, int src_port);
+int snd_seq_event_input(snd_seq_t *handle, snd_seq_event_t **ev);
+int snd_seq_nonblock(snd_seq_t *handle, int nonblock);
+void snd_seq_free_event(snd_seq_event_t *ev);
+int snd_seq_client_id(snd_seq_t *handle);
+
+static const int SND_SEQ_OPEN_DUPLEX = 3;
+static const int SND_SEQ_NONBLOCK    = 1;
+
+static const int SND_SEQ_EVENT_NOTEON  = 6;
+static const int SND_SEQ_EVENT_NOTEOFF = 7;
+
+static const unsigned int SND_SEQ_PORT_CAP_WRITE      = 2;
+static const unsigned int SND_SEQ_PORT_CAP_SUBS_WRITE = 256;
+static const unsigned int SND_SEQ_PORT_TYPE_MIDI_GENERIC = 1;
+]]
+
+local C = ffi.load("asound")
+
+-- Open ALSA sequencer in duplex mode
+local seqpp = ffi.new("snd_seq_t*[1]")
+assert(C.snd_seq_open(seqpp, "default", C.SND_SEQ_OPEN_DUPLEX, 0) == 0, "snd_seq_open failed")
+local seq = seqpp[0]
+C.snd_seq_set_client_name(seq, "cholidean-ffi-backend")
+
+-- Create a writable port to receive from source
+local caps  = bit.bor(C.SND_SEQ_PORT_CAP_WRITE, C.SND_SEQ_PORT_CAP_SUBS_WRITE)
+local ptype = C.SND_SEQ_PORT_TYPE_MIDI_GENERIC
+local myport = C.snd_seq_create_simple_port(seq, "listen", caps, ptype)
+assert(myport >= 0, "create_simple_port failed")
+
+-- Show our client:port for debugging
+local cid = C.snd_seq_client_id(seq)
+print(string.format("[midiport backend] ALSA client:port is %d:0", cid))
+
+-- Connect from 14:0 (Midi Through) — adjust if needed
+assert(C.snd_seq_connect_from(seq, myport, 14, 0) == 0, "connect_from 14:0 failed")
+C.snd_seq_nonblock(seq, C.SND_SEQ_NONBLOCK)
+
+---------------------------------------------------------
+-- Real ALSA sniffer
+---------------------------------------------------------
+local ACTIVE = {}
 
 local function sniff()
-    -- Apply all events for this step
-    for _, ev in ipairs(events) do
-        local ev_step, ch, key, vel = ev[1], ev[2], ev[3], ev[4]
-        if ev_step == step and ch ~= 9 then
-            if vel > 0 then
-                active_notes[ch..":"..key] = { channel = ch, key = key }
-            else
-                active_notes[ch..":"..key] = nil
+    while true do
+        local evpp = ffi.new("snd_seq_event_t*[1]")
+        local r = C.snd_seq_event_input(seq, evpp)
+        if r < 0 then break end
+        local ev = evpp[0]
+        local t  = ev.type
+        local ch = ev.data.note.channel
+        local key = ev.data.note.note
+        local vel = ev.data.note.velocity
+        if t == C.SND_SEQ_EVENT_NOTEON or t == C.SND_SEQ_EVENT_NOTEOFF then
+            if ch ~= 9 then
+                if t == C.SND_SEQ_EVENT_NOTEOFF or vel == 0 then
+                    ACTIVE[key] = nil
+                else
+                    ACTIVE[key] = true
+                end
             end
         end
+        C.snd_seq_free_event(ev)
     end
-
-    -- Advance step, loop back to 0
-    step = (step + 1) % (max_step + 1)
-
-    -- Deduplicate by key and return sorted list
-    local set, list = {}, {}
-    for _, note in pairs(active_notes) do
-        set[note.key] = true
-    end
-    for k in pairs(set) do table.insert(list, k) end
+    local list = {}
+    for k in pairs(ACTIVE) do table.insert(list, k) end
     table.sort(list)
     return list
 end
