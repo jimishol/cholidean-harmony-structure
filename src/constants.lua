@@ -58,7 +58,7 @@
 
 local M = {}
 
-M.backend             = "fluidsynth"
+M.backend             = "midiport" --fluidsynth"
 M.windowsBackendPath  = "bin\\"
 M.soundfonts          = "FluidR3_GM.sf2"
 M.shellPort           = 9800
