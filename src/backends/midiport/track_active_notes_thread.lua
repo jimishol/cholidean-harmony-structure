@@ -59,13 +59,13 @@ local function sniff()
         active_notes["0:71"] = { channel=0, key=71 } -- B4
     elseif t == 1 then
         active_notes["0:62"] = nil -- note off D4
-        active_notes["0:74"] = { channel=0, key=74 } -- D5
+        active_notes["0:67"] = { channel=0, key=67 } -- D5
     elseif t == 2 then
-        active_notes["0:71"] = nil -- note off B4
+        active_notes["0:60"] = nil -- note off B4
     elseif t == 3 then
-        active_notes["0:62"] = { channel=0, key=62 }
-        active_notes["0:71"] = { channel=0, key=71 }
-        active_notes["0:74"] = { channel=0, key=74 }
+        active_notes["0:67"] = { channel=0, key=67 }
+        active_notes["0:60"] = { channel=0, key=60 }
+        active_notes["0:53"] = { channel=0, key=53 }
     end
 
     -- Deduplicate by key and return sorted list
