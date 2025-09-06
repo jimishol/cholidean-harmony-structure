@@ -31,10 +31,6 @@
   <li><a href="../index.html">Index</a></li>
 </ul>
 
-<h2>Contents</h2>
-<ul>
-<li><a href="#Functions">Functions</a></li>
-</ul>
 
 
 <h2>Modules</h2>
@@ -45,11 +41,11 @@
   <li><a href="../modules/src.backends.html">src.backends</a></li>
   <li><a href="../modules/src.backends.midiport.backend_controls.html">src.backends.midiport.backend_controls</a></li>
   <li><a href="../modules/src.backends.fluidsynth.command_menu.html">src.backends.fluidsynth.command_menu</a></li>
-  <li><a href="../modules/src.backends.midiport.track_active_notes_thread.html">src.backends.midiport.track_active_notes_thread</a></li>
+  <li><strong>src.backends.midiport.track_active_notes_thread</strong></li>
   <li><a href="../modules/src.backends.null.backend_controls.html">src.backends.null.backend_controls</a></li>
   <li><a href="../modules/src.backends.null.command_menu.html">src.backends.null.command_menu</a></li>
   <li><a href="../modules/src.backends.null.track_active_notes_thread.html">src.backends.null.track_active_notes_thread</a></li>
-  <li><strong>src.backends.playlist</strong></li>
+  <li><a href="../modules/src.backends.playlist.html">src.backends.playlist</a></li>
   <li><a href="../modules/src.backends.camera.html">src.backends.camera</a></li>
   <li><a href="../modules/constants.html">constants</a></li>
   <li><a href="../modules/src.input.actions.html">src.input.actions</a></li>
@@ -68,47 +64,19 @@
 
 <div id="content">
 
-<h1>Module <code>src.backends.playlist</code></h1>
-<p>Playlist backend for retrieving MIDI files from &lsquo;midi_files&rsquo; directory.</p>
-<p> Assumes the folder always exists (main.lua bootstraps it).</p>
+<h1>Module <code>src.backends.midiport.track_active_notes_thread</code></h1>
+<p>Active-notes tracker thread for the midiport backend.</p>
+<p> Reads raw ALSA MIDI events, maintains a table of currently
+ active notes, and publishes them at ~50 Hz over the
+ <code>active_notes</code> channel. Exits cleanly when <code>&quot;quit&quot;</code> is
+ received on the <code>quit</code> channel.</p>
 
 
-<h2><a href="#Functions">Functions</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#getSelectedSongs">getSelectedSongs ()</a></td>
-	<td class="summary">Retrieve and process MIDI files from &lsquo;midi_files&rsquo; directory.</td>
-	</tr>
-</table>
 
 <br/>
 <br/>
 
 
-    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
-
-    <dl class="function">
-    <dt>
-    <a name = "getSelectedSongs"></a>
-    <strong>getSelectedSongs ()</strong>
-    </dt>
-    <dd>
-    Retrieve and process MIDI files from &lsquo;midi_files&rsquo; directory.
-
-
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string[]</a></span>
-        Shell-escaped list of all <code>.mid</code> files in the folder.
-    </ol>
-
-
-
-
-</dd>
-</dl>
 
 
 </div> <!-- id="content" -->

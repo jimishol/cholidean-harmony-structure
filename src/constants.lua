@@ -59,7 +59,7 @@
 
 local M = {}
 
-M.backend             = "midiport" -- "midiport" "null" "fluidsynth"
+M.backend             = "fluidsynth" -- "midiport" "null" "fluidsynth"
 M.DEFAULT_MIDI_PORT   = "14:0"
 
 M.windowsBackendPath  = "bin\\"

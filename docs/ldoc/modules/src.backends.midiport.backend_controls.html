@@ -33,7 +33,7 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Functions">Functions</a></li>
+<li><a href="#Class_BackendControls">Class BackendControls </a></li>
 </ul>
 
 
@@ -43,13 +43,13 @@
   <li><a href="../modules/src.backends.fluidsynth.command_menu.html">src.backends.fluidsynth.command_menu</a></li>
   <li><a href="../modules/src.backends.fluidsynth.track_active_notes_thread.html">src.backends.fluidsynth.track_active_notes_thread</a></li>
   <li><a href="../modules/src.backends.html">src.backends</a></li>
-  <li><a href="../modules/src.backends.midiport.backend_controls.html">src.backends.midiport.backend_controls</a></li>
+  <li><strong>src.backends.midiport.backend_controls</strong></li>
   <li><a href="../modules/src.backends.fluidsynth.command_menu.html">src.backends.fluidsynth.command_menu</a></li>
   <li><a href="../modules/src.backends.midiport.track_active_notes_thread.html">src.backends.midiport.track_active_notes_thread</a></li>
   <li><a href="../modules/src.backends.null.backend_controls.html">src.backends.null.backend_controls</a></li>
   <li><a href="../modules/src.backends.null.command_menu.html">src.backends.null.command_menu</a></li>
   <li><a href="../modules/src.backends.null.track_active_notes_thread.html">src.backends.null.track_active_notes_thread</a></li>
-  <li><strong>src.backends.playlist</strong></li>
+  <li><a href="../modules/src.backends.playlist.html">src.backends.playlist</a></li>
   <li><a href="../modules/src.backends.camera.html">src.backends.camera</a></li>
   <li><a href="../modules/constants.html">constants</a></li>
   <li><a href="../modules/src.input.actions.html">src.input.actions</a></li>
@@ -68,16 +68,24 @@
 
 <div id="content">
 
-<h1>Module <code>src.backends.playlist</code></h1>
-<p>Playlist backend for retrieving MIDI files from &lsquo;midi_files&rsquo; directory.</p>
-<p> Assumes the folder always exists (main.lua bootstraps it).</p>
+<h1>Module <code>src.backends.midiport.backend_controls</code></h1>
+<p>Provides TCP-based control interface for the midiport backend.</p>
+<p> Implements non-blocking connect/reconnect and line-oriented command framing.</p>
 
 
-<h2><a href="#Functions">Functions</a></h2>
+<h2><a href="#Class_BackendControls">Class BackendControls </a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#getSelectedSongs">getSelectedSongs ()</a></td>
-	<td class="summary">Retrieve and process MIDI files from &lsquo;midi_files&rsquo; directory.</td>
+	<td class="name" nowrap><a href="#backendcontrols:new">backendcontrols:new ()</a></td>
+	<td class="summary">Constructor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#backendcontrols:send_message">backendcontrols:send_message (message, host, port)</a></td>
+	<td class="summary">Send a single line (with CRLF) to the MIDI-port server.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#backendcontrols:disconnect">backendcontrols:disconnect ()</a></td>
+	<td class="summary">Close the control TCP socket, if open.</td>
 	</tr>
 </table>
 
@@ -85,23 +93,92 @@
 <br/>
 
 
-    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header has-description"><a name="Class_BackendControls"></a>Class BackendControls </h2>
 
+          <div class="section-description">
+          BackendControls class.
+          </div>
     <dl class="function">
     <dt>
-    <a name = "getSelectedSongs"></a>
-    <strong>getSelectedSongs ()</strong>
+    <a name = "backendcontrols:new"></a>
+    <strong>backendcontrols:new ()</strong>
     </dt>
     <dd>
-    Retrieve and process MIDI files from &lsquo;midi_files&rsquo; directory.
+    <p>Constructor.
+ Called by scene.lua as:</p>
+
+<pre><code> backends.controls = require(...).new()
+</code></pre>
+
 
 
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string[]</a></span>
-        Shell-escaped list of all <code>.mid</code> files in the folder.
+           <span class="types"><a class="type" href="../modules/src.backends.midiport.backend_controls.html#BackendControls">BackendControls</a></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "backendcontrols:send_message"></a>
+    <strong>backendcontrols:send_message (message, host, port)</strong>
+    </dt>
+    <dd>
+    Send a single line (with CRLF) to the MIDI-port server.
+ Implements the exact API that <code>main.lua</code> expects.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">message</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+          Raw command (e.g. &ldquo;gain 0.8&rdquo;)
+        </li>
+        <li><span class="parameter">host</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        <pre><code> TCP host (e.g. "localhost")
+</code></pre>
+
+        </li>
+        <li><span class="parameter">port</span>
+            <span class="types"><span class="type">number</span></span>
+        <pre><code> TCP port (e.g. 9800)
+</code></pre>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        True on success, false on failure
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "backendcontrols:disconnect"></a>
+    <strong>backendcontrols:disconnect ()</strong>
+    </dt>
+    <dd>
+    Close the control TCP socket, if open.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        Always returns true
     </ol>
 
 

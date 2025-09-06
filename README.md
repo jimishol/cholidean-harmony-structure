@@ -24,7 +24,7 @@ This project embeds [3DreamEngine](https://github.com/3dreamengine/3DreamEngine)
 
 ### 🐧 Linux
 
-If you're on Linux and have not LÖVE installed,
+If you’re on Linux and don’t have LÖVE installed:
 ```
 sudo zypper install love
 ```
@@ -45,11 +45,11 @@ sudo zypper install fluidsynth
 ```
 Then download some nice SoundFont like `FluidR3_GM.sf2`:
 
-If your repository include them, install
+If your repository includes them, install
 ```
 sudo zypper install fluid-soundfont-gm
 ```
-or take them from https://github.com/Jacalz/fluid-soundfont/blob/master/original-files/FluidR3_GM.sf2 (use “Download raw file”) and place it in project's root. There is no need to place sounfonts in project's root in that case.
+or take them from https://github.com/Jacalz/fluid-soundfont/blob/master/original-files/FluidR3_GM.sf2 (use “Download raw file”) and place it in project's root. There is no need to place soundfonts in project's root in that case.
 
 ---
 
@@ -70,56 +70,43 @@ Note: macOS support is currently unverified. This project was built with love an
 
 ### 🪟 Windows
 
-⚠️📌 **Note:** Before installing on Windows, we recommend reviewing the **Known Issues** section below. It covers important platform-specific limitation like the real-time output quirks. Also, make sure you have a machine or VM with real GPU support, 3D acceleration, and OpenGL enabled. In order just to explore structure ommit 3-5 steps below and, in src/constants.lua, set backend as "null". 
+⚠️ Before installing on Windows, review the **Known Issues** below and ensure you have a GPU/OpenGL-enabled environment.  
+To skip audio entirely, set `M.backend = "null"` in `src/constants.lua`.
 
-0. **WSL** Because of Line-buffered issue, [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) tested as workarround and seems to fail on line buffer too, despite the presence of `stdbuf -oL`. 
+0. **WSL (Optional Workaround)**  
+   Tested under WSL with `stdbuf -oL`, but real-time line buffering still fails—use at your own risk.
 
 1. **Prepare the Project Directory**  
-   - Clone (if you want asset_pipeline and/or docs folders aimed for developers) or Download release zip (e.g. `cholidean-harmony-structure-1.0.0.zip`).  
-   - Unzip it anywhere you like, for example:  
-     C:\Users\<YourUsername>\  
+   Clone the repo (including `asset_pipeline`/`docs`), or download and unzip the release ZIP.
 
-2. **Install LÖVE (Love2D)**  
-   - Visit https://love2d.org/ and Download the Windows zip (portable version).  
-   - Unzip to a folder of your choice, for example:  
-     C:\Users\<YourUsername>\
-   - Move all contents of LÖVE folder (after all you can recreate them from the .zip file) into Project's Directory.  
-   - After this step, `main.lua`, `conf.lua`, and any other project assets should sit next to `love.exe`.
+2. **Install LÖVE**  
+   Download the Windows ZIP from https://love2d.org/ and unzip it into your project folder.
 
 3. **Install FluidSynth**  
-     Download the binaries  
-      - Go to https://github.com/FluidSynth/fluidsynth/releases and grab the latest Windows zip.  
-      - Unzip it into Project's Directory (same place as `main.lua`). This will create `lib\`, `include\`, and `bin\`subfolders in it.
+   Download the latest Windows ZIP from https://github.com/FluidSynth/fluidsynth/releases  
+   and unzip it into your project folder (creates `bin/`, `lib/`, and `include/`).
 
 4. **Add SoundFonts**  
-   - FluidSynth doesn’t ship with a default SoundFont.  
-   - Download `FluidR3_GM.sf2` from:  
-     https://github.com/Jacalz/fluid-soundfont/blob/master/original-files/FluidR3_GM.sf2  
-     (use “Download raw file”)  
-   - Place `FluidR3_GM.sf2` in Project's Directory (next to `main.lua`).
+   Download `FluidR3_GM.sf2` (raw file) from the Jacalz repo and place it next to `main.lua` in your project root.
 
-5. **Install Git for Windows (a necessity for winpty)**  
-   - Download Git for Windows from https://github.com/git-for-windows/git/releases (e.g. `v2.50.1.windows.1`). Scroll down to find assets and pick the latest installer.
-    
-   - Install and reboot your machine.  
-  
-   - Launch the game by
-   
-6.  **Double Click** on `run.bat` file.
+5. **Install Git for Windows**  
+   Download and install from https://github.com/git-for-windows/git/releases, then reboot your machine.
 
+6. **Launch the Visualizer**  
+   Double-click `run.bat` in your project folder.
 
+---
 
 **Known Issues:**
 
-⚠️ Windows‑specific notes
+- **Line-buffered output isn’t working**:  
+  FluidSynth’s note-on/off events arrive in batches under Windows; see [issue #4](https://github.com/jimishol/cholidean-harmony-structure/issues/4).  
 
-- **Line-buffered output isn’t working**  
-  We expect Fluidsynth’s note-on/off events to stream line-by-line, but under Windows, even through winpty layer, block buffering is forced. As a result, active note events may arrive in batches or with a delay, breaking real-time tracking. If you have a workaround or patch, please [share it in this issue](https://github.com/jimishol/cholidean-harmony-structure/issues/4#issue-3329738061) or contribute it via a comment or pull request.
+- **Spaces in filenames**:  
+  May break playback through the `winpty` layer—use underscores instead.  
 
-* No spaces in song filenames — The current backend passes song paths directly to FluidSynth under Bash. On Windows, spaces in filenames can break playback due to how arguments are parsed through the winpty layer. Please rename files or use underscores instead. (Example: My Song.mid → My_Song.mid)
-
-* Restart-on-exit is disabled — On Linux/macOS, exiting with code 42 will automatically restart the game. On Windows, the winpty compatibility layer does not return non‑zero exit codes to the batch wrapper, so this feature isn’t currently supported.
-
+- **Restart-on-exit disabled**:  
+  The batch wrapper doesn’t propagate non-zero exit codes, so automatic restart on exit code 42 is unavailable.  
 ---
 
 ### Prerequisites
@@ -148,57 +135,54 @@ git lfs install
 
 This project works like a minimalist music player — but with a twist. Instead of just playing sound, it visually projects musical harmony into a 3D space, offering a unique and immersive way to experience music. The active joints (notes) become self-illuminating and grow in size. Of these, the bass notes strive valiantly to stand out with distinctive dots. The outgoing edges emit light discreetly to activate their destination. Spectral surfaces, when unambiguously indicated by active joints, materialize and emit light to attract the attention of minor or major scales that could incorporate them. The compositions are visualized in an anticipated dance of surprising steps.
 
-   - Supported Format: Currently supports MIDI files, thanks to FluidSynth’s ability to emit real-time note ON/OFF events.
-
-   - Interactive Controls: Users can pause playback or slow down tempo, making it ideal for music students or harmony learners.
-
-   - No Technical Setup Required: Just launch the app, load a MIDI file, and enjoy the visual harmony.
+- **Supported Format:** Currently supports MIDI files via FluidSynth or via the Linux ALSA `midiport` backend—both emit real-time note ON/OFF events for 3D visualization.
+- **Interactive Controls:** Users can pause playback or slow down tempo, making it ideal for music students or harmony learners.
+- **No Technical Setup Required:** Just launch the app, load a MIDI file, and enjoy the visual harmony.
 
 📝 Note: Future versions may support additional formats, depending on backend contributions.
 
 ### 🛠️ For Backend Developers
 
-The project is designed to be extensible. Developers can integrate alternative backends as long as they can emit note ON/OFF events in real time. The backend manager is src/backends/init.lua file.
+The project is designed to be extensible. Developers can integrate alternative backends as long as they can emit note ON/OFF events in real time. The backend manager is `src/backends/init.lua`.
 
 #### 🔄 How It Works
 
-   - The core visual engine watches a file called active_notes.lua on disk.
-
-   - This file contains a list of currently active notes, which the engine reads and renders in 3D.
-
-   - A backend thread (e.g., FluidSynth) updates this file in real time based on backend playback.
+- The core visual engine listens on the `active_notes` Love2D thread channel for updated note lists.  
+- Backend threads (FluidSynth, midiport) push active-note tables directly into that channel in real time.  
+- The null backend falls back to disk I/O, reading from `active_notes.lua` when no channel updates occur.
 
 #### 🧪 Backend Options
 
-   * FluidSynth Backend:
+* **FluidSynth**  
+  - Launched as a thread by the project.  
+  - Outputs note events via terminal stdout.  
+  - Accepts playback commands via TCP.  
+  - A watcher thread connects via TCP and sends commands (e.g., play, pause, tempo).  
+  - Updates `active_notes.lua` based on parsed output.
 
-      - Launched as a thread by the project.
+* **Null Backend (Manual Mode)**  
+  - Teachers or developers can manually edit `active_notes.lua` to simulate note activity.  
+  - Useful for demonstrations, teaching, or testing without a live music source.
 
-      - Outputs note events via terminal stdout.
-
-      - Accepts playback commands via TCP.
-
-      - A watcher thread connects via TCP and sends commands (e.g., play, pause, tempo).
-
-      - Updates active_notes.lua based on parsed output.
-
-   * Null Backend (Manual Mode):
-
-      - Teachers or developers can manually edit active_notes.lua to simulate note activity.
-
-      - Useful for demonstrations, teaching, or testing without a live music source.
+* **midiport (Linux only)**
+  - Sniffs an ALSA MIDI port directly via FFI (default `Midi Through 14:0`).
+  - Merges and publishes active notes at ~50 Hz to `active_notes.lua`.
+  - Sends control commands (`gain`, `player_start`, etc.) over a persistent nonblocking TCP socket, bypassing stdout buffering.
+  - Configure in `src/constants.lua`:
+    ```lua
+    -- in src/constants.lua
+    M.backend    = "midiport"
+    M.midiport   = "14:0"        -- ALSA client:port to sniff
+    M.shellHost  = "localhost"   -- TCP host for control commands
+    M.shellPort  = 9800          -- TCP port for control commands
+    ```
 
 🔧 Future Improvement
 
-   * Direct Terminal Parsing:
+* **Windows Port for Direct Parsing**  
+  Bring the `midiport` backend’s ALSA-sniff and FluidSynth’s in-memory STDOUT parsing to Windows via WinMM or WASAPI.  
 
-      - Instead of writing to disk, the watcher may read directly from FluidSynth’s terminal output.
-
-      - This would improve performance but may remove support for manual editing.
-
-      - Decision pending based on community interest and use cases.
-
-For a deep dive into the asset pipeline, see [FOR_DEVELOPERS](asset_pipeline/FOR_DEVELOPERS.md).
+_For a deep dive into the asset pipeline, see [FOR_DEVELOPERS](asset_pipeline/FOR_DEVELOPERS.md)._
 
 ---
 
@@ -217,15 +201,15 @@ Launch the visualizer with FluidSynth to render harmony in 3D space using real-t
 ```bat
 Double-click run.bat
 ```
-FluidSynth playback will follow whatever exist in `midi_files/` folder.
+FluidSynth playback will follow whatever exists in `midi_files/` folder.
 
 * **Camera Position Setup:**
 
-Most likely, when examining the structure, you will find some position more suitable than others in terms of understanding it. Press `d` and copy the camera position to the `M.initialCameraPosition` field in `src/constants.lua`, so that you always start from that position. If you have prefered lightning, copy `Day time` to the `M.day_night` field of the same file.
+Most likely, when examining the structure, you will find some position more suitable than others in terms of understanding it. Press `d` and copy the camera position to the `M.initialCameraPosition` field in `src/constants.lua`, so that you always start from that position. If you have preferred lightning, copy `24h Day time` to the `M.day_night` field of the same file.
 
 * **Tonic Repositioning:**
 
-Quite often, you will feel that the scale of a piece is such that you would like its tonic to be in a different position than it is. With `Shift + ←` or →`, you can move the tonic to the position you desire.
+Quite often, you will feel that the scale of a piece is such that you would like its tonic to be in a different position than it is. With `Shift + ←` or `Shift + →`, you can move the tonic to the position you desire.
 
 ---
 
@@ -278,26 +262,37 @@ If the playlist is empty or has finished playing, this setup allows users to con
 
 ---
 
-### 🧑‍🏫 3. Teaching Mode (Null Backend)
+### 🎷 3. Live MIDI Sniffing with ALSA (`midiport`)
 
-Use this mode to visualize harmonic structures without requiring live MIDI input or audio playback.
+Even if your playlist is empty or playback has ended, the MIDIport backend stays live and can visualize any MIDI device plugged into your ALSA system.
 
-**Configuration:** (src/constants.lua)
-```lua
-M.backend = "null"
-```
+#### 📌 Setup
 
-**Manual Note Definition:**
-Edit `active_notes.lua` with your desired notes:
+1. **List your ALSA ports**  
+   ```bash
+   aconnect -l
+   ```
+2. **Configure the `midiport` backend** in `src/constants.lua`  
+   ```lua
+   -- src/constants.lua
+   M.backend    = "midiport"     -- select the ALSA‐sniffing backend
+   M.midiport   = "20:0"         -- ALSA client:port to sniff
+   M.shellHost  = "localhost"    -- TCP host for control commands
+   M.shellPort  = 9800           -- TCP port for control commands
+   ```
+3. **Route your MIDI device** (if needed)  
+   ```bash
+   aconnect 24:0 20:0
+   ```
+4. **Launch the visualizer**  
+   ```bash
+   love .
+   ```  
+#### 🎶 What Happens
 
-```lua
--- Manually defined active MIDI notes
-return {
-    60, 64, 67, -- C major triad
-}
-```
-
-This mode is ideal for instructors, presentations, or debugging visual harmony logic.
+- Notes from your USB keyboard (or any ALSA source) are sniffed and merged into `active_notes.lua`.  
+- The visualizer immediately reflects live playing.  
+- Control commands (`gain`, `player_start`, etc.) flow over TCP exactly like FluidSynth mode—no stdout buffering issues.
 
 ---
 
@@ -305,9 +300,7 @@ This mode is ideal for instructors, presentations, or debugging visual harmony l
 
 Once launched, you can drive playback, toggle modes, and open the command menu with these keys:
 
-### Playback Controls
-
-| Key     | Function                                  |
+| Key     | Function                                 |
 |---------|-------------------------------------------|
 | p       | Toggle play / pause                       |
 | tab     | Play current song from start              |
@@ -318,22 +311,22 @@ Once launched, you can drive playback, toggle modes, and open the command menu w
 
 ### Command-Menu Controls
 
-| Key         | Function                                                                                       |
+| Key         | Function                                                                                                                       |
 |-------------|------------------------------------------------------------------------------------------------|
 | :           | Open the command menu                                                                          |
-| a  | Set tempo in BPM                                                                               |
-| b  | Set relative speed (e.g. `0.5` = half speed)                                                   |
+| a           | Set tempo in BPM                                                                               |
+| b           | Set relative speed (e.g. `0.5` = half speed)                                                   |
 | c           | Play through the file once, then repeat it `<count>` more times. `<count>` = `0` cancels loop, `<count> = -1` infinite loop |
 | d           | Jump to absolute tick within current MIDI file. The length of a quarter note on 100BPM has 600 ticks.|
-| e  | Send raw commands to Fluidsynth (run fluidsynth in a terminal and type `help` for commands)    |
+| e           | Send raw commands to **Fluidsynth as synth engine** (run fluidsynth in a terminal and type `help` for commands)    |
 
 ---
 
 ## 📖 Documentation
 
 - [Feature Overview & Configuration](docs/FEATURES_AND_CONFIG.md)  
-- [Full Keybindings Reference](docs/KEYBINDINGS.md)
-- [For Developers - A.I generated ldoc documantation](https://jimishol.github.io/ldoc/)
+- [Full Keybindings Reference](docs/KEYBINDINGS.md)  
+- [For Developers - A.I generated ldoc documentation](https://jimishol.github.io/ldoc/)
 
 ---
 
@@ -346,32 +339,40 @@ The Fluidsynth backend is launched as a separate thread and communicates with th
 - A thread spawns the Fluidsynth process using platform-specific commands.
 - Fluidsynth outputs `noteon` and `noteoff` events to its terminal (`stdout`).
 - The thread reads these events line-by-line and maintains a table of currently active notes.
-- These notes are written to `active_notes.lua`, which the main thread reads to render harmony in 3D.
 
 ### 📁 Output Format
 
-The `active_notes.lua` file is auto-generated and looks like this:
+The `active_notes.lua` file now serves two purposes:
 
-```lua
--- Auto‐generated active MIDI notes
+1. **Null backend**  
+   You hand-edit this file to define which notes are “on.”  
+2. **midiport backend**  
+   On startup it’s cleared, then on each sniff cycle your live ALSA notes are merged _with_ whatever you’ve hand-defined here before being pushed over the channel.  
+
+The FluidSynth backend does _not_ read or write this file — it pushes note lists entirely in memory via Love2D channels.
+
+#### Example `active_notes.lua`
+```
+-- Active MIDI notes (manual/merged)
 return {
-    60, 64, 67, -- C major triad
+    60, 64, 67,  -- C major triad
 }
 ```
 
 ### ⚙️ Configuration Channels
 
-The backend thread receives its configuration via Love2D thread channels:
-
-| Channel Name      | Purpose                          |
-|-------------------|----------------------------------|
-| `backend`         | Executable name (e.g. `fluidsynth`) |
-| `soundfonts`      | Path to the SoundFont file       |
-| `songs`           | Comma-separated list of MIDI files |
-| `shellPort`       | TCP port for backend control     |
-| `shellHost`       | Hostname/IP of backend           |
-| `platform`        | OS identifier (`windows`, `linux`, etc.) |
-| `track_control`   | Signal to clear active notes     |
+| Channel Name    | Purpose                                                      |
+|-----------------|--------------------------------------------------------------|
+| backend         | Backend identifier (`"fluidsynth"`, `"midiport"`, or `"null"`) |
+| soundfonts      | Path or comma-separated list of SoundFont files              |
+| songs           | Comma-separated list of MIDI files to play                   |
+| shellHost       | TCP host for backend control commands                        |
+| shellPort       | TCP port for backend control commands                        |
+| platform        | OS identifier (`"linux"`, `"windows"`, etc.)                 |
+| track_control   | Signal the FluidSynth tracker to clear its active notes      |
+| quit            | Signal the midiport sniffing thread to exit                  |
+| midiPort        | ALSA client:port string for the midiport backend (e.g. `"14:0"`) |
+| active_notes    | Table of currently active MIDI note keys                     |
 
 ### 🧪 Notes on Stability
 
@@ -388,8 +389,8 @@ If any part fails (e.g. malformed output, missing soundfont, broken pipe), the t
 
 Your feedback drives this project! Join one of our GitHub Discussions below:
 
-- 💭 [Project's Usage & Feedback](https://github.com/jimishol/cholidean-harmony-structure/discussions/categories/project-s-usage-feedback) –  share your experiences and questions about the project itself. 
-- 🎼[Interpretation of structure](https://github.com/jimishol/cholidean-harmony-structure/discussions/categories/interpretation-of-structure) – Share ideas on different interpretations of the structure’s elements.
+- 💭 [Project's Usage & Feedback](https://github.com/jimishol/cholidean-harmony-structure/discussions/categories/project-s-usage-feedback) – share your experiences and questions about the project itself. 
+- 🎼 [Interpretation of structure](https://github.com/jimishol/cholidean-harmony-structure/discussions/categories/interpretation-of-structure) – Share ideas on different interpretations of the structure’s elements.
 
 ---
 
@@ -417,6 +418,6 @@ Please refer to the individual files in the `THIRD_PARTY_LICENSES/` directory fo
 
 This project took shape thanks to the insight and encouragement of [**Edgar Delgado Vega**](https://github.com/edelveart).
 
-Although the idea had been explored by 20th‑century music–math theorists, it was only when E.D.V. encountered the concept that he immediately recognized its potential for new approaches in 12ET harmony. He urged me to share it more widely and encouraged me to bring it into academic and creative circles. 
+Although the idea had been explored by 20th-century music–math theorists, it was only when E.D.V. encountered the concept that he immediately recognized its potential for new approaches in 12ET harmony. He urged me to share it more widely and encouraged me to bring it into academic and creative circles. 
 
 That encouragement transformed a dormant idea into a living project. From OpenSCAD to MeshLab, to Blender, to 3DreamEngine, to MIDI events, each stage brought new challenges and discoveries. Without Edgar Delgado’s vision and determination, this journey might never have begun.
