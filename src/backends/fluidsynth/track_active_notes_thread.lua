@@ -4,6 +4,11 @@
 -- to a shared thread channel (`"active_notes"`) for consumption by the main thread.
 -- @module src.backends.fluidsynth.track_active_notes_thread
 
+--- Incoming midiPort channel (cleared and ignored in fluidsynth backend)
+-- @local
+local midi_port_channel = love.thread.getChannel("midiPort")
+midi_port_channel:pop()
+
 --- Channel for receiving "clear" commands from the main thread.
 -- @local
 local clearChannel    = love.thread.getChannel("track_control")

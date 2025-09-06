@@ -57,6 +57,10 @@ local shellPortChannel = love.thread.getChannel("shellPort")
 local shellPort = constants.shellPort
 shellPortChannel:push(shellPort)
 
+local midiPortChannel = love.thread.getChannel("midiPort")
+local midiPort = constants.DEFAULT_MIDI_PORT
+midiPortChannel:push(midiPort)
+
 local soundfontChannel = love.thread.getChannel("soundfonts")
 soundfontChannel:push(constants.soundfonts)
 

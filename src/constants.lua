@@ -1,32 +1,33 @@
 --- Centralized configuration constants for the structure viewer project.
 -- @module constants
--- @field backend               string   The engine that outputs heard notes or "null" if `active_notes.lua` is edited manually.
--- @field windowsBackendPath    string   The root path of fuidsynth that will be in ROOT of project and contain the \bin subfolder on windows
--- @field winPTYcommand        string   The absolute or relatived path for winPTY.exe
--- @field soundfonts            string   Path to the SoundFont (.sf2/.sf3) file that Fluidsynth will load for audio synthesis. Provide an absolute or project-relative path; leave empty to skip loading a soundfont.
--- @field shellPort             number   TCP port to control the backend (e.g. fluidsynth with `-s`).
+-- @field backend               string   The backend engine that outputs heard notes (e.g. `"midiport"`, `"fluidsynth"`) or `"null"` if `active_notes.lua` is edited manually.
+-- @field DEFAULT_MIDI_PORT     string   Default MIDI input port to connect to for active‑note tracking. On Linux (ALSA) this is typically `"14:0"` for the built‑in Midi Through port. On Windows, set this to the exact name of the virtual cable or hardware MIDI input device you want to listen to (e.g. `"loopMIDI Port 1"`). This can be overridden by user configuration.
+-- @field windowsBackendPath    string   The root path of Fluidsynth that will be in the project root and contain the `\bin` subfolder on Windows.
+-- @field winPTYcommand         string   The absolute or relative path for `winPTY.exe`.
+-- @field soundfonts            string   Path to the SoundFont (.sf2/.sf3) file that Fluidsynth will load for audio synthesis. Provide an absolute or project‑relative path; leave empty to skip loading a soundfont.
+-- @field shellPort             number   TCP port to control the backend (e.g. Fluidsynth with `-s`).
 -- @field shellHost             string   Hostname or IP of the backend.
 -- @field bck_image             string   HDRI image used as the sky background.
 -- @field day_night             number   Current simulated hour (0.00–24.00).
 -- @field day_night_speed       number   Speed at which background brightness shifts with +/- keys.
 -- @field maxBright             number   Maximum daytime background brightness.
 -- @field maxNightBright        number   Maximum nighttime brightness.
--- @field nightLightOrigin      number   Point-light brightness at origin during night.
--- @field nightLightCamera      number   Point-light brightness at camera during night.
+-- @field nightLightOrigin      number   Point‑light brightness at origin during night.
+-- @field nightLightCamera      number   Point‑light brightness at camera during night.
 -- @field jointScale            number   Scale factor for imported joint meshes.
 -- @field scaleFactor           number   Ratio of active vs. inactive joint sizes.
--- @field bassScale             number   Depth-offset scale for bass-note joints.
+-- @field bassScale             number   Depth‑offset scale for bass‑note joints.
 -- @field surfAlpha             number   Opacity for surface meshes.
 -- @field sunBrightness         number   Intensity of the sun light.
--- @field defaultNoteMode       string   Note-mode, either `"instant"` or `"offset"`.
--- @field offsetDuration        number   Delay (s) before sending a “note-off” when in offset mode.
--- @field bassOffsetDuration    number   Delay (s) before sending a “note-off” for the bass note.
+-- @field defaultNoteMode       string   Note‑mode, either `"instant"` or `"offset"`.
+-- @field offsetDuration        number   Delay (s) before sending a “note‑off” when in offset mode.
+-- @field bassOffsetDuration    number   Delay (s) before sending a “note‑off” for the bass note.
 -- @field initialCameraPosition table    Starting camera position in world space.
--- @field initialCameraPosition.x number  X coordinate of initial camera.
--- @field initialCameraPosition.y number  Y coordinate of initial camera.
--- @field initialCameraPosition.z number  Z coordinate of initial camera.
--- @field autoExposure          table    Auto-exposure settings.
--- @field autoExposure.enabled  boolean  Enable/disable auto-exposure.
+-- @field initialCameraPosition.x number X coordinate of initial camera.
+-- @field initialCameraPosition.y number Y coordinate of initial camera.
+-- @field initialCameraPosition.z number Z coordinate of initial camera.
+-- @field autoExposure          table    Auto‑exposure settings.
+-- @field autoExposure.enabled  boolean  Enable/disable auto‑exposure.
 -- @field autoExposure.target   number   Desired average luminance.
 -- @field autoExposure.speed    number   Adaptation speed for exposure.
 -- @field torusRadius           number   Outer radius of the torus (must not change).
@@ -35,19 +36,19 @@
 -- @field label_scale           number   Base scale ratio for 3D labels.
 -- @field label_active_scale    number   Scale ratio for active versus inactive labels.
 -- @field dynamicLabelFacing    boolean  Whether labels always face the camera.
--- @field fov                   number   Vertical field-of-view (degrees).
+-- @field fov                   number   Vertical field‑of‑view (degrees).
 -- @field resetDuration         number   Duration (s) of the camera orientation reset tween.
 -- @field sensitivity           table    Mouse/keyboard sensitivity settings.
 -- @field sensitivity.mouse_angle     number  Mouse look speed (rad/pixel).
--- @field sensitivity.mouse_height    number  Mouse vertical‐move speed.
+-- @field sensitivity.mouse_height    number  Mouse vertical‑move speed.
 -- @field sensitivity.mouse_zoom      number  Mouse scroll zoom multiplier.
 -- @field sensitivity.invert_mouse    boolean Invert vertical mouse look.
 -- @field sensitivity.keyboard_angle  number  Keyboard yaw speed (rad/s).
 -- @field sensitivity.keyboard_height number  Keyboard vertical speed (units/s).
 -- @field sensitivity.keyboard_fov    number  Keyboard FOV change speed (deg/s).
--- @field sensitivity.free_move       number  Free-fly movement speed (units/s).
--- @field sensitivity.free_mouse      number  Free-fly mouse drag sensitivity.
--- @field NOTE_ORDER            string[] Circle-of-fourths note sequence.
+-- @field sensitivity.free_move       number  Free‑fly movement speed (units/s).
+-- @field sensitivity.free_mouse      number  Free‑fly mouse drag sensitivity.
+-- @field NOTE_ORDER            string[] Circle‑of‑fourths note sequence.
 -- @field activationThreshold   number   Volume threshold for “heard” vs “unheard.”
 -- @field emissionLevels        table    Emission intensities by category.
 -- @field emissionLevels.joints   table  Joint emission levels (`.active`, `.inactive`).
@@ -58,7 +59,9 @@
 
 local M = {}
 
-M.backend             = "midiport" --fluidsynth"
+M.backend             = "midiport" -- "midiport" "null" "fluidsynth"
+M.DEFAULT_MIDI_PORT   = "14:0"
+
 M.windowsBackendPath  = "bin\\"
 M.soundfonts          = "FluidR3_GM.sf2"
 M.shellPort           = 9800

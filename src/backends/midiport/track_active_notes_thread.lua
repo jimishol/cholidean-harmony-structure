@@ -10,6 +10,7 @@ local host_channel    = love.thread.getChannel("shellHost")
 local font_channel    = love.thread.getChannel("soundfont")
 local songs_channel   = love.thread.getChannel("songs")
 local notesChannel    = love.thread.getChannel("active_notes")
+local midiPortChannel = love.thread.getChannel("midiPort")
 
 -- Clear startup chatter
 backend_channel:pop()
@@ -17,6 +18,11 @@ port_channel:pop()
 host_channel:pop()
 font_channel:pop()
 songs_channel:pop()
+
+-- Get desired MIDI source port from main (e.g. "14:0"), default to ALSA Midi Through
+local midi_port_str = midiPortChannel:pop() or "14:0"
+local src_client, src_port = midi_port_str:match("^(%d+):(%d+)$")
+src_client, src_port = tonumber(src_client) or 14, tonumber(src_port) or 0
 
 ---------------------------------------------------------
 -- Utilities
@@ -125,8 +131,9 @@ assert(myport >= 0, "create_simple_port failed")
 local cid = C.snd_seq_client_id(seq)
 print(string.format("[midiport backend] ALSA client:port is %d:0", cid))
 
--- Connect from 14:0 (Midi Through) — adjust if needed
-assert(C.snd_seq_connect_from(seq, myport, 14, 0) == 0, "connect_from 14:0 failed")
+-- Connect from requested source port
+assert(C.snd_seq_connect_from(seq, myport, src_client, src_port) == 0,
+       string.format("connect_from %d:%d failed", src_client, src_port))
 C.snd_seq_nonblock(seq, C.SND_SEQ_NONBLOCK)
 
 ---------------------------------------------------------

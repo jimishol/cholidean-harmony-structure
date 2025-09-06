@@ -12,6 +12,10 @@ local quit_channel    = love.thread.getChannel("quit")
 -- @local
 local backend_channel = love.thread.getChannel("backend")
 
+--- Incoming midiPort channel (cleared and ignored).
+-- @local
+local midi_port_channel = love.thread.getChannel("midiPortChannel")
+
 --- Incoming shellPort channel (cleared and ignored).
 -- @local
 local port_channel    = love.thread.getChannel("shellPort")
@@ -34,6 +38,7 @@ local notesChannel    = love.thread.getChannel("active_notes")
 
 -- clear any startup chatter so real backends aren’t confused
 backend_channel:pop()
+midi_port_channel:pop()
 port_channel:pop()
 host_channel:pop()
 font_channel:pop()
