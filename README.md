@@ -168,6 +168,7 @@ The project is designed to be extensible. Developers can integrate alternative b
   - Sniffs an ALSA MIDI port directly via FFI (default `Midi Through 14:0`).
   - Merges and publishes active notes at ~50 Hz to `active_notes.lua`.
   - Sends control commands (`gain`, `player_start`, etc.) over a persistent nonblocking TCP socket, bypassing stdout buffering.
+  - Does **not support autoplayback** of MIDI files (unlike the Fluidsynth backend), but offers **~80ms faster note tracking** on average.
   - Configure in `src/constants.lua`:
     ```lua
     -- in src/constants.lua
@@ -255,6 +256,8 @@ Replace `24:0` and `128:0` with the actual port numbers from your system.
 - Notes played on the MIDI device are routed directly to Fluidsynth.
 - The backend thread listens for `noteon` and `noteoff` events.
 - `active_notes.lua` is updated in real time, allowing the main thread to visualize the notes.
+
+💡 For lower latency (~80ms faster), the midiport backend offers direct ALSA access, though it does not support autoplayback.
 
 #### 🔄 Tip: Use This as a Fallback
 
