@@ -158,7 +158,7 @@ The project is designed to be extensible. Developers can integrate alternative b
   - Outputs note events via terminal stdout.  
   - Accepts playback commands via TCP.  
   - A watcher thread connects via TCP and sends commands (e.g., play, pause, tempo).  
-  - Updates `active_notes.lua` based on parsed output.
+  - Parses FluidSynth’s noteon/noteoff output and publishes the current active-notes list on a Love2D thread channel ("active_notes"), eliminating any file I/O for note state.
 
 * **Null Backend (Manual Mode)**  
   - Teachers or developers can manually edit `active_notes.lua` to simulate note activity.  
@@ -180,7 +180,7 @@ The project is designed to be extensible. Developers can integrate alternative b
 🔧 Future Improvement
 
 * **Windows Port for Direct Parsing**  
-  Bring the `midiport` backend’s ALSA-sniff and FluidSynth’s in-memory STDOUT parsing to Windows via WinMM or WASAPI.  
+   Windows MIDI direct parsing Listens to MIDI devices via WinMM (or WASAPI loopback for audio), pushes raw events into the Love2D thread channel "midi_events", and bypasses FluidSynth stdout entirely.
 
 _For a deep dive into the asset pipeline, see [FOR_DEVELOPERS](asset_pipeline/FOR_DEVELOPERS.md)._
 
@@ -264,7 +264,7 @@ If the playlist is empty or has finished playing, this setup allows users to con
 
 ### 🎷 3. Live MIDI Sniffing with ALSA (`midiport`)
 
-Even if your playlist is empty or playback has ended, the MIDIport backend stays live and can visualize any MIDI device plugged into your ALSA system.
+Operates independently of any playback or synth engine, continuously monitoring and visualizing connected MIDI devices.
 
 #### 📌 Setup
 
@@ -298,7 +298,12 @@ Even if your playlist is empty or playback has ended, the MIDIport backend stays
 
 ## 🎮 Keybindings & Controls
 
-Once launched, you can drive playback, toggle modes, and open the command menu with these keys:
+These keybindings fall into two categories:
+
+- Playback and command-menu commands sent over TCP to the active backend (Fluidsynth by default).
+- Local controls handled entirely by the visualizer core.
+
+Only the h, d, and Ctrl + Q keys are consumed by the visualizer itself. All other bindings below are relayed as TCP messages when using a backend that accepts them (Fluidsynth by default). Future backends can repurpose or extend these.
 
 | Key     | Function                                 |
 |---------|-------------------------------------------|
