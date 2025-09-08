@@ -319,14 +319,15 @@ Only the h, d, and Ctrl + Q keys are consumed by the visualizer itself. All othe
 
 ### Command-Menu Controls
 
-| Key         | Function                                                                                                                       |
-|-------------|------------------------------------------------------------------------------------------------|
-| :           | Open the command menu                                                                          |
-| a           | Set tempo in BPM                                                                               |
-| b           | Set relative speed (e.g. `0.5` = half speed)                                                   |
-| c           | Play through the file once, then repeat it `<count>` more times. `<count>` = `0` cancels loop, `<count> = -1` infinite loop |
-| d           | Jump to absolute tick within current MIDI file. The length of a quarter note on 100BPM has 600 ticks.|
-| e           | Send raw commands to **Fluidsynth as synth engine** (run fluidsynth in a terminal and type `help` for commands)    |
+| Key | Function                                                                                                                         |
+|-----|----------------------------------------------------------------------------------------------------------------------------------|
+| :   | Open the command menu                                                                                                            |
+| a   | Set tempo in BPM                                                                                                                 |
+| b   | Set relative speed (e.g. `0.5` = half speed)                                                                                     |
+| c   | Play the file once, then loop it `<count>` more times (`0` = cancel loop; `-1` = infinite)                                       |
+| d   | Seek to an absolute tick in the current MIDI file (1 quarter-note @ 100 BPM = 600 ticks)                                         |
+| e   | Raw mode: send any command string directly to the backend’s TCP server                                                          |
+| h   | Help: show a scrollable list of all supported commands provided by the backend                                 |
 
 ---
 
