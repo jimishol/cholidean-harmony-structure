@@ -1,0 +1,64 @@
+Raw-mode ([e]):
+Below is the full list of TCP commands you can send
+directly to FluidSynth’s TCP server via this option.
+--------------------------------------------------------------------------------
+
+source filename                       Loads a file and parse every line as a command
+noteon chan key vel                   Sends noteon
+noteoff chan key                      Sends noteoff
+pitch_bend chan offset                Bends pitch
+pitch_bend_range chn range            Sets pitch bend range for the given midi channel
+cc chan ctrl value                    Sends control-change message
+prog chan num                         Sends program-change message
+select chan sfont bank prog           Combination of bank-select and program-change
+load file [reset] [bankofs]           Loads SoundFont (reset=0|1; def=1; bankofs=n)
+unload id [reset]                     Unloads SoundFont by ID (reset=0|1; default=1)
+reload id                             Reload the SoundFont with the specified ID
+interp num                            Choose interpolation method for all channels
+interpc chan num                      Choose interpolation method for one channel
+resetbasicchannels [chan1 chan2..]    Resets all or some basic channels
+setbasicchannels [chan mode val...]   Sets default, adds basic channels
+setlegatomode chan mode [chan mode..] Sets legato mode
+setportamentomode chan mode [chan mode..] Sets portamento mode
+setbreathmode chan poly(1/0) mono(1/0) breath_sync(1/0) [..] Sets breath mode
+rev_preset num                        Load preset num into all reverb units
+rev_setroomsize [group] num           Set room size of all or one reverb group to num
+rev_setdamp [group] num               Set damping of all or one reverb group to num
+rev_setwidth [group] num              Set width of all or one reverb group to num
+rev_setlevel [group] num              Set output level of all or one reverb group to num
+reverb [group] 0|1|on|off              Turn all or one reverb group on or off
+cho_set_nr [group] n                  Set n delay lines (default 3) in all or one chorus group
+cho_set_level [group] num             Set output level of all or one chorus group to num
+cho_set_speed [group] num             Set mod speed of all or one chorus group to num (Hz)
+cho_set_depth [group] num             Set modulation depth of all or one chorus group to num (ms)
+chorus [group] 0|1|on|off              Turn all or one chorus group on or off
+gain value                            Set the master gain (0 < gain < 5)
+tuning name bank prog                 Create a tuning with name, bank number, and program number (0 <= bank,prog <= 127)
+tune bank prog key pitch              Tune a key
+settuning chan bank prog              Set the tuning for a MIDI channel
+resettuning chan                      Restore the default tuning of a MIDI channel
+reset                                 System reset (all notes off, reset controllers)
+set name value                        Set the value of a setting (must be a real-time setting to take effect immediately)
+sleep duration                        Sleep for duration (in ms)
+ladspa_effect                         Create a new effect from a LADSPA plugin
+ladspa_link                           Connect an effect port to a host port or buffer
+ladspa_buffer                         Create a LADSPA buffer
+ladspa_set                            Set the value of an effect control port
+ladspa_start                          Start LADSPA effects
+ladspa_stop                           Stop LADSPA effect unit
+ladspa_reset                          Stop and reset LADSPA effects
+router_clear                          Clears all routing rules from the midi router
+router_default                        Resets the midi router to default state
+router_begin [note|cc|prog|pbend|cpress|kpress]    Starts a new routing rule
+router_chan min max mul add           Filters and maps midi channels on current rule
+router_par1 min max mul add           Filters and maps parameter 1 (key/ctrl nr)
+router_par2 min max mul add           Filters and maps parameter 2 (vel/cc val)
+router_end                            Closes and commits the current routing rule
+player_start                          Start playing from the beginning of current song
+player_stop                           Stop playing (cannot be executed in a user command file)
+player_cont                           Continue playing (cannot be executed in a user command file)
+player_seek num                       Move forward/backward in current song to +/-num ticks
+player_next                           Move to next song (cannot be executed in a user command file)
+player_loop num                       Set loop number to num (-1 = loop forever)
+player_tempo_bpm num                  Set tempo to num beats per minute
+player_tempo_int [mul]                Set internal tempo multiplied by mul (default mul=1.0)

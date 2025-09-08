@@ -284,3 +284,10 @@ end
 function love.resize(w, h)
   dream:init()
 end
+
+--- Forward mouse wheel to command menu for scrolling help
+function love.wheelmoved(x, y)
+  if scene.commandMenu.visible then
+    scene.commandMenu:wheelmoved(x, y)
+  end
+end
