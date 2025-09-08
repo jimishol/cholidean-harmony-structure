@@ -36,10 +36,10 @@ end
 --- Toggle menu visibility.
 -- When hiding, resets to select mode and clears any input.
 function CommandMenu:toggle()
-  self.visible = not self.visible
-  if not self.visible then
-    self.state, self.cmdKey, self.text = "select", nil, ""
-  end
+  -- self.visible = not self.visible
+  -- if not self.visible then
+  --   self.state, self.cmdKey, self.text = "select", nil, ""
+  -- end
 end
 
 --- Handle a key press event.
