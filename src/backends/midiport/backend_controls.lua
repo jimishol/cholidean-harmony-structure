@@ -89,4 +89,12 @@ function M.disconnect()
   return true
 end
 
+--- Return the pre-loaded MIDI-port help dump.
+-- @tparam string _host  (ignored)
+-- @tparam number _port  (ignored)
+-- @treturn table        Array of help lines
+function M.getHelp(_host, _port)
+  return helpLines
+end
+
 return M

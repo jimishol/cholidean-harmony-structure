@@ -1,14 +1,13 @@
---- midiport backend in‐game command menu.
+--- midiport backend in-game command menu.
 -- Presents a simple overlay for selecting and sending MIDI control messages
--- (tempo, speed, loop, seek, or raw) to a Fluidsynth server.
--- @module src.backends.fluidsynth.command_menu
+-- (tempo, speed, loop, seek, raw) and a scrollable help dump.
+-- Expects a file `midiport_help.txt` alongside this module.
+-- @module src.backends.midiport.command_menu
 
 local CommandMenu = {}
 CommandMenu.__index = CommandMenu
 
 --- Key-to-command mapping for numeric input modes.
--- Maps single letters a–d to Fluidsynth command topics.
--- @local
 -- @table topics
 -- @field a "player_tempo_bpm"
 -- @field b "player_tempo_int"
@@ -21,46 +20,68 @@ local topics = {
   d = "player_seek",
 }
 
+-- Load static MIDI-port help text once
+local helpLines = {}
+do
+  local raw = love.filesystem.read("src/backends/midiport/midiport_help.txt") or ""
+  for line in raw:gmatch("[^\r\n]+") do
+    table.insert(helpLines, line)
+  end
+end
+
 --- Create a new command menu instance.
--- Initially hidden and in select mode.
 -- @constructor
--- @treturn CommandMenu New menu object
+-- @treturn CommandMenu
 function CommandMenu:new()
   return setmetatable({
-    visible    = false,  -- whether the menu is drawn
-    state      = "select", -- "select" or "input"
-    cmdKey     = nil,    -- selected key ("a"–"e")
-    text       = "",     -- accumulated text in input mode
-    _skipFirst = false,  -- internals: skip first character after raw key
+    visible    = false,    -- whether the menu is drawn
+    state      = "select", -- "select", "input" or "help"
+    cmdKey     = nil,      -- selected key ("a"–"e" or "h")
+    text       = "",       -- accumulated text in input mode
+    _skipFirst = false,    -- skip first char after pressing "e"
+    scrollLine = 1,        -- first visible help line
   }, self)
 end
 
---- Toggle visibility of the menu.
--- When hiding, resets state back to select and clears text.
+--- Toggle menu visibility and reset when hiding.
 function CommandMenu:toggle()
   self.visible = not self.visible
   if not self.visible then
-    self.state, self.cmdKey, self.text, self._skipFirst =
-      "select", nil, "", false
+    self.state, self.cmdKey, self.text, self._skipFirst, self.scrollLine =
+      "select", nil, "", false, 1
   end
 end
 
---- Handle a key press event.
--- In select mode, chooses a command or exits.
--- In input mode, edits the text buffer or submits the command.
--- @tparam string key The key that was pressed
--- @treturn[string][nil] On Enter, returns the built command string; otherwise nil
+--- Handle key presses.
+-- Returns a command string on Enter; nil otherwise.
+-- @tparam string key
+-- @treturn[string][nil]
 function CommandMenu:keypressed(key)
-  if not self.visible then
+  if not self.visible then return end
+
+  -- HELP MODE: only Esc to exit
+  if self.state == "help" then
+    if key == "escape" then
+      self.state = "select"
+    end
     return
   end
 
+  -- SELECT MODE
   if self.state == "select" then
     if key == "escape" then
       self:toggle()
       return
     end
 
+    -- open help
+    if key == "h" then
+      self.state      = "help"
+      self.scrollLine = 1
+      return
+    end
+
+    -- raw mode
     if key == "e" then
       self.cmdKey     = "e"
       self.state      = "input"
@@ -69,12 +90,12 @@ function CommandMenu:keypressed(key)
       return
     end
 
+    -- numeric modes
     local letter = key:match("^([a-d])$")
     if letter then
       self.cmdKey = letter
       self.state  = "input"
       self.text   = ""
-      return
     end
 
     return
@@ -106,13 +127,9 @@ function CommandMenu:keypressed(key)
 end
 
 --- Collect text input in input mode.
--- Allows only valid numeric characters for a–d modes,
--- and arbitrary text for raw mode.
--- @tparam string t The text input (single character)
+-- @tparam string t single character of text input
 function CommandMenu:textinput(t)
-  if not self.visible or self.state ~= "input" then
-    return
-  end
+  if not self.visible or self.state ~= "input" then return end
 
   if self.cmdKey == "e" and self._skipFirst then
     self._skipFirst = false
@@ -130,34 +147,65 @@ function CommandMenu:textinput(t)
   end
 
   if t:match("[0-9.]") then
-    if t == "." and self.text:find("%.") then
-      return
-    end
+    if t == "." and self.text:find("%.") then return end
     self.text = self.text .. t
   end
 end
 
---- Draw the command menu overlay.
--- Renders a semi-transparent background and the current menu text.
--- @tparam number x X-coordinate to start drawing (default 50)
--- @tparam number y Y-coordinate to start drawing (default 50)
+--- Handle mouse wheel for scrolling help.
+-- @tparam number dx horizontal scroll (ignored)
+-- @tparam number dy vertical scroll (positive = up)
+function CommandMenu:wheelmoved(dx, dy)
+  if not self.visible or self.state ~= "help" then return end
+
+  -- scroll 2 lines per wheel notch
+  self.scrollLine = self.scrollLine - dy * 2
+  self.scrollLine = math.max(1, math.min(self.scrollLine, #helpLines))
+end
+
+--- Draw the menu or help overlay.
+-- @tparam number x X-coordinate (default 50)
+-- @tparam number y Y-coordinate (default 50)
 function CommandMenu:draw(x, y)
-  if not self.visible then
-    return
-  end
+  if not self.visible then return end
   x = x or 50
   y = y or 50
 
   local font  = love.graphics.getFont()
-  local label = (self.state == "select")
-    and "[a]tempo(bpm) [b]speed(x1) [c]loop [d]seek [e]raw"
-    or  (self.cmdKey .. ": " .. self.text .. "_")
-  local hint  = "(a–d numeric, e raw, Enter to send, Esc to cancel)"
-  local w     = math.max(font:getWidth(label), font:getWidth(hint)) + 16
-  local h     = font:getHeight() * 2 + 16
+  local lineH = font:getHeight()
+  local winH  = love.graphics.getHeight()
+
+  -- HELP OVERLAY: single column, scrollable
+  if self.state == "help" then
+    love.graphics.setColor(1, 1, 1)
+    local maxLines = math.floor((winH - y - 40) / lineH)
+    for i = 0, maxLines - 1 do
+      local idx = self.scrollLine + i
+      if idx > #helpLines then break end
+      love.graphics.print(helpLines[idx], x, y + i * lineH)
+    end
+
+    love.graphics.printf(
+      "[Esc] Back    Mouse Wheel to Scroll",
+      x,
+      winH - 30,
+      love.graphics.getWidth() - 2 * x,
+      "right"
+    )
+    return
+  end
+
+  -- NORMAL MENU DRAW
+  local label = "[a]tempo(bpm) [b]speed(x1) [c]loop [d]seek [h]help [e]raw"
+  if self.state == "input" then
+    label = self.cmdKey .. ": " .. self.text .. "_"
+  end
+  local hint = "(a–d numeric, h help, e raw, Enter to send, Esc to cancel)"
+  local w    = math.max(font:getWidth(label), font:getWidth(hint)) + 16
+  local hgt  = font:getHeight() * 2 + 16
 
   love.graphics.setColor(0, 0, 0, 0.2)
-  love.graphics.rectangle("fill", x, y, w, h, 4, 4)
+  love.graphics.rectangle("fill", x, y, w, hgt, 4, 4)
   love.graphics.setColor(0.7, 0.7, 0.7)
   love.graphics.print(hint, x + 8, y + 8)
   love.graphics.setColor(1, 1, 1)
