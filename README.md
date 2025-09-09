@@ -172,10 +172,10 @@ The project is designed to be extensible. Developers can integrate alternative b
   - Configure in `src/constants.lua`:
     ```lua
     -- in src/constants.lua
-    M.backend    = "midiport"
-    M.midiport   = "14:0"        -- ALSA client:port to sniff
-    M.shellHost  = "localhost"   -- TCP host for control commands
-    M.shellPort  = 9800          -- TCP port for control commands
+    M.backend            = "midiport"
+    M.DEFAULT_MIDI_PORT  = "14:0"        -- ALSA client:port to sniff
+    M.shellHost          = "localhost"   -- TCP host for control commands
+    M.shellPort          = 9800          -- TCP port for control commands
     ```
 
 🔧 Future Improvement
