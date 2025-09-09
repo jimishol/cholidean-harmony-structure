@@ -34,6 +34,7 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
 </ul>
 
 
@@ -44,14 +45,14 @@
   <li><a href="../modules/src.backends.fluidsynth.track_active_notes_thread.html">src.backends.fluidsynth.track_active_notes_thread</a></li>
   <li><a href="../modules/src.backends.html">src.backends</a></li>
   <li><a href="../modules/src.backends.midiport.backend_controls.html">src.backends.midiport.backend_controls</a></li>
-  <li><a href="../modules/src.backends.midiport.command_menu.html">src.backends.midiport.command_menu</a></li>
+  <li><strong>src.backends.midiport.command_menu</strong></li>
   <li><a href="../modules/src.backends.midiport.track_active_notes_thread.html">src.backends.midiport.track_active_notes_thread</a></li>
-  <li><strong>src.backends.null.backend_controls</strong></li>
+  <li><a href="../modules/src.backends.null.backend_controls.html">src.backends.null.backend_controls</a></li>
   <li><a href="../modules/src.backends.null.command_menu.html">src.backends.null.command_menu</a></li>
   <li><a href="../modules/src.backends.null.track_active_notes_thread.html">src.backends.null.track_active_notes_thread</a></li>
   <li><a href="../modules/src.backends.playlist.html">src.backends.playlist</a></li>
   <li><a href="../modules/src.backends.midiport.backend_controls.html">src.backends.midiport.backend_controls</a></li>
-  <li><a href="../modules/src.backends.midiport.command_menu.html">src.backends.midiport.command_menu</a></li>
+  <li><strong>src.backends.midiport.command_menu</strong></li>
   <li><a href="../modules/src.backends.midiport.track_active_notes_thread.html">src.backends.midiport.track_active_notes_thread</a></li>
   <li><a href="../modules/src.backends.camera.html">src.backends.camera</a></li>
   <li><a href="../modules/constants.html">constants</a></li>
@@ -71,29 +72,45 @@
 
 <div id="content">
 
-<h1>Module <code>src.backends.null.backend_controls</code></h1>
-<p>Null backend controls (manual mode).</p>
-<p> Provides no-op implementations for playback control and message sending.
- Useful when no real backend is attached.</p>
+<h1>Module <code>src.backends.midiport.command_menu</code></h1>
+<p>midiport backend in-game command menu.</p>
+<p> Presents a simple overlay for selecting and sending MIDI control messages
+ (tempo, speed, loop, seek, raw) and a scrollable help dump.
+ Expects a file <code>midiport_help.txt</code> alongside this module.</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#send_message">send_message (topic, host, port)</a></td>
-	<td class="summary">Ignore any send_message calls.</td>
+	<td class="name" nowrap><a href="#CommandMenu:new">CommandMenu:new ()</a></td>
+	<td class="summary">Create a new command menu instance.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#togglePlayback">togglePlayback (host, port)</a></td>
-	<td class="summary">No-op togglePlayback.</td>
+	<td class="name" nowrap><a href="#CommandMenu:toggle">CommandMenu:toggle ()</a></td>
+	<td class="summary">Toggle menu visibility and reset when hiding.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#beginSong">beginSong (host, port)</a></td>
-	<td class="summary">No-op beginSong.</td>
+	<td class="name" nowrap><a href="#CommandMenu:keypressed">CommandMenu:keypressed (key)</a></td>
+	<td class="summary">Handle key presses.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#nextSong">nextSong (host, port)</a></td>
-	<td class="summary">No-op nextSong.</td>
+	<td class="name" nowrap><a href="#CommandMenu:textinput">CommandMenu:textinput (t)</a></td>
+	<td class="summary">Collect text input in input mode.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#CommandMenu:wheelmoved">CommandMenu:wheelmoved (dx, dy)</a></td>
+	<td class="summary">Handle mouse wheel for scrolling help.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#CommandMenu:draw">CommandMenu:draw (x, y)</a></td>
+	<td class="summary">Draw the menu or help overlay.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#topics">topics</a></td>
+	<td class="summary">Key-to-command mapping for numeric input modes.</td>
 	</tr>
 </table>
 
@@ -105,27 +122,83 @@
 
     <dl class="function">
     <dt>
-    <a name = "send_message"></a>
-    <strong>send_message (topic, host, port)</strong>
+    <a name = "CommandMenu:new"></a>
+    <strong>CommandMenu:new ()</strong>
     </dt>
     <dd>
-    Ignore any send_message calls.
- In manual mode, messages are not sent.
+    Create a new command menu instance.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">CommandMenu</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "CommandMenu:toggle"></a>
+    <strong>CommandMenu:toggle ()</strong>
+    </dt>
+    <dd>
+    Toggle menu visibility and reset when hiding.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "CommandMenu:keypressed"></a>
+    <strong>CommandMenu:keypressed (key)</strong>
+    </dt>
+    <dd>
+    Handle key presses.
+ Returns a command string on Enter; nil otherwise.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">topic</span>
+        <li><span class="parameter">key</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
-          Command topic
+
+
         </li>
-        <li><span class="parameter">host</span>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">[nil]</span></span>
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "CommandMenu:textinput"></a>
+    <strong>CommandMenu:textinput (t)</strong>
+    </dt>
+    <dd>
+    Collect text input in input mode.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
-           Host address (ignored)
-        </li>
-        <li><span class="parameter">port</span>
-            <span class="types"><span class="type">number</span></span>
-           Port number (ignored)
+         single character of text input
         </li>
     </ul>
 
@@ -135,23 +208,22 @@
 
 </dd>
     <dt>
-    <a name = "togglePlayback"></a>
-    <strong>togglePlayback (host, port)</strong>
+    <a name = "CommandMenu:wheelmoved"></a>
+    <strong>CommandMenu:wheelmoved (dx, dy)</strong>
     </dt>
     <dd>
-    No-op togglePlayback.
- Does nothing in null backend.
+    Handle mouse wheel for scrolling help.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">host</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
-           Host address (ignored)
-        </li>
-        <li><span class="parameter">port</span>
+        <li><span class="parameter">dx</span>
             <span class="types"><span class="type">number</span></span>
-           Port number (ignored)
+         horizontal scroll (ignored)
+        </li>
+        <li><span class="parameter">dy</span>
+            <span class="types"><span class="type">number</span></span>
+         vertical scroll (positive = up)
         </li>
     </ul>
 
@@ -161,23 +233,22 @@
 
 </dd>
     <dt>
-    <a name = "beginSong"></a>
-    <strong>beginSong (host, port)</strong>
+    <a name = "CommandMenu:draw"></a>
+    <strong>CommandMenu:draw (x, y)</strong>
     </dt>
     <dd>
-    No-op beginSong.
- Does nothing in null backend.
+    Draw the menu or help overlay.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">host</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
-           Host address (ignored)
-        </li>
-        <li><span class="parameter">port</span>
+        <li><span class="parameter">x</span>
             <span class="types"><span class="type">number</span></span>
-           Port number (ignored)
+         X-coordinate (default 50)
+        </li>
+        <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
+         Y-coordinate (default 50)
         </li>
     </ul>
 
@@ -186,24 +257,31 @@
 
 
 </dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
     <dt>
-    <a name = "nextSong"></a>
-    <strong>nextSong (host, port)</strong>
+    <a name = "topics"></a>
+    <strong>topics</strong>
     </dt>
     <dd>
-    No-op nextSong.
- Does nothing in null backend.
+    Key-to-command mapping for numeric input modes.
 
 
-    <h3>Parameters:</h3>
+    <h3>Fields:</h3>
     <ul>
-        <li><span class="parameter">host</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
-           Host address (ignored)
+        <li><span class="parameter">a</span>
+         &ldquo;player_tempo_bpm&rdquo;
         </li>
-        <li><span class="parameter">port</span>
-            <span class="types"><span class="type">number</span></span>
-           Port number (ignored)
+        <li><span class="parameter">b</span>
+         &ldquo;player_tempo_int&rdquo;
+        </li>
+        <li><span class="parameter">c</span>
+         &ldquo;player_loop&rdquo;
+        </li>
+        <li><span class="parameter">d</span>
+         &ldquo;player_seek&rdquo;
         </li>
     </ul>
 

@@ -6,13 +6,14 @@
 
 ## Audio Backend
 
-| Option                 | Default             | Description                                   |
-|------------------------|---------------------|-----------------------------------------------|
-| `backend`              | `"fluidsynth"`      | External audio backend executable             |
-| `windowsBackendPath`   | `"bin\\"`           | Root path of Fluidsynth on Windows (`bin\`)   |
-| `shellHost`            | `"localhost"`       | Hostname or IP of the backend                 |
-| `shellPort`            | `9800`              | TCP port to control the backend               |
-| `soundfonts`           | `"FluidR3_GM.sf2"`  | Path to SoundFont file for Fluidsynth         |
+| Option                 | Default             | Description                                                                                                      |
+|------------------------|---------------------|------------------------------------------------------------------------------------------------------------------|
+| `backend`              | `"fluidsynth"`      | External audio backend executable                                                                                |
+| `windowsBackendPath`   | `"bin\\"`           | Root path of Fluidsynth on Windows (`bin\`)                                                                      |
+| `DEFAULT_MIDI_PORT`    | `"14:0"`            | Default MIDI input port for active‑note tracking (Linux ALSA: `"14:0"`, Windows: name of virtual cable/device)   |
+| `shellHost`            | `"localhost"`       | Hostname or IP of the backend                                                                                    |
+| `shellPort`            | `9800`              | TCP port to control the backend                                                                                  |
+| `soundfonts`           | `"FluidR3_GM.sf2"`  | Path to SoundFont file                                                                            |
 
 ---
 

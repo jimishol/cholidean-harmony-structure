@@ -34,6 +34,7 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
 </ul>
 
 
@@ -44,12 +45,15 @@
   <li><a href="../modules/src.backends.fluidsynth.track_active_notes_thread.html">src.backends.fluidsynth.track_active_notes_thread</a></li>
   <li><a href="../modules/src.backends.html">src.backends</a></li>
   <li><a href="../modules/src.backends.midiport.backend_controls.html">src.backends.midiport.backend_controls</a></li>
-  <li><strong>src.backends.fluidsynth.command_menu</strong></li>
+  <li><a href="../modules/src.backends.midiport.command_menu.html">src.backends.midiport.command_menu</a></li>
   <li><a href="../modules/src.backends.midiport.track_active_notes_thread.html">src.backends.midiport.track_active_notes_thread</a></li>
   <li><a href="../modules/src.backends.null.backend_controls.html">src.backends.null.backend_controls</a></li>
   <li><a href="../modules/src.backends.null.command_menu.html">src.backends.null.command_menu</a></li>
   <li><a href="../modules/src.backends.null.track_active_notes_thread.html">src.backends.null.track_active_notes_thread</a></li>
   <li><a href="../modules/src.backends.playlist.html">src.backends.playlist</a></li>
+  <li><a href="../modules/src.backends.midiport.backend_controls.html">src.backends.midiport.backend_controls</a></li>
+  <li><a href="../modules/src.backends.midiport.command_menu.html">src.backends.midiport.command_menu</a></li>
+  <li><a href="../modules/src.backends.midiport.track_active_notes_thread.html">src.backends.midiport.track_active_notes_thread</a></li>
   <li><a href="../modules/src.backends.camera.html">src.backends.camera</a></li>
   <li><a href="../modules/constants.html">constants</a></li>
   <li><a href="../modules/src.input.actions.html">src.input.actions</a></li>
@@ -69,9 +73,10 @@
 <div id="content">
 
 <h1>Module <code>src.backends.fluidsynth.command_menu</code></h1>
-<p>midiport backend in‐game command menu.</p>
+<p>Fluidsynth backend in-game command menu.</p>
 <p> Presents a simple overlay for selecting and sending MIDI control messages
- (tempo, speed, loop, seek, or raw) to a Fluidsynth server.</p>
+ (tempo, speed, loop, seek, raw) and a scrollable help dump.
+ Expects a file <code>fluidsynth_help.txt</code> alongside this module.</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
@@ -82,19 +87,30 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#CommandMenu:toggle">CommandMenu:toggle ()</a></td>
-	<td class="summary">Toggle visibility of the menu.</td>
+	<td class="summary">Toggle menu visibility and reset when hiding.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#CommandMenu:keypressed">CommandMenu:keypressed (key)</a></td>
-	<td class="summary">Handle a key press event.</td>
+	<td class="summary">Handle key presses.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#CommandMenu:textinput">CommandMenu:textinput (t)</a></td>
 	<td class="summary">Collect text input in input mode.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#CommandMenu:wheelmoved">CommandMenu:wheelmoved (dx, dy)</a></td>
+	<td class="summary">Handle mouse wheel for scrolling help.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#CommandMenu:draw">CommandMenu:draw (x, y)</a></td>
-	<td class="summary">Draw the command menu overlay.</td>
+	<td class="summary">Draw the menu or help overlay.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#topics">topics</a></td>
+	<td class="summary">Key-to-command mapping for numeric input modes.</td>
 	</tr>
 </table>
 
@@ -111,7 +127,6 @@
     </dt>
     <dd>
     Create a new command menu instance.
- Initially hidden and in select mode.
 
 
 
@@ -119,7 +134,8 @@
     <ol>
 
            <span class="types"><span class="type">CommandMenu</span></span>
-        New menu object
+
+
     </ol>
 
 
@@ -131,8 +147,7 @@
     <strong>CommandMenu:toggle ()</strong>
     </dt>
     <dd>
-    Toggle visibility of the menu.
- When hiding, resets state back to select and clears text.
+    Toggle menu visibility and reset when hiding.
 
 
 
@@ -146,25 +161,18 @@
     <strong>CommandMenu:keypressed (key)</strong>
     </dt>
     <dd>
-    Handle a key press event.
- In select mode, chooses a command or exits.
- In input mode, edits the text buffer or submits the command.
+    Handle key presses.
+ Returns a command string on Enter; nil otherwise.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">key</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
-         The key that was pressed
+
+
         </li>
     </ul>
 
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">[nil]</span></span>
-        On Enter, returns the built command string; otherwise nil
-    </ol>
 
 
 
@@ -176,15 +184,38 @@
     </dt>
     <dd>
     Collect text input in input mode.
- Allows only valid numeric characters for a–d modes,
- and arbitrary text for raw mode.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
-         The text input (single character)
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "CommandMenu:wheelmoved"></a>
+    <strong>CommandMenu:wheelmoved (dx, dy)</strong>
+    </dt>
+    <dd>
+    Handle mouse wheel for scrolling help.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dx</span>
+            <span class="types"><span class="type">number</span></span>
+         horizontal scroll (ignored)
+        </li>
+        <li><span class="parameter">dy</span>
+            <span class="types"><span class="type">number</span></span>
+         vertical scroll (positive = up)
         </li>
     </ul>
 
@@ -198,19 +229,51 @@
     <strong>CommandMenu:draw (x, y)</strong>
     </dt>
     <dd>
-    Draw the command menu overlay.
- Renders a semi-transparent background and the current menu text.
+    Draw the menu or help overlay.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
             <span class="types"><span class="type">number</span></span>
-         X-coordinate to start drawing (default 50)
+         X-coordinate (default 50)
         </li>
         <li><span class="parameter">y</span>
             <span class="types"><span class="type">number</span></span>
-         Y-coordinate to start drawing (default 50)
+         Y-coordinate (default 50)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "topics"></a>
+    <strong>topics</strong>
+    </dt>
+    <dd>
+    Key-to-command mapping for numeric input modes.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         &ldquo;player_tempo_bpm&rdquo;
+        </li>
+        <li><span class="parameter">b</span>
+         &ldquo;player_tempo_int&rdquo;
+        </li>
+        <li><span class="parameter">c</span>
+         &ldquo;player_loop&rdquo;
+        </li>
+        <li><span class="parameter">d</span>
+         &ldquo;player_seek&rdquo;
         </li>
     </ul>
 
@@ -226,7 +289,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2025-09-08 18:39:55 </i>
+<i style="float:right;">Last updated 2025-09-09 09:25:21 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
