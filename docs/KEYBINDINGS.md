@@ -32,12 +32,13 @@
 | tab            | BEGIN_SONG              | Start song from beginning              |
 | return         | NEXT_SONG               | Advance to next song                   |
 |-------------------------------------------|---------------------------------------------|-------------------------------------------|
-| :              | SHOW_COMMAND_MENU       | Pass direct commands to fluidsynth                  |
-| a                | SET_TEMPO                | Set tempo in BPM (e.g. `120`)                       |
-| b                | SET_SPEED                | Set relative speed (e.g. `0.5` = half speed)        |
-| c                | <COMMAND_MENU_C>         | Play through the file once, then repeat it `<count>` more times. `<count>` = `0`cancels loop, `<count> = -1` infinite loop |
-| d                | <COMMAND_MENU_D>         | Jump to absolute tick within current MIDI file. The length of a quarter note on 100BPM has 600 ticks.|
-| e                | PASS_FLUIDSYNTH_COMMAND  | Send raw commands to FluidSynth shell (In seperate terminal launch fluidsynth and type `help` [Enter] for list of available commands.) |
+| :              | <COMMAND_MENU>           | Send commands to the backend’s TCP control server (Fluidsynth backend uses its `-s` option server) |
+| a              | SET_TEMPO                 | Set tempo in BPM (e.g. `120`)                       |
+| b              | SET_SPEED                 | Set relative speed (e.g. `0.5` = half speed)        |
+| c              | <COMMAND_MENU_C>          | Play through the file once, then repeat it `<count>` more times. `<count>` = `0` cancels loop, `<count>` = `-1` infinite loop |
+| d              | <COMMAND_MENU_D>          | Jump to absolute tick within current MIDI file. The length of a quarter note on 100 BPM has 600 ticks. |
+| h              | <COMMAND_MENU_HELP>       | Show a scrollable list of all supported commands provided by the backend |
+| e              | <COMMAND_MENU_RAW>        | Send raw text to the backend’s TCP control server  |
 |-------------------------------------------|---------------------------------------------|-------------------------------------------|
 | Hold Right Mouse + Drag              | Rotate view (yaw/pitch)                |                                      |
 | Hold Middle Mouse + Drag Up/Down     | Pan camera forward/back along view     |                                      |
