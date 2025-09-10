@@ -12,6 +12,9 @@ Cholidean Harmony Structure is a projection of 12-tone Equal Temperament ([12ET]
 
 Project's integration with [FluidSynth](https://github.com/FluidSynth/fluidsynth), as a MIDI backend player, demonstrates a powerful method for visualizing and exploring harmony theories.
 
+*At its heart, this project offers full 3D harmony exploration — a feature that works on all platforms when run with the null backend (no audio), so anyone can experience the concept without setup hurdles.
+*
+
 📖 **Two ways into this world:**  
 - *The Watch and the Twelve Realms* — [read the origin fable](docs/the_story.md) *(first watch story at → https://jimishol.github.io/post/circle_of_fifths)*  
 - *Tonality Structure in Music* — [read the tonal structure article](https://jimishol.github.io/post/tonality/)
@@ -70,8 +73,7 @@ Note: macOS support is currently unverified. This project was built with love an
 
 ### 🪟 Windows
 
-⚠️ Before installing on Windows, review the **Known Issues** below and ensure you have a GPU/OpenGL-enabled environment.  
-To skip audio entirely, set `M.backend = "null"` in `src/constants.lua`.
+⚠️ On Windows, the recommended backend is null, which provides the full 3D harmonic visualisation experience without audio. To use it, set M.backend = "null" in src/constants.lua. Audio/MIDI input on Windows is not currently implemented. Developers can contribute a backend by adapting the Linux midiport code to the Windows MIDI API (WinMM) or a cross‑platform library like RtMidi.
 
 0. **WSL (Optional Workaround)**  
    Tested under WSL with `stdbuf -oL`, but real-time line buffering still fails—use at your own risk.
@@ -80,20 +82,18 @@ To skip audio entirely, set `M.backend = "null"` in `src/constants.lua`.
    Clone the repo (including `asset_pipeline`/`docs`), or download and unzip the release ZIP.
 
 2. **Install LÖVE**  
-   Download the Windows ZIP from https://love2d.org/ and unzip it into your project folder.
-
-3. **Install FluidSynth**  
-   Download the latest Windows ZIP from https://github.com/FluidSynth/fluidsynth/releases  
-   and unzip it into your project folder (creates `bin/`, `lib/`, and `include/`).
-
-4. **Add SoundFonts**  
-   Download `FluidR3_GM.sf2` (raw file) from the Jacalz repo and place it next to `main.lua` in your project root.
-
-5. **Install Git for Windows**  
-   Download and install from https://github.com/git-for-windows/git/releases, then reboot your machine.
-
-6. **Launch the Visualizer**  
-   Double-click `run.bat` in your project folder.
+   Install LÖVE for Windows from the official site: https://love2d.org/  
+Use the installer so LÖVE is added to your system PATH.  
+Once installed, open a terminal in the project folder and run:
+   ```bash
+   love .
+   ```
+   
+3. **Launch the Visualizer**  
+   Set `M.backend = "null"` in `src/constants.lua`, then run the project from the command line:
+   ```bash
+   love .
+   ```
 
 ---
 
@@ -135,7 +135,8 @@ git lfs install
 
 This project works like a minimalist music player — but with a twist. Instead of just playing sound, it visually projects musical harmony into a 3D space, offering a unique and immersive way to experience music. The active joints (notes) become self-illuminating and grow in size. Of these, the bass notes strive valiantly to stand out with distinctive dots. The outgoing edges emit light discreetly to activate their destination. Spectral surfaces, when unambiguously indicated by active joints, materialize and emit light to attract the attention of minor or major scales that could incorporate them. The compositions are visualized in an anticipated dance of surprising steps.
 
-- **Supported Format:** Currently supports MIDI files via FluidSynth or via the Linux ALSA `midiport` backend—both emit real-time note ON/OFF events for 3D visualization.
+- **Supported Format:** Currently supports MIDI files via FluidSynth or via the Linux ALSA midiport backend—both emit real-time note ON/OFF events for 3D visualization. On Windows, use the null backend for full visualisation without audio.
+
 - **Interactive Controls:** Users can pause playback or slow down tempo, making it ideal for music students or harmony learners.
 - **No Technical Setup Required:** Just launch the app, load a MIDI file, and enjoy the visual harmony.
 
@@ -163,6 +164,7 @@ The project is designed to be extensible. Developers can integrate alternative b
 * **Null Backend (Manual Mode)**  
   - Teachers or developers can manually edit `active_notes.lua` to simulate note activity.  
   - Useful for demonstrations, teaching, or testing without a live music source.
+  - Recommended for Windows users to explore harmony in 3D space without audio.
 
 * **midiport (Linux only)**
   - Sniffs an ALSA MIDI port directly via FFI (default `Midi Through 14:0`).
@@ -180,8 +182,8 @@ The project is designed to be extensible. Developers can integrate alternative b
 
 🔧 Future Improvement
 
-* **Windows Port for Direct Parsing**  
-   Windows MIDI direct parsing Listens to MIDI devices via WinMM (or WASAPI loopback for audio), pushes raw events into the Love2D thread channel "midi_events", and bypasses FluidSynth stdout entirely.
+* **Potential Windows Backend**  
+No native Windows MIDI backend is currently included. Developers can implement Windows MIDI input by adapting the Linux midiport code to use WinMM or RtMidi.
 
 _For a deep dive into the asset pipeline, see [FOR_DEVELOPERS](asset_pipeline/FOR_DEVELOPERS.md)._
 
@@ -200,7 +202,7 @@ Launch the visualizer with FluidSynth to render harmony in 3D space using real-t
 
 **Windows:**
 ```bat
-Double-click run.bat
+love .
 ```
 FluidSynth playback will follow whatever exists in `midi_files/` folder.
 
