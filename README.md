@@ -52,7 +52,13 @@ If your repository includes them, install
 ```
 sudo zypper install fluid-soundfont-gm
 ```
-or take them from https://github.com/Jacalz/fluid-soundfont/blob/master/original-files/FluidR3_GM.sf2 (use “Download raw file”) and place it in project's root. There is no need to place soundfonts in project's root in that case.
+
+> Alternatively, download the raw file from [FluidR3_GM.sf2](https://github.com/Jacalz/fluid-soundfont/blob/master/original-files/FluidR3_GM.sf2) and place it in the project’s root directory.  
+> For a cleaner setup, put it in the `soundfonts/` folder and set:
+> ```lua
+> M.soundfonts = "soundfonts/FluidR3_GM.sf2"
+> ```
+> If no valid SoundFont is found, the Fluidsynth backend will fall back to its configured default (if available); otherwise, no sound will be produced.
 
 ---
 

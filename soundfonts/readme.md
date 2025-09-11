@@ -11,5 +11,4 @@ M.soundfonts = "YourFile.sf2"
 ```lua
 M.soundfonts = "soundfonts/YourFile.sf2"
 ```  
-
-Either approach works on all platforms. LÖVE will read the file via its virtual filesystem, and the backend will dump it to a properly escaped OS‐path for Fluidsynth.
+Either approach works on all platforms. LÖVE will read the file via its virtual filesystem provided it is located within the project’s root directory or one of its subfolders, and the backend will then dump it to a properly escaped OS path for Fluidsynth.
