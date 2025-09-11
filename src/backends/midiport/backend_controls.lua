@@ -3,6 +3,7 @@
 -- @module src.backends.midiport.backend_controls
 
 local socket = require("socket")
+local control = love.thread.getChannel("track_control")
 
 --- BackendControls class.
 -- @type BackendControls
@@ -58,7 +59,6 @@ local function ensure_connection(host, port)
 end
 
 --- Send a single line (with CRLF) to the MIDI-port server.
--- Implements the exact API that `main.lua` expects.
 -- @tparam string message  Raw command (e.g. "gain 0.8")
 -- @tparam string host     TCP host (e.g. "localhost")
 -- @tparam number port     TCP port (e.g. 9800)
@@ -87,6 +87,20 @@ function M.disconnect()
     print("[midiport] control TCP disconnected")
   end
   return true
+end
+
+--- Begin song (Backtab binding).
+-- Pushes "clear" to track_control before starting.
+function M.beginSong()
+  control:push("clear")
+  -- Add any other beginSong logic here if needed
+end
+
+--- Next song (Enter binding).
+-- Pushes "clear" to track_control before advancing.
+function M.nextSong()
+  control:push("clear")
+  -- Add any other nextSong logic here if needed
 end
 
 --- Return the pre-loaded MIDI-port help dump.

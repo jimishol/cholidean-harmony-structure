@@ -189,6 +189,9 @@ The project is designed to be extensible. Developers can integrate alternative b
     M.shellHost          = "localhost"   -- TCP host for control commands
     M.shellPort          = 9800          -- TCP port for control commands
     ```
+**💡 Tip — Clearing lingering notes (MIDIport only)**  
+
+With the MIDIport backend, if you suddenly change songs, any notes still active from the previous song will keep their status until cleared — even though they’re not heard. The active notes list is only cleared automatically when you restart the current song (Backtab) or move to the next song (Enter). There’s no separate “clear” button — so if you interrupt the player, press one of these keys to reset the list.
 
 🔧 Future Improvement
 

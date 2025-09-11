@@ -5,10 +5,11 @@
 -- received on the `quit` channel.
 -- @module src.backends.midiport.track_active_notes_thread
 
-local quit_channel    = love.thread.getChannel("quit")
-local notesChannel    = love.thread.getChannel("active_notes")
-local midiPortChannel = love.thread.getChannel("midiPort")
-local love_timer      = require("love.timer")
+local quit_channel     = love.thread.getChannel("quit")
+local notesChannel     = love.thread.getChannel("active_notes")
+local midiPortChannel  = love.thread.getChannel("midiPort")
+local control_channel  = love.thread.getChannel("track_control")
+local love_timer       = require("love.timer")
 
 ---------------------------------------------------------
 -- MIDI source selection (default ALSA Midi Through 14:0)
@@ -181,13 +182,35 @@ local function publish_from_file(sniff_list)
   notesChannel:push(data)
 end
 
--- Main loop: sniff & publish ~50 Hz
+--- Handle non-blocking control commands from track_control.
+-- Currently supports "clear" to wipe active notes immediately.
+local function handle_control_commands()
+  while true do
+    local cmd = control_channel:pop() -- non-blocking
+    if not cmd then break end
+    if cmd == "clear" then
+      -- Reset runtime state and the disk file, then publish empty.
+      ACTIVE = {}
+      clear_notes_file()
+      notesChannel:clear()
+      notesChannel:push({})
+    elseif cmd == "quit" then
+      -- Normalize on quit_channel so the main loop exits.
+      quit_channel:push("quit")
+    end
+  end
+end
+
+-- Main loop: control handling + sniff & publish ~50 Hz
 
 clear_notes_file()
 publish_from_file({})
 
 local last_publish = love_timer.getTime()
 while true do
+  -- Process any pending control commands first (non-blocking).
+  handle_control_commands()
+
   if quit_channel:peek() == "quit" then break end
 
   local notes = sniff()
