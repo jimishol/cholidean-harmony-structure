@@ -31,6 +31,10 @@ If you’re on Linux and don’t have LÖVE installed:
 ```
 sudo zypper install love
 ```
+`midiport` backend needs `alsa-devel`:
+```
+sudo zypper install alsa-devel
+```
 
 Running, from project's ROOT directory, is simple:
 ```
