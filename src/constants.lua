@@ -59,10 +59,10 @@
 
 local M = {}
 
-M.backend             = "midiport" -- "midiport" "null" "fluidsynth"
+M.backend             = "fluidsynth" -- "midiport" "null" "fluidsynth"
+M.windowsBackendPath  = "bin\\"
 M.DEFAULT_MIDI_PORT   = "14:0"
 
-M.windowsBackendPath  = "bin\\"
 M.soundfonts          = "FluidR3_GM.sf2"
 M.shellPort           = 9800
 M.shellHost           = "localhost"

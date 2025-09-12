@@ -89,15 +89,11 @@ Note: macOS support is currently unverified. This project was built with love an
    Tested under WSL with `stdbuf -oL`, but real-time line buffering still fails—use at your own risk.
 
 1. **Prepare the Project Directory**  
-   Clone the repo (including `asset_pipeline`/`docs`), or download and unzip the release ZIP.
+   Clone the repo (including `asset_pipeline/` and `docs/ldoc/`), or download and unzip the release ZIP.
 
 2. **Install LÖVE**  
    Install LÖVE for Windows from the official site: https://love2d.org/  
 Use the installer so LÖVE is added to your system PATH.  
-Once installed, open a terminal in the project folder and run:
-   ```bash
-   love .
-   ```
    
 3. **Launch the Visualizer**  
    Set `M.backend = "null"` in `src/constants.lua`, then run the project from the command line:
@@ -189,9 +185,9 @@ The project is designed to be extensible. Developers can integrate alternative b
     M.shellHost          = "localhost"   -- TCP host for control commands
     M.shellPort          = 9800          -- TCP port for control commands
     ```
-**💡 Tip — Clearing lingering notes (MIDIport only)**  
+**💡 Tip — Clearing lingering notes (midiport only)**  
 
-With the MIDIport backend, if you suddenly change songs, any notes still active from the previous song will keep their status until cleared — even though they’re not heard. The active notes list is only cleared automatically when you restart the current song (Backtab) or move to the next song (Enter). There’s no separate “clear” button — so if you interrupt the player, press one of these keys to reset the list.
+With the midiport backend, if you suddenly change songs, any notes still active from the previous song will keep their status until cleared — even though they’re not heard. The active notes list is only cleared automatically when you restart the current song (Backtab) or move to the next song (Enter). There’s no separate “clear” button — so if you interrupt the player, press one of these keys to reset the list.
 
 🔧 Future Improvement
 
@@ -294,13 +290,13 @@ Operates independently of any playback or synth engine, continuously monitoring 
    ```lua
    -- src/constants.lua
    M.backend    = "midiport"     -- select the ALSA‐sniffing backend
-   M.midiport   = "20:0"         -- ALSA client:port to sniff
+   M.midiport   = "14:0"         -- ALSA client:port to sniff
    M.shellHost  = "localhost"    -- TCP host for control commands
    M.shellPort  = 9800           -- TCP port for control commands
    ```
 3. **Route your MIDI device** (if needed)  
    ```bash
-   aconnect 24:0 20:0
+   aconnect 24:0 14:0
    ```
 4. **Launch the visualizer**  
    ```bash
