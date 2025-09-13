@@ -1,3 +1,5 @@
+© 2024–2025 Δημήτριος Χωλίδης
+
 <div align="center">
 
 # Cholidean Harmony Structure
