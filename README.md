@@ -48,7 +48,7 @@ or
 ```
  this way enables the restart capability.
 
-To enable MIDI playback, install FluidSynth via your package manager:
+To enable MIDI playback with the fluidsynth backend, install fluidsynth via your package manager.
 ```
 sudo zypper install fluidsynth
 ```
