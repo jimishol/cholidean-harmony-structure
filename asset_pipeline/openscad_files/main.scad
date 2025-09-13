@@ -1,3 +1,6 @@
+// © 2025 Δημήτριος Χωλίδης. All rights reserved.  
+// Licensed under GPL-3.0; see LICENSE.  
+
 // main.scad
 include <prims.scad>;
 // at the very top, allow -D exportNote="" (all) or e.g. -D exportNote="A"
