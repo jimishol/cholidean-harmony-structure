@@ -8,7 +8,8 @@
 
   <img src="https://github.com/jimishol/jimishol.github.io/blob/main/tonality/cholidean_structure.png" alt="Theme Image" width="100%" />
 
-This is a [Video screen record.](https://jimishol.github.io/tonality/cholidean-harmony-structure.webm)
+[Video screen record (midiport backend)](https://jimishol.github.io/tonality/cholidean-harmony-midiport.webm)
+[Video screen record (fluidsynth backend)](https://jimishol.github.io/tonality/cholidean-harmony-structure.webm)
 
 Cholidean Harmony Structure is a projection of 12-tone Equal Temperament ([12ET](https://en.wikipedia.org/wiki/12_equal_temperament)) music systems into 3D space. The twelve tones are placed on a 3D parametric closed curve. The fact that each tone is related to two and only two other tones, creates strongly the perception of a two-dimensional surface strip that curves in three-dimensional space to fit the surface of an [umbilic torus](https://en.wikipedia.org/wiki/Umbilic_torus).
 
@@ -187,9 +188,26 @@ The project is designed to be extensible. Developers can integrate alternative b
     M.shellHost          = "localhost"   -- TCP host for control commands
     M.shellPort          = 9800          -- TCP port for control commands
     ```
-**💡 Tip — Clearing lingering notes (midiport only)**  
+**💡 Tip — Clearing lingering notes (midiport only)**
 
-With the midiport backend, if you suddenly change songs, any notes still active from the previous song will keep their status until cleared — even though they’re not heard. The active notes list is only cleared automatically when you restart the current song (Backtab) or move to the next song (Enter). There’s no separate “clear” button — so if you interrupt the player, press one of these keys to reset the list.
+With the `midiport` backend, if you suddenly change songs, any notes still active from the previous song will keep their status until cleared—even though they’re not heard. The active notes list is only cleared automatically when you restart the current song (Backtab) or move to the next song (Enter). There’s no separate clear button, so if you interrupt the player, press one of these keys to reset the list.
+
+**💡 Tip — Using midiport.sh to wire up your MIDI chain (midiport only)**
+
+The `midiport.sh` script isn’t part of this project—it’s a standalone helper that launches whichever synth engine you specify (via `SYNTH_CMD`) and wires your MIDI player → ALSA MIDI port → synth engine. Configure the variables in the script:
+
+
+```bash
+# ── Configuration ─────────────────────────────────────────────────────────────
+MIDI_PORT="14:0"                       # Your MIDI input port (hw:client:port)
+SYNTH_CMD="fluidsynth -m alsa_seq -s"   # Command to start FluidSynth in ALSA MIDI mode
+SYNTH_PORT=""                          # Leave empty to auto-detect below
+PLAYER_DIR="$HOME/my_github"           # Directory where your MIDI player lives
+PLAYER_APP="dmidiplayer-1.7.5-x86_64.AppImage"  # MIDI player executable
+```
+
+In my setup, the player is `dmidiplayer` and the synth engine is `fluidsynth`. Any audio jitter in the example WebM videos was introduced by the recording configuration at capture time—not by the player or the synth engine.
+
 
 🔧 Future Improvement
 
