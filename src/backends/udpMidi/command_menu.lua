@@ -23,7 +23,7 @@ local topics = {
 -- Load static MIDI-port help text once
 local helpLines = {}
 do
-  local raw = love.filesystem.read("src/backends/midiport/midiport_help.txt") or ""
+  local raw = love.filesystem.read("src/backends/udpMidi/udpMidi_help.txt") or ""
   for line in raw:gmatch("[^\r\n]+") do
     table.insert(helpLines, line)
   end
