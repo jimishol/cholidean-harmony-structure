@@ -74,14 +74,28 @@ sudo zypper install fluid-soundfont-gm
 
 LÖVE and FluidSynth are available via Homebrew:
 
+```bash
 brew install love  
 brew install fluidsynth
+brew install coreutils
+```
 
 You can try running the project with:
 
 love .
 
-Note: macOS support is currently unverified. This project was built with love and determination by a non-developer, with lots of trial, error, and A.I. guidance. Contributions or feedback from macOS users—especially developers—are warmly welcomed to help improve compatibility and ease of use.
+**Notes:**
+- On macOS, only the **`null`** and **`fluidsynth`** backends are supported. The `midiport` backend depends on ALSA and is Linux‑only.  
+- The Fluidsynth backend requires `gstdbuf` (from GNU coreutils) to ensure real‑time note events are flushed immediately. Without it, you may experience delayed or batched note updates. `coreutils` provides `gstdbuf` for line‑buffered output.
+- FluidSynth requires a SoundFont to produce sound.
+
+    On some Linux distributions, a default GM SoundFont is installed automatically with FluidSynth, so you don’t need to provide one.
+
+    On macOS (and some Linux setups), no default SoundFont is bundled.     If no system‑wide default SoundFont is available, place at least one .sf2 file inside the project (root or soundfonts/ is recommended). For files outside the root, add their relative path in src/constants.lua so the fluidsynth backend can find them.
+    
+- CoreAudio is used automatically by FluidSynth for audio output, so no extra drivers are needed.  
+
+macOS support has not been verified. Contributions or feedback from macOS users—especially developers—are warmly welcomed to help improve compatibility and ease of use.
 
 ---
 

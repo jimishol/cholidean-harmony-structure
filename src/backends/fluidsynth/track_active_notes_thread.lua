@@ -126,6 +126,9 @@ if platform == "windows" then
     '"%s.exe" -d -s -o shell.port=%d',
      winBackPath .. backend, shellPort
   )
+elseif platform == "macos" then
+  -- macOS: requires coreutils (brew install coreutils) to get gstdbuf
+  prefix = string.format('gstdbuf -oL %s -ds -o shell.port=%d', backend, shellPort)
 else
   prefix = string.format(
     'stdbuf -oL %s -ds -o shell.port=%d',
