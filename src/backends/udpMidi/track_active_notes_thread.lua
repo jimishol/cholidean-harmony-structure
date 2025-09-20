@@ -1,19 +1,17 @@
--- UDP-based active-notes tracker (mimics midiport FFI thread)
--- Reads 4-byte MIDI packets over UDP, maintains active note set,
--- merges with disk file, and publishes snapshots ~50 Hz.
--- Exits cleanly on "quit" from the quit channel.
+-- backends/udpMidi/track_active_notes_thread.lua
+-- Event-driven UDP active-notes tracker (no fixed-rate sleep)
+-- Reads 4-byte MIDI packets, updates on each note event,
+-- merges with disk file and publishes only when state changes.
 
 local quit_ch     = love.thread.getChannel("quit")
 local notes_ch    = love.thread.getChannel("active_notes")
 local control_ch  = love.thread.getChannel("track_control")
-local love_timer  = require("love.timer")
 local socket      = require("socket")
 local bit         = require("bit")
 
 -- Disk file for persisting cleared notes
 local notesFile = "active_notes.lua"
 
--- Clear the notes file so it returns an empty table
 local function clear_notes_file()
   local f = io.open(notesFile, "w")
   if f then
@@ -22,7 +20,6 @@ local function clear_notes_file()
   end
 end
 
--- Merge two lists into a sorted, unique list
 local function merge_unique(t1, t2)
   local seen, out = {}, {}
   for _, v in ipairs(t1) do
@@ -35,8 +32,7 @@ local function merge_unique(t1, t2)
   return out
 end
 
--- Publish merged disk+live notes to the channel
-local function publish_from_file(live_list)
+local function publish(live_list)
   local ok, disk = pcall(dofile, notesFile)
   if not (ok and type(disk) == "table") then disk = {} end
   local merged = merge_unique(disk, live_list)
@@ -44,7 +40,6 @@ local function publish_from_file(live_list)
   notes_ch:push(merged)
 end
 
--- Handle "clear" and "quit" commands
 local function handle_control()
   while true do
     local cmd = control_ch:pop()
@@ -66,44 +61,42 @@ local udp = assert(socket.udp())
 assert(udp:setsockname("*", UDP_PORT))
 udp:settimeout(0)
 
--- Live active-note map: note → true
+-- Live active-note map
 local ACTIVE = {}
 
--- Initial state: clear file and publish empty list
+-- Initial empty publish
 clear_notes_file()
-publish_from_file({})
+publish({})
 
-local last_publish = love_timer.getTime()
-
--- Main loop: control → receive → publish
+-- Main loop: handle control, drain UDP, publish on change
 while true do
   handle_control()
   if quit_ch:peek() == "quit" then break end
 
+  -- Drain all pending packets
   local data = udp:receive()
-  if data and #data >= 4 then
+  while data and #data >= 4 do
     local status = data:byte(1)
     local note   = data:byte(2)
     local vel    = data:byte(3)
+    local mtype  = bit.band(status, 0xF0)
 
-    -- High nibble determines msg type
-    local mtype = bit.band(status, 0xF0)
+    local changed = false
     if mtype == 0x90 and vel > 0 then
-      ACTIVE[note] = true
+      if not ACTIVE[note] then ACTIVE[note] = true; changed = true end
     elseif mtype == 0x80 or (mtype == 0x90 and vel == 0) then
-      ACTIVE[note] = nil
+      if ACTIVE[note] then ACTIVE[note] = nil; changed = true end
     end
+
+    if changed then
+      local snapshot = {}
+      for n in pairs(ACTIVE) do snapshot[#snapshot+1] = n end
+      publish(snapshot)
+    end
+
+    data = udp:receive()
   end
 
-  local now = love_timer.getTime()
-  if now - last_publish >= 0.02 then
-    -- Build sorted live list and publish merged snapshot
-    local live = {}
-    for n in pairs(ACTIVE) do table.insert(live, n) end
-    table.sort(live)
-    publish_from_file(live)
-    last_publish = now
-  end
-
-  love_timer.sleep(0.002)
+  -- brief yield so we don't busy-loop at 100%
+  socket.sleep(0.001)
 end
