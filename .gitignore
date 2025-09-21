@@ -9,3 +9,22 @@ soundfonts/*
 
 # Allow only this specific file in midi_files
 !midi_files/beethoven_symphony_5_1_(c)galimberti.mid
+
+# Sandbox build artifacts under asset_pipeline/udpMidi
+asset_pipeline/udpMidi/node_modules/
+asset_pipeline/udpMidi/udp-midi-bridge
+asset_pipeline/udpMidi/udp-midi-bridge-*
+asset_pipeline/udpMidi/dist/
+
+# All other node_modules (just in case)
+**/node_modules/
+
+# OS cruft and logs
+.DS_Store
+Thumbs.db
+npm-debug.log*
+*.log
+
+# EXCEPTION: allow binaries you’ve committed under src/backends
+!src/backends/udpMidi/udp-midi-bridge
+!src/backends/udpMidi/udp-midi-bridge-*
