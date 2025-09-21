@@ -26,5 +26,5 @@ npm-debug.log*
 *.log
 
 # EXCEPTION: allow binaries you’ve committed under src/backends
-!src/backends/udpMidi/udp-midi-bridge
-!src/backends/udpMidi/udp-midi-bridge-*
+!src/backends/udpMidi/binaries/udp-midi-bridge
+!src/backends/udpMidi/binaries/udp-midi-bridge-*
