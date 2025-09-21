@@ -101,6 +101,14 @@ udp-midi-bridge.exe --debug
 # macOS / Linux
 ./udp-midi-bridge --debug
 ```
+### (Linux Only) Build Your Own Binary
+
+If you’d rather compile the Linux executable yourself—so you don’t need Node.js on the target—run these commands in your project folder:
+
+```bash
 npm install --save-dev pkg
 npm install
 npx pkg . -o udp-midi-bridge
+```
+
+
