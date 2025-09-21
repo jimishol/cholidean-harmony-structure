@@ -22,9 +22,21 @@ if (!inputs.length) {
   process.exit(1);
 }
 
-// Open the first MIDI input (change index if needed)
-const input = new easymidi.Input(inputs[0], true);
-console.log(`Listening on MIDI input: ${inputs[0]}`);
+// Select MIDI input port
+let selectedInput = 'midiBridgePort';
+if (!inputs.includes(selectedInput)) {
+  const isLinux = process.platform === 'linux';
+  const fallbackLinux = 'Midi Through:Midi Through Port-0 14:0';
+  if (isLinux && inputs.includes(fallbackLinux)) {
+    selectedInput = fallbackLinux;
+  } else {
+    selectedInput = inputs[0];
+  }
+}
+
+// Open the selected MIDI input
+const input = new easymidi.Input(selectedInput, true);
+console.log(`Listening on MIDI input: ${selectedInput}`);
 console.log(`Streaming UDP to ${UDP_HOST}:${UDP_PORT} ...`);
 
 // Helper to send a 4-byte packet: [status, note/ctrl, value, channel]
