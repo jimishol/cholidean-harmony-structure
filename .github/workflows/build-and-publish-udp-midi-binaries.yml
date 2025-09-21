@@ -37,7 +37,7 @@ jobs:
         working-directory: asset_pipeline/udpMidi
         run: npm ci
 
-      - name: Prepare binaries folder
+      - name: Prepare binaries directory
         run: |
           rm -rf src/backends/udpMidi/binaries
           mkdir -p src/backends/udpMidi/binaries
@@ -66,13 +66,13 @@ jobs:
             --targets node18-win-x64 \
             --output ../../src/backends/udpMidi/binaries/udp-midi-bridge-windows.exe
 
-      - name: Package all binaries
+      - name: Zip all binaries in-place
         run: |
-          cd src/backends/udpMidi
-          zip -j udp-midi-bridge-binaries.zip binaries/*
+          cd src/backends/udpMidi/binaries
+          zip -r udp-midi-bridge-binaries.zip ./*
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload ZIP artifact
+        uses: actions/upload-artifact@v4
         with:
           name: udp-midi-bridge-binaries
-          path: src/backends/udpMidi/udp-midi-bridge-binaries.zip
+          path: src/backends/udpMidi/binaries/udp-midi-bridge-binaries.zip
