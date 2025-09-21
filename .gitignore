@@ -25,6 +25,5 @@ Thumbs.db
 npm-debug.log*
 *.log
 
-# EXCEPTION: allow binaries you’ve committed under src/backends
-!src/backends/udpMidi/binaries/udp-midi-bridge
-!src/backends/udpMidi/binaries/udp-midi-bridge-*
+# Ignore any packaged binaries under udpMidi backend
+src/backends/udpMidi/binaries/

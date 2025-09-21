@@ -1,0 +1,100 @@
+name: Build & Publish UDP-MIDI Binaries
+
+on:
+  # 1) Manual trigger via the “Run workflow” button
+  workflow_dispatch:
+    inputs:
+      buildLinux:
+        description: 'Build Linux x64'
+        required: false
+        default: true
+        type: boolean
+      buildMac:
+        description: 'Build macOS universal'
+        required: false
+        default: true
+        type: boolean
+      buildWindows:
+        description: 'Build Windows x64'
+        required: false
+        default: true
+        type: boolean
+
+  # 2) (Optional) also run on version tags, e.g. v1.2.3
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare binaries dir
+        run: |
+          rm -rf src/backends/udpMidi/binaries
+          mkdir -p src/backends/udpMidi/binaries
+
+      - name: Build Linux binary
+        if: ${{ github.event.inputs.buildLinux == 'true' }}
+        run: |
+          npx pkg . \
+            --targets node18-linux-x64 \
+            --output src/backends/udpMidi/binaries/udp-midi-bridge-linux
+
+      - name: Build macOS binary
+        if: ${{ github.event.inputs.buildMac == 'true' }}
+        run: |
+          npx pkg . \
+            --targets node18-macos-x64,node18-macos-arm64 \
+            --output src/backends/udpMidi/binaries/udp-midi-bridge-macos
+
+      - name: Build Windows binary
+        if: ${{ github.event.inputs.buildWindows == 'true' }}
+        run: |
+          npx pkg . \
+            --targets node18-win-x64 \
+            --output src/backends/udpMidi/binaries/udp-midi-bridge-windows.exe
+
+      - name: Create or fetch GitHub Release
+        id: release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+
+      - name: Upload Linux asset
+        if: ${{ github.event.inputs.buildLinux == 'true' }}
+        uses: actions/upload-release-asset@v2
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: src/backends/udpMidi/binaries/udp-midi-bridge-linux
+          asset_name: udp-midi-bridge-linux
+          asset_content_type: application/octet-stream
+
+      - name: Upload macOS asset
+        if: ${{ github.event.inputs.buildMac == 'true' }}
+        uses: actions/upload-release-asset@v2
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: src/backends/udpMidi/binaries/udp-midi-bridge-macos
+          asset_name: udp-midi-bridge-macos
+          asset_content_type: application/octet-stream
+
+      - name: Upload Windows asset
+        if: ${{ github.event.inputs.buildWindows == 'true' }}
+        uses: actions/upload-release-asset@v2
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: src/backends/udpMidi/binaries/udp-midi-bridge-windows.exe
+          asset_name: udp-midi-bridge-windows.exe
+          asset_content_type: application/octet-stream
