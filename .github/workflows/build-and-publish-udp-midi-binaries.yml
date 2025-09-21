@@ -1,7 +1,7 @@
+# .github/workflows/build-and-publish-udp-midi-binaries.yml
 name: Build & Publish UDP-MIDI Binaries
 
 on:
-  # 1) Manual trigger via the “Run workflow” button
   workflow_dispatch:
     inputs:
       buildLinux:
@@ -20,7 +20,6 @@ on:
         default: true
         type: boolean
 
-  # 2) (Optional) also run on version tags, e.g. v1.2.3
   push:
     tags:
       - 'v*.*.*'
@@ -28,6 +27,7 @@ on:
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -37,7 +37,8 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install dependencies
+      - name: Install UDP-MIDI dependencies
+        working-directory: asset_pipeline/udpMidi
         run: npm ci
 
       - name: Prepare binaries dir
@@ -47,24 +48,27 @@ jobs:
 
       - name: Build Linux binary
         if: ${{ github.event.inputs.buildLinux == 'true' }}
+        working-directory: asset_pipeline/udpMidi
         run: |
           npx pkg . \
             --targets node18-linux-x64 \
-            --output src/backends/udpMidi/binaries/udp-midi-bridge-linux
+            --output ../../src/backends/udpMidi/binaries/udp-midi-bridge-linux
 
       - name: Build macOS binary
         if: ${{ github.event.inputs.buildMac == 'true' }}
+        working-directory: asset_pipeline/udpMidi
         run: |
           npx pkg . \
             --targets node18-macos-x64,node18-macos-arm64 \
-            --output src/backends/udpMidi/binaries/udp-midi-bridge-macos
+            --output ../../src/backends/udpMidi/binaries/udp-midi-bridge-macos
 
       - name: Build Windows binary
         if: ${{ github.event.inputs.buildWindows == 'true' }}
+        working-directory: asset_pipeline/udpMidi
         run: |
           npx pkg . \
             --targets node18-win-x64 \
-            --output src/backends/udpMidi/binaries/udp-midi-bridge-windows.exe
+            --output ../../src/backends/udpMidi/binaries/udp-midi-bridge-windows.exe
 
       - name: Create or fetch GitHub Release
         id: release
