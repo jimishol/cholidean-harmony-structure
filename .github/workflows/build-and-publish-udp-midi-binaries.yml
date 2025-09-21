@@ -1,5 +1,5 @@
-# .github/workflows/build-and-publish-udp-midi-binaries.yml
-name: Build & Publish UDP-MIDI Binaries
+# .github/workflows/build-udp-midi-binaries.yml
+name: Build UDP-MIDI Bridge Binaries
 
 on:
   workflow_dispatch:
@@ -20,16 +20,12 @@ on:
         default: true
         type: boolean
 
-  push:
-    tags:
-      - 'v*.*.*'
-
 jobs:
-  build_and_publish:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Setup Node.js
@@ -37,11 +33,11 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install UDP-MIDI dependencies
+      - name: Install deps
         working-directory: asset_pipeline/udpMidi
         run: npm ci
 
-      - name: Prepare binaries dir
+      - name: Prepare binaries folder
         run: |
           rm -rf src/backends/udpMidi/binaries
           mkdir -p src/backends/udpMidi/binaries
@@ -70,35 +66,13 @@ jobs:
             --targets node18-win-x64 \
             --output ../../src/backends/udpMidi/binaries/udp-midi-bridge-windows.exe
 
-      - name: Create or fetch GitHub Release
-        id: release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.ref_name }}
+      - name: Package all binaries
+        run: |
+          cd src/backends/udpMidi
+          zip -j udp-midi-bridge-binaries.zip binaries/*
 
-      - name: Upload Linux asset
-        if: ${{ github.event.inputs.buildLinux == 'true' }}
-        uses: actions/upload-release-asset@latest
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
         with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: src/backends/udpMidi/binaries/udp-midi-bridge-linux
-          asset_name: udp-midi-bridge-linux
-          asset_content_type: application/octet-stream
-
-      - name: Upload macOS asset
-        if: ${{ github.event.inputs.buildMac == 'true' }}
-        uses: actions/upload-release-asset@latest
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: src/backends/udpMidi/binaries/udp-midi-bridge-macos
-          asset_name: udp-midi-bridge-macos
-          asset_content_type: application/octet-stream
-
-      - name: Upload Windows asset
-        if: ${{ github.event.inputs.buildWindows == 'true' }}
-        uses: actions/upload-release-asset@latest
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: src/backends/udpMidi/binaries/udp-midi-bridge-windows.exe
-          asset_name: udp-midi-bridge-windows.exe
-          asset_content_type: application/octet-stream
+          name: udp-midi-bridge-binaries
+          path: src/backends/udpMidi/udp-midi-bridge-binaries.zip
