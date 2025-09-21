@@ -74,7 +74,7 @@ jobs:
 
       - name: Upload Linux asset
         if: ${{ github.event.inputs.buildLinux == 'true' }}
-        uses: actions/upload-release-asset@v2
+        uses: actions/upload-release-asset@latest
         with:
           upload_url: ${{ steps.release.outputs.upload_url }}
           asset_path: src/backends/udpMidi/binaries/udp-midi-bridge-linux
@@ -83,7 +83,7 @@ jobs:
 
       - name: Upload macOS asset
         if: ${{ github.event.inputs.buildMac == 'true' }}
-        uses: actions/upload-release-asset@v2
+        uses: actions/upload-release-asset@latest
         with:
           upload_url: ${{ steps.release.outputs.upload_url }}
           asset_path: src/backends/udpMidi/binaries/udp-midi-bridge-macos
@@ -92,7 +92,7 @@ jobs:
 
       - name: Upload Windows asset
         if: ${{ github.event.inputs.buildWindows == 'true' }}
-        uses: actions/upload-release-asset@v2
+        uses: actions/upload-release-asset@latest
         with:
           upload_url: ${{ steps.release.outputs.upload_url }}
           asset_path: src/backends/udpMidi/binaries/udp-midi-bridge-windows.exe
