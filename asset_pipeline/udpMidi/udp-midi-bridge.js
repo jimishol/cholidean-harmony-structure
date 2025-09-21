@@ -4,6 +4,9 @@
 const dgram = require('dgram');
 const easymidi = require('easymidi');
 
+// Parse command-line arguments
+const DEBUG = process.argv.includes('--debug');
+
 const UDP_HOST = '127.0.0.1';
 const UDP_PORT = 49160;
 
@@ -12,7 +15,7 @@ const sock = dgram.createSocket('udp4');
 
 // List available MIDI inputs
 const inputs = easymidi.getInputs();
-console.log('Available MIDI inputs:', inputs);
+if (DEBUG) console.log('Available MIDI inputs:', inputs);
 
 if (!inputs.length) {
   console.error('No MIDI inputs found.');
@@ -22,26 +25,28 @@ if (!inputs.length) {
 // Open the first MIDI input (change index if needed)
 const input = new easymidi.Input(inputs[0], true);
 console.log(`Listening on MIDI input: ${inputs[0]}`);
+console.log(`Streaming UDP to ${UDP_HOST}:${UDP_PORT} ...`);
 
 // Helper to send a 4-byte packet: [status, note/ctrl, value, channel]
-function sendMidi(statusByte, data1, data2, channel) {
+function sendMidi(statusByte, data1, data2, channel, type) {
   const buf = Buffer.alloc(4);
   buf[0] = statusByte;
   buf[1] = data1;
   buf[2] = data2;
   buf[3] = channel;
   sock.send(buf, UDP_PORT, UDP_HOST);
+
+  if (DEBUG) {
+    console.log(`${type} → [${statusByte.toString(16)} ${data1} ${data2} ch${channel}]`);
+  }
 }
 
 // Map easymidi events to raw MIDI status bytes
-input.on('noteon',  m => sendMidi(0x90, m.note, m.velocity, m.channel));
-input.on('noteoff', m => sendMidi(0x80, m.note, m.velocity, m.channel));
-input.on('cc',      m => sendMidi(0xB0, m.controller, m.value, m.channel));
+input.on('noteon',  m => sendMidi(0x90, m.note, m.velocity, m.channel, 'noteon'));
+input.on('noteoff', m => sendMidi(0x80, m.note, m.velocity, m.channel, 'noteoff'));
+input.on('cc',      m => sendMidi(0xB0, m.controller, m.value, m.channel, 'cc'));
 input.on('pitch',   m => {
-  // Pitch bend is 14-bit: split into two 7-bit values
   const lsb = m.value & 0x7F;
   const msb = (m.value >> 7) & 0x7F;
-  sendMidi(0xE0, lsb, msb, m.channel);
+  sendMidi(0xE0, lsb, msb, m.channel, 'pitch');
 });
-
-console.log(`Streaming UDP to ${UDP_HOST}:${UDP_PORT} ...`);
