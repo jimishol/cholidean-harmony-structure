@@ -35,7 +35,7 @@ if (!inputs.includes(selectedInput)) {
 }
 
 // Open the selected MIDI input
-const input = new easymidi.Input(selectedInput, true);
+const input = new easymidi.Input(selectedInput);
 console.log(`Listening on MIDI input: ${selectedInput}`);
 console.log(`Streaming UDP to ${UDP_HOST}:${UDP_PORT} ...`);
 
