@@ -101,20 +101,33 @@ macOS support has not been verified. Contributions or feedback from macOS users�
 
 ### 🪟 Windows
 
-⚠️ On Windows, the recommended backend is null, which provides the full 3D harmonic visualisation experience without audio. To use it, set M.backend = "null" in src/constants.lua. Audio/MIDI input on Windows is not currently implemented. Developers can contribute a backend by adapting the Linux midiport code to the Windows MIDI API (WinMM) or a cross‑platform library like RtMidi.
+✅ On Windows, the recommended backend is **`udpMidi`**, which can provide both the full 3D harmonic visualisation **and** audio/MIDI I/O — provided you have:  
+- A MIDI player  
+- [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html) (or equivalent virtual MIDI cable)  
+- A synth engine installed  
 
-0. **WSL (Optional Workaround)**  
-   Tested under WSL with `stdbuf -oL`, but real-time line buffering still fails—use at your own risk.
+**loopMIDI setup:** Create a virtual MIDI port named **`midiBridgePort`** (exact spelling) and route your MIDI player’s output to it. The udpMidi bridge will automatically connect to this port.
+
+To use udpMidi:  
+1. Set `M.backend = "udpMidi"` in `src/constants.lua`.  
+2. Launch the bridge binary **before** starting the visualiser:  
+   ```
+   src/backends/udpMidi/binaries/udp-midi-bridge-windows.exe
+   ```
+
+If you prefer a no‑audio mode, you can still set `M.backend = "null"`.
+
+---
 
 1. **Prepare the Project Directory**  
    Clone the repo (including `asset_pipeline/` and `docs/ldoc/`), or download and unzip the release ZIP.
 
 2. **Install LÖVE**  
    Install LÖVE for Windows from the official site: https://love2d.org/  
-Use the installer so LÖVE is added to your system PATH.  
-   
-3. **Launch the Visualizer**  
-   Set `M.backend = "null"` in `src/constants.lua`, then run the project from the command line:
+   Use the installer so LÖVE is added to your system PATH.
+
+3. **Launch the Visualiser**  
+   From the command line:
    ```bash
    love .
    ```
@@ -123,14 +136,15 @@ Use the installer so LÖVE is added to your system PATH.
 
 **Known Issues:**
 
-- **Line-buffered output isn’t working**:  
-  FluidSynth’s note-on/off events arrive in batches under Windows; see [issue #4](https://github.com/jimishol/cholidean-harmony-structure/issues/4).  
+- **Line‑buffered output isn’t working**:  
+  FluidSynth’s note‑on/off events arrive in batches under Windows; see [issue #4](https://github.com/jimishol/cholidean-harmony-structure/issues/4).
 
 - **Spaces in filenames**:  
-  May break playback through the `winpty` layer—use underscores instead.  
+  May break playback through the `winpty` layer — use underscores instead.
 
-- **Restart-on-exit disabled**:  
-  The batch wrapper doesn’t propagate non-zero exit codes, so automatic restart on exit code 42 is unavailable.  
+- **Restart‑on‑exit disabled**:  
+  The batch wrapper doesn’t propagate non‑zero exit codes, so automatic restart on exit code 42 is unavailable.
+
 ---
 
 ### Prerequisites
@@ -166,68 +180,57 @@ This project works like a minimalist music player — but with a twist. Instead 
 
 📝 Note: Future versions may support additional formats, depending on backend contributions.
 
+---
+
 ### 🛠️ For Backend Developers
 
-The project is designed to be extensible. Developers can integrate alternative backends as long as they can emit note ON/OFF events in real time. The backend manager is `src/backends/init.lua`.
+The project is designed to be extensible. Developers can integrate alternative backends as long as they can emit note ON/OFF events in real time. The backend manager is `src/backends/init.lua`.
 
 #### 🔄 How It Works
 
 - The core visual engine listens on the `active_notes` Love2D thread channel for updated note lists.  
-- Backend threads (FluidSynth, midiport) push active-note tables directly into that channel in real time.  
+- Backend threads (FluidSynth, midiport, udpMidi) push active‑note tables directly into that channel in real time.  
 - The null backend falls back to disk I/O, reading from `active_notes.lua` when no channel updates occur.
 
 #### 🧪 Backend Options
+
+* **udpMidi (Cross‑platform)**  
+  - Streams MIDI input events over UDP from a small Node.js bridge binary.  
+  - On Windows, works with [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html) or another virtual MIDI cable.  
+  - **Windows setup:** Create a virtual MIDI port named `midiBridgePort` (exact spelling) and route your MIDI player’s output to it. Launch `src/backends/udpMidi/binaries/udp-midi-bridge-windows.exe` before starting the visualiser.  
+  - On Linux/macOS, can connect to any ALSA/CoreMIDI port.  
+  - See [`src/backends/udpMidi/README.md`](src/backends/udpMidi/readme.md) for full setup instructions.
 
 * **FluidSynth**  
   - Launched as a thread by the project.  
   - Outputs note events via terminal stdout.  
   - Accepts playback commands via TCP.  
   - A watcher thread connects via TCP and sends commands (e.g., play, pause, tempo).  
-  - Parses FluidSynth’s noteon/noteoff output and publishes the current active-notes list on a Love2D thread channel ("active_notes"), eliminating any file I/O for note state.
+  - Parses FluidSynth’s noteon/noteoff output and publishes the current active‑notes list on a Love2D thread channel (`active_notes`), eliminating any file I/O for note state.
 
 * **Null Backend (Manual Mode)**  
   - Teachers or developers can manually edit `active_notes.lua` to simulate note activity.  
-  - Useful for demonstrations, teaching, or testing without a live music source.
-  - Recommended for Windows users to explore harmony in 3D space without audio.
+  - Useful for demonstrations, teaching, or testing without a live music source.  
+  - Recommended for exploring harmony in 3D space without audio.
 
-* **midiport (Linux only)**
-  - Sniffs an ALSA MIDI port directly via FFI (default `Midi Through 14:0`).
-  - Merges and publishes active notes at ~50 Hz to `active_notes.lua`.
-  - Sends control commands (`gain`, `player_start`, etc.) over a persistent nonblocking TCP socket, bypassing stdout buffering.
-  - Does **not support autoplayback** of MIDI files (unlike the Fluidsynth backend), but offers **~80ms faster note tracking** on average.
+* **midiport (Linux only)**  
+  - Sniffs an ALSA MIDI port directly via FFI (default `Midi Through 14:0`).  
+  - Merges and publishes active notes at ~50 Hz to `active_notes.lua`.  
+  - Sends control commands (`gain`, `player_start`, etc.) over a persistent non‑blocking TCP socket, bypassing stdout buffering.  
+  - Does **not** support autoplayback of MIDI files (unlike the FluidSynth backend), but offers ~80 ms faster note tracking on average.  
   - Configure in `src/constants.lua`:
     ```lua
-    -- in src/constants.lua
     M.backend            = "midiport"
-    M.DEFAULT_MIDI_PORT  = "14:0"        -- ALSA client:port to sniff
-    M.shellHost          = "localhost"   -- TCP host for control commands
-    M.shellPort          = 9800          -- TCP port for control commands
+    M.DEFAULT_MIDI_PORT  = "14:0"
+    M.shellHost          = "localhost"
+    M.shellPort          = 9800
     ```
-**💡 Tip — Clearing lingering notes (midiport only)**
 
-With the `midiport` backend, if you suddenly change songs, any notes still active from the previous song will keep their status until cleared—even though they’re not heard. The active notes list is only cleared automatically when you restart the current song (Backtab) or move to the next song (Enter). There’s no separate clear button, so if you interrupt the player, press one of these keys to reset the list.
+**💡 Tip — Clearing lingering notes (midiport / udpMidi)**  
+With the `midiport`or udpMidi backends, if you suddenly change songs, any notes still active from the previous song will keep their status until cleared. Restart the current song (Backtab) or move to the next song (Enter) to reset the list.
 
-**💡 Tip — Using midiport.sh to wire up your MIDI chain (midiport only)**
-
-The `midiport.sh` script isn’t part of this project—it’s a standalone helper that launches whichever synth engine you specify (via `SYNTH_CMD`) and wires your MIDI player → ALSA MIDI port → synth engine. Configure the variables in the script:
-
-
-```bash
-# ── Configuration ─────────────────────────────────────────────────────────────
-MIDI_PORT="14:0"                       # Your MIDI input port (hw:client:port)
-SYNTH_CMD="fluidsynth -m alsa_seq -s"   # Command to start FluidSynth in ALSA MIDI mode
-SYNTH_PORT=""                          # Leave empty to auto-detect below
-PLAYER_DIR="$HOME/my_github"           # Directory where your MIDI player lives
-PLAYER_APP="dmidiplayer-1.7.5-x86_64.AppImage"  # MIDI player executable
-```
-
-In my setup, the player is `dmidiplayer` and the synth engine is `fluidsynth`. Any audio jitter in the example WebM videos was introduced by the recording configuration at capture time—not by the player or the synth engine.
-
-
-🔧 Future Improvement
-
-* **Potential Windows Backend**  
-No native Windows MIDI backend is currently included. Developers can implement Windows MIDI input by adapting the Linux midiport code to use WinMM or RtMidi.
+**💡 Tip — Using midiport.sh to wire up your MIDI chain (midiport only)**  
+The `midiport.sh` script isn’t part of this project — it’s a standalone helper that launches whichever synth engine you specify (via `SYNTH_CMD`) and wires your MIDI player → ALSA MIDI port → synth engine.
 
 _For a deep dive into the asset pipeline, see [FOR_DEVELOPERS](asset_pipeline/FOR_DEVELOPERS.md)._
 
@@ -311,11 +314,13 @@ If the playlist is empty or has finished playing, this setup allows users to con
 
 ---
 
-### 🎷 3. Live MIDI Sniffing with ALSA (`midiport`)
+### 🎷 3. Live MIDI Sniffing (`midiport` / `udpMidi`)
 
-Operates independently of any playback or synth engine, continuously monitoring and visualizing connected MIDI devices.
+Both the **midiport** (Linux) and **udpMidi** (cross‑platform) backends operate independently of any playback or synth engine, continuously monitoring and visualising connected MIDI devices in real time.
 
-#### 📌 Setup
+---
+
+#### 📌 Setup — Linux (ALSA `midiport`)
 
 1. **List your ALSA ports**  
    ```bash
@@ -333,15 +338,45 @@ Operates independently of any playback or synth engine, continuously monitoring 
    ```bash
    aconnect 24:0 14:0
    ```
-4. **Launch the visualizer**  
+4. **Launch the visualiser**  
    ```bash
    love .
-   ```  
+   ```
+
+---
+
+#### 📌 Setup — Windows / macOS / Linux (`udpMidi`)
+
+1. **Prepare a MIDI input port**  
+   - On Windows, create a virtual MIDI port named **`midiBridgePort`** in [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html) and route your MIDI player’s output to it.  
+   - On macOS/Linux, use any available CoreMIDI/ALSA port.
+
+2. **Configure the `udpMidi` backend** in `src/constants.lua`  
+   ```lua
+   -- src/constants.lua
+   M.backend = "udpMidi"
+   ```
+
+3. **Launch the bridge binary** before starting the visualiser:  
+   - Windows:  
+     ```
+     src/backends/udpMidi/binaries/udp-midi-bridge-windows.exe
+     ```
+   - macOS/Linux: run the Node.js bridge script or platform‑specific binary.
+
+4. **Launch the visualiser**  
+   ```bash
+   love .
+   ```
+
+---
+
 #### 🎶 What Happens
 
-- Notes from your USB keyboard (or any ALSA source) are sniffed and merged into `active_notes.lua`.  
-- The visualizer immediately reflects live playing.  
-- Control commands (`gain`, `player_start`, etc.) flow over TCP exactly like FluidSynth mode—no stdout buffering issues.
+- Notes from your MIDI device (USB keyboard, virtual port, or player output) are captured in real time.  
+- The backend merges them into the `active_notes` Love2D thread channel (no file I/O delays).  
+- The visualiser immediately reflects live playing.  
+- Control commands (`gain`, `player_start`, etc.) flow over TCP exactly like in FluidSynth mode — no stdout buffering issues.
 
 ---
 
@@ -466,6 +501,8 @@ Please refer to the individual files in the `THIRD_PARTY_LICENSES/` directory fo
 | 3D Engine components        | [3dreamengine.md](THIRD_PARTY_LICENSES/3dreamengine.md) |
 | Material textures & HDRIs  | [materials.md](THIRD_PARTY_LICENSES/materials.md) |
 | MIDI files                  | [midis.md](THIRD_PARTY_LICENSES/midis.md) |
+| Node.js runtime             | [Node.js.md](THIRD_PARTY_LICENSES/Node.js.md) |
+| Third‑Party Licenses for udpMidi Binaries | [udpMidi_binaries_THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES/udpMidi_binaries_THIRD_PARTY_LICENSES.md) |
 
 ---
 
@@ -476,3 +513,5 @@ This project took shape thanks to the insight and encouragement of [**Edgar Delg
 Although the idea had been explored by 20th-century music–math theorists, it was only when E.D.V. encountered the concept that he immediately recognized its potential for new approaches in 12ET harmony. He urged me to share it more widely and encouraged me to bring it into academic and creative circles. 
 
 That encouragement transformed a dormant idea into a living project. From OpenSCAD to MeshLab, to Blender, to 3DreamEngine, to MIDI events, each stage brought new challenges and discoveries. Without Edgar Delgado’s vision and determination, this journey might never have begun.
+
+*The revolutionary idea of such a clear projection of 12‑ET into three‑dimensional space is entirely my own. Yet the code and documentation were realised with the assistance of AI — specifically Microsoft Copilot — guided through exhaustive patience and persistence on my part. Without the help of this tool, it would have been impossible for me to bring a project of this scale to life.*
