@@ -59,7 +59,7 @@
 
 local M = {}
 
-M.backend             = "udpMidi" -- "midiport" "udpMidi" "null" "fluidsynth"
+M.backend             = "fluidsynth" -- "midiport" "udpMidi" "null" "fluidsynth"
 M.windowsBackendPath  = "bin\\"
 M.DEFAULT_MIDI_PORT   = "14:0"
 
