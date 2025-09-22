@@ -24,6 +24,3 @@ asset_pipeline/udpMidi/dist/
 Thumbs.db
 npm-debug.log*
 *.log
-
-# Ignore any packaged binaries under udpMidi backend
-src/backends/udpMidi/binaries/
