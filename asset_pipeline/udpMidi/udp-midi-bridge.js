@@ -7,7 +7,7 @@ const easymidi = require('easymidi');
 // Parse command-line arguments
 const DEBUG = process.argv.includes('--debug');
 
-const UDP_HOST = '127.0.0.1';
+const UDP_HOST = process.argv[2] || '127.0.0.1';
 const UDP_PORT = 49160;
 
 // Create UDP socket

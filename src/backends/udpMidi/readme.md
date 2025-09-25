@@ -19,10 +19,19 @@ Create a virtual MIDI port named **`midiBridgePort`** (exact spelling) and route
    ```lua
    M.backend = "udpMidi"
    ```
-2. Launch the bridge binary **before** starting the visualiser:
+
+2. Launch the bridge binary.  
+   By default it sends to `127.0.0.1`, but you can pass a target host/IP as the first argument:
    ```
-   src/backends/udpMidi/binaries/udp-midi-bridge-windows.exe
+   udp-midi-bridge-windows.exe [STUDENT_IP]
    ```
+   - Example (single laptop):  
+     ```
+     udp-midi-bridge-windows.exe 192.168.0.101
+     ```
+   - For a classroom with multiple laptops, the teacher can run **one instance per student IP**.  
+     A small script (batch/shell) can automate launching several bridge processes in the background.
+
 3. Start the visualiser:
    ```bash
    love .
@@ -42,7 +51,6 @@ The bridge binary wraps the Node.js script `udp-midi-bridge.js`, which:
 ## 📝 Notes
 
 - If `midiBridgePort` is not found, the bridge will fall back to the first available MIDI input (or `Midi Through` on Linux).
-- For no‑audio mode, set `M.backend = "null"` in `src/constants.lua`.
 - On Linux/macOS, udpMidi can be used with any ALSA/CoreMIDI port — see platform‑specific docs in the main README.
 
 ---

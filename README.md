@@ -173,7 +173,7 @@ git lfs install
 
 This project works like a minimalist music player — but with a twist. Instead of just playing sound, it visually projects musical harmony into a 3D space, offering a unique and immersive way to experience music. The active joints (notes) become self-illuminating and grow in size. Of these, the bass notes strive valiantly to stand out with distinctive dots. The outgoing edges emit light discreetly to activate their destination. Spectral surfaces, when unambiguously indicated by active joints, materialize and emit light to attract the attention of minor or major scales that could incorporate them. The compositions are visualized in an anticipated dance of surprising steps.
 
-- **Supported Format:** Currently supports MIDI files via FluidSynth or via the Linux ALSA midiport backend—both emit real-time note ON/OFF events for 3D visualization. On Windows, use the null backend for full visualisation without audio.
+- **Supported Format:** Currently supports MIDI files via FluidSynth or via the Linux ALSA midiport backend—both emit real-time note ON/OFF events for 3D visualization. On Windows, use the `udpMidi` backend for full audio‑visual output, or the `null` backend for visualization only (without audio).
 
 - **Interactive Controls:** Users can pause playback or slow down tempo, making it ideal for music students or harmony learners.
 - **No Technical Setup Required:** Just launch the app, load a MIDI file, and enjoy the visual harmony.
@@ -377,6 +377,26 @@ Both the **midiport** (Linux) and **udpMidi** (cross‑platform) backends operat
 - The backend merges them into the `active_notes` Love2D thread channel (no file I/O delays).  
 - The visualiser immediately reflects live playing.  
 - Control commands (`gain`, `player_start`, etc.) flow over TCP exactly like in FluidSynth mode — no stdout buffering issues.
+
+#### 🏫 Classroom Scenario — Teacher & Students
+
+This setup can also be used in a distributed classroom environment:
+
+- **Teacher Desktop**
+  - Runs the analyzer and the UDP bridge.
+  - Plays the audio locally (optionally with FluidSynth).
+  - Shares its LAN IP address with students.
+
+- **Student Laptops**
+  - Run the visualiser with `M.shellHost` (in `constants.lua`) set to the teacher’s IP.
+  - Receive the same UDP MIDI events over the network.
+  - Display identical harmony/visuals in sync with the teacher’s audio.
+
+**Benefits**
+- One teacher machine drives many student laptops.
+- Students see the same harmonic analysis in real time.
+- Student laptops remain lightweight (no audio synthesis required).
+- Perfect for group lessons, workshops, or demonstrations.
 
 ---
 
