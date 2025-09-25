@@ -357,12 +357,18 @@ Both the **midiport** (Linux) and **udpMidi** (cross‑platform) backends operat
    M.backend = "udpMidi"
    ```
 
-3. **Launch the bridge binary** before starting the visualiser:  
-   - Windows:  
+3. **Launch the bridge binary**  
+   - **Windows**  
+     ```powershell
+     udp-midi-bridge-windows.exe [HOST]
      ```
-     src/backends/udpMidi/binaries/udp-midi-bridge-windows.exe
-     ```
-   - macOS/Linux: run the Node.js bridge script or platform‑specific binary.
+   - **macOS/Linux**  
+     Run the Node.js bridge script or the platform‑specific binary, optionally passing a target host.
+
+   > 💡 **Tip:** You can pass a `[HOST]` argument to send UDP events to a specific machine.  
+   > By default the bridge targets `127.0.0.1` (localhost).  
+   > In classroom setups, the teacher runs the bridge on the desktop and students set the teacher’s IP in `constants.lua`.  
+   > Running the **audio engine** and the **bridge binary** on separate machines can reduce CPU load and often improves both sound quality and latency.
 
 4. **Launch the visualiser**  
    ```bash
