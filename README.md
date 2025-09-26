@@ -85,13 +85,13 @@ You can try running the project with:
 love .
 
 **Notes:**
-- On macOS, only the **`null`** and **`fluidsynth`** backends are supported. The `midiport` backend depends on ALSA and is Linux‑only.  
+- On macOS, `midiport` is supported. The `midiport` backend depends on ALSA and is Linux‑only.  
 - The Fluidsynth backend requires `gstdbuf` (from GNU coreutils) to ensure real‑time note events are flushed immediately. Without it, you may experience delayed or batched note updates. `coreutils` provides `gstdbuf` for line‑buffered output.
 - FluidSynth requires a SoundFont to produce sound.
 
     On some Linux distributions, a default GM SoundFont is installed automatically with FluidSynth, so you don’t need to provide one.
 
-    On macOS (and some Linux setups), no default SoundFont is bundled.     If no system‑wide default SoundFont is available, place at least one .sf2 file inside the project (root or soundfonts/ is recommended). For files outside the root, add their relative path in src/constants.lua so the fluidsynth backend can find them.
+    On macOS (and some Linux setups), no default SoundFont is bundled. If no system‑wide default SoundFont is available, place at least one .sf2 file inside the project (root or soundfonts/ is recommended). For files outside the root, add their relative path in src/constants.lua so the fluidsynth backend can find them.
     
 - CoreAudio is used automatically by FluidSynth for audio output, so no extra drivers are needed.  
 
@@ -110,7 +110,7 @@ macOS support has not been verified. Contributions or feedback from macOS users�
 
 To use udpMidi:  
 1. Set `M.backend = "udpMidi"` in `src/constants.lua`.  
-2. Launch the bridge binary **before** starting the visualiser:  
+2. Launch the bridge binary:  
    ```
    src/backends/udpMidi/binaries/udp-midi-bridge-windows.exe
    ```
@@ -137,7 +137,7 @@ If you prefer a no‑audio mode, you can still set `M.backend = "null"`.
 **Known Issues:**
 
 - **Line‑buffered output isn’t working**:  
-  FluidSynth’s note‑on/off events arrive in batches under Windows; see [issue #4](https://github.com/jimishol/cholidean-harmony-structure/issues/4).
+  FluidSynth’s note‑on/off events arrive in batches under Windows; see [issue #4](https://github.com/jimishol/cholidean-harmony-structure/issues/4). Fir this, instead of `fluidsynth`, use `udpMidi` backend.
 
 - **Spaces in filenames**:  
   May break playback through the `winpty` layer — use underscores instead.
@@ -175,7 +175,7 @@ This project works like a minimalist music player — but with a twist. Instead 
 
 - **Supported Format:** Currently supports MIDI files via FluidSynth or via the Linux ALSA midiport backend—both emit real-time note ON/OFF events for 3D visualization. On Windows, use the `udpMidi` backend for full audio‑visual output, or the `null` backend for visualization only (without audio).
 
-- **Interactive Controls:** Users can pause playback or slow down tempo, making it ideal for music students or harmony learners.
+- **Interactive Controls:** Users can pause playback or adjust tempo via TCP commands, making it ideal for music students or harmony learners.
 - **No Technical Setup Required:** Just launch the app, load a MIDI file, and enjoy the visual harmony.
 
 📝 Note: Future versions may support additional formats, depending on backend contributions.
@@ -197,9 +197,9 @@ The project is designed to be extensible. Developers can integrate alternative b
 * **udpMidi (Cross‑platform)**  
   - Streams MIDI input events over UDP from a small Node.js bridge binary.  
   - On Windows, works with [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html) or another virtual MIDI cable.  
-  - **Windows setup:** Create a virtual MIDI port named `midiBridgePort` (exact spelling) and route your MIDI player’s output to it. Launch `src/backends/udpMidi/binaries/udp-midi-bridge-windows.exe` before starting the visualiser.  
+  - **Windows setup:** Create a virtual MIDI port named `midiBridgePort` (exact spelling) and route your MIDI player’s output to it. Launch `src/backends/udpMidi/binaries/udp-midi-bridge-windows.exe`.  
   - On Linux/macOS, can connect to any ALSA/CoreMIDI port.  
-  - See [`src/backends/udpMidi/README.md`](src/backends/udpMidi/readme.md) for full setup instructions.
+  - See [`src/backends/udpMidi/readme.md`](src/backends/udpMidi/readme.md) for full setup instructions.
 
 * **FluidSynth**  
   - Launched as a thread by the project.  
@@ -306,7 +306,7 @@ Replace `24:0` and `128:0` with the actual port numbers from your system.
 - The backend thread listens for `noteon` and `noteoff` events.
 - `active_notes.lua` is updated in real time, allowing the main thread to visualize the notes.
 
-💡 For lower latency (~80ms faster), the midiport backend offers direct ALSA access, though it does not support autoplayback.
+💡 For lower latency (~80ms faster), the `midiport` backend offers direct ALSA access and `udpMidi` backend midi port access , though they do not support autoplayback.
 
 #### 🔄 Tip: Use This as a Fallback
 

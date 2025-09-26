@@ -30,7 +30,10 @@ Create a virtual MIDI port named **`midiBridgePort`** (exact spelling) and route
      udp-midi-bridge-windows.exe 192.168.0.101
      ```
    - For a classroom with multiple laptops, the teacher can run **one instance per student IP**.  
-     A small script (batch/shell) can automate launching several bridge processes in the background.
+
+ A small script (batch/shell) can automate launching several bridge processes in the background.
+ 
+ Students need to open UDP port 49160 on the machine running the visualizer. Teachers need to open TCP port 9800 (or the port used by their player or synth engine) on the machine running the audio and bridge binary so that remote control works properly.
 
 3. Start the visualiser:
    ```bash
