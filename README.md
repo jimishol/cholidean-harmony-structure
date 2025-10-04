@@ -12,7 +12,7 @@ Quick start examples |[MIDIport ▶](https://jimishol.github.io/tonality/cholide
 [FluidSynth ▶](https://jimishol.github.io/tonality/cholidean-harmony-structure.webm)  | 
 [Windows ▶](https://jimishol.github.io/tonality/cholidean-harmony-windows.webm)
 
-![The Cholidean harmonic structure operates in parallel with MuseScore, unveiling the harmony within the composition.](/tonality/cholidean-harmony-musescore.gif)
+![The Cholidean harmonic structure operates in parallel with MuseScore, unveiling the harmony within the composition.](https://jimishol.github.io/tonality/cholidean-harmony-musescore.gif)
 
 *The Cholidean harmonic structure operates in parallel with MuseScore, unveiling the harmony within the composition.*
 
