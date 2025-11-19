@@ -8,12 +8,12 @@ local constants = require("src.constants")
 
 local M = {}
 
---- Check if a torus surface at index `idx` should be considered active.
--- Evaluates the C–E, C–B, and E–G note pairs for simultaneous activation.
+--- Check if a torus surface at index `idx` should be considered active, semiactive, or inactive.
+-- Evaluates harmonic note pairs (C–E, C–B, E–G, B–G) for simultaneous activation.
 -- @local
 -- @tparam number idx    Surface index (1–12)
 -- @tparam table  notes  Array of note tables, each with an `.active` boolean
--- @treturn boolean      True if any required pair is active
+-- @treturn string       One of `"active"`, `"semiactive"`, or `"inactive"`
 local function checkSurfState(idx, notes)
 
   --- Wrap an integer into the 1–12 range.
@@ -33,21 +33,42 @@ local function checkSurfState(idx, notes)
   local CB_active = C and C.active and B and B.active
   local EG_active = E and E.active and G and G.active
   local BG_active = B and B.active and G and G.active
+  -- Diagonal reinforcement → fully active
+  if CB_active or EG_active then
+    return "active"
+  end
 
-  return CE_active or CB_active or EG_active or BG_active
+  -- Vertical only (CE or BG) → semiactive
+  if CE_active or BG_active then
+    return "semiactive"
+  end
+
+  -- Otherwise inactive
+  return "inactive"
 end
 
---- Update a surface’s material instance to be ghost/X-ray or solid-emissive.
+--- Update a surface’s material instance to be ghost/X-ray, solid-emissive, or semiactive.
+-- Applies color, alpha, and emission based on the surface state.
 -- @tparam table   matInst    Material instance (supports `setColor`, `setAlpha`, `setEmission`)
 -- @tparam {number,number,number} noteColor RGB triplet `{r, g, b}`
--- @tparam boolean isActive   Whether the surface (note) is active
-function M.updateSurfaceMaterial(matInst, noteColor, isActive)
+-- @tparam string|boolean state Surface state: `"active"`, `"semiactive"`, `"inactive"`, or legacy `true` for active
+function M.updateSurfaceMaterial(matInst, noteColor, state)
   local r, g, b = noteColor[1], noteColor[2], noteColor[3]
-  if isActive then
+
+  if state == true or state == "active" then
+    -- active: solid + emissive
     matInst:setColor(r, g, b, 1.0)
     local f = constants.emissionLevels.surfaces.active
     matInst:setEmission(f, f, f)
+
+  elseif state == "semiactive" then
+    -- semiactive: semi-solid, no glow
+    matInst:setColor(r, g, b, (2.0 + constants.surfAlpha)/3)
+    local f = constants.emissionLevels.surfaces.inactive
+    matInst:setEmission(f, f, f)
+
   else
+    -- inactive: ghost/X-ray
     matInst:setAlpha()
     matInst:setColor(r, g, b, constants.surfAlpha)
     local f = constants.emissionLevels.surfaces.inactive
