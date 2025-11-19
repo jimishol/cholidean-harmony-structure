@@ -12,7 +12,6 @@ local control = love.thread.getChannel("track_control")
 -------------------------------------------------------------------------------
 local helpLines = {}
 do
-  -- adjust this path if you placed the file somewhere else
   local path = "src/backends/fluidsynth/fluidsynth_help.txt"
   local raw  = love.filesystem.read(path) or ""
   for line in raw:gmatch("[^\r\n]+") do
@@ -20,33 +19,62 @@ do
   end
 end
 
---- Return the pre-loaded FluidSynth help dump.
--- @treturn table Array of help lines
-function getStaticHelp()
+local function getStaticHelp()
   return helpLines
 end
 
 -------------------------------------------------------------------------------
--- Internal TCP sender
+-- Persistent TCP connection
 -------------------------------------------------------------------------------
-local function send_command(message, host, port)
-  print(string.format(
-    "[midi_controls] Sending `%s` to %s:%d",
-    message, host, port
-  ))
+local tcp
+local last_connect = 0
+local reconnect_interval = 1.0  -- seconds
 
-  local tcp, err = socket.tcp()
-  assert(tcp, "Failed to create TCP socket: " .. tostring(err))
-  tcp:settimeout(0.5)
+local function ensure_connection(host, port)
+  local now = love.timer.getTime()
+  if tcp and tcp:send("") then
+    return true
+  end
+  if (now - last_connect) < reconnect_interval then
+    return false
+  end
+  last_connect = now
 
-  local ok, conn_err = tcp:connect(host, port)
-  if not ok then
-    print("[midi_controls] Connection failed:", conn_err)
-    return
+  if tcp then
+    tcp:close()
+    tcp = nil
   end
 
-  tcp:send(message .. "\n")
-  tcp:close()
+  local new_tcp, err = socket.tcp()
+  if not new_tcp then
+    print("[midi_controls] Failed to create TCP socket:", err)
+    return false
+  end
+  new_tcp:settimeout(0.5)
+  local ok, conn_err = new_tcp:connect(host, port)
+  if not ok then
+    print("[midi_controls] Connection failed:", conn_err)
+    return false
+  end
+
+  tcp = new_tcp
+  print(string.format("[midi_controls] Connected to %s:%d", host, port))
+  return true
+end
+
+local function send_command(message, host, port)
+  if not ensure_connection(host, port) then
+    print("[midi_controls] Cannot send, no connection:", message)
+    return
+  end
+  local ok, err = tcp:send(message .. "\n")
+  if not ok then
+    print("[midi_controls] Send failed:", err)
+    tcp:close()
+    tcp = nil
+  else
+    print(string.format("[midi_controls] Sent `%s`", message))
+  end
 end
 
 -------------------------------------------------------------------------------
@@ -56,53 +84,37 @@ local M = {}
 
 --- Toggle playback state.
 -- If currently playing, sends "player_stop"; otherwise sends "player_cont".
--- @tparam string host  Remote host address
--- @tparam number port  Remote TCP port
 function M.togglePlayback(host, port)
   if M._isPlaying == nil then M._isPlaying = true end
 
-  if M._isPlaying then
-    send_command("player_stop", host, port)
-  else
-    send_command("player_cont", host, port)
-  end
-
+  local cmd = M._isPlaying and "player_stop" or "player_cont"
+  send_command(cmd, host, port)
   M._isPlaying = not M._isPlaying
   print("[midi_controls] isPlaying =", M._isPlaying)
 end
 
 --- Start playback of the current song.
 -- Sends "player_start" after pushing a "clear" control message.
--- @tparam string host  Remote host address
--- @tparam number port  Remote TCP port
 function M.beginSong(host, port)
   control:push("clear")
   send_command("player_start", host, port)
+  M._isPlaying = true
   print("[midi_controls] start current song")
 end
 
 --- Advance to the next song in the playlist.
 -- Sends "player_next" after pushing a "clear" control message.
--- @tparam string host  Remote host address
--- @tparam number port  Remote TCP port
 function M.nextSong(host, port)
   control:push("clear")
   send_command("player_next", host, port)
+  M._isPlaying = true
   print("[midi_controls] move to next song")
 end
 
 --- Send an arbitrary FluidSynth command.
--- Alias for `send_command`.
--- @tparam string message  Command to send
--- @tparam string host     Remote host address
--- @tparam number port     Remote TCP port
 M.send_message = send_command
 
 --- Retrieve the static help text.
--- Call this in your command menu when user presses “h”.
--- @tparam string _host  (ignored)
--- @tparam number _port  (ignored)
--- @treturn table lines of help
 function M.getHelp(_host, _port)
   return getStaticHelp()
 end
