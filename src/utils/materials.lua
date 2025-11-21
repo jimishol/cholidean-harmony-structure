@@ -63,7 +63,7 @@ function M.updateSurfaceMaterial(matInst, noteColor, state)
 
   elseif state == "semiactive" then
     -- semiactive: semi-solid, no glow
-    matInst:setColor(r, g, b, (2.0 + constants.surfAlpha)/3)
+    matInst:setColor(r, g, b, constants.semiAlpha)
     local f = constants.emissionLevels.surfaces.inactive
     matInst:setEmission(f, f, f)
 

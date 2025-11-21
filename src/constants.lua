@@ -17,7 +17,8 @@
 -- @field jointScale            number   Scale factor for imported joint meshes.
 -- @field scaleFactor           number   Ratio of active vs. inactive joint sizes.
 -- @field bassScale             number   Depth‑offset scale for bass‑note joints.
--- @field surfAlpha             number   Opacity for surface meshes.
+-- @field surfAlpha             number   Opacity for inactive surface meshes.
+-- @field semiAlpha             number   Opacity for semiactive surface meshes.
 -- @field sunBrightness         number   Intensity of the sun light.
 -- @field defaultNoteMode       string   Note‑mode, either `"instant"` or `"offset"`.
 -- @field offsetDuration        number   Delay (s) before sending a “note‑off” when in offset mode.
@@ -78,6 +79,7 @@ M.jointScale          = 1.00
 M.scaleFactor         = 1.60
 M.bassScale           = 0.92
 M.surfAlpha           = 0.23
+M.semiAlpha           = 0.56
 M.sunBrightness       = 1.0
 M.defaultNoteMode     = "instant"
 M.offsetDuration      = 0.15
@@ -128,7 +130,7 @@ M.emissionLevels = {
   joints   = { active = 0.20, inactive = 0.005 },
   edges    = { active = 0.05, inactive = 0.005 },
   curves   = { active = 0.05, inactive = 0.005 },
-  surfaces = { active = 0.07, inactive = 0.015 },
+  surfaces = { active = 0.05, inactive = 0.015 },
   labels   = { active = 0.40, inactive = 0.005 },
 }
 
