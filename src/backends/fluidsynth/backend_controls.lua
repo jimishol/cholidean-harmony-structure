@@ -23,9 +23,7 @@ local function getStaticHelp()
   return helpLines
 end
 
--------------------------------------------------------------------------------
 -- Persistent TCP connection
--------------------------------------------------------------------------------
 local tcp
 local last_connect = 0
 local reconnect_interval = 1.0  -- seconds

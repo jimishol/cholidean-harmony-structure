@@ -57,6 +57,11 @@
 -- @field emissionLevels.curves   table  Curve emission levels (`.active`, `.inactive`).
 -- @field emissionLevels.surfaces table  Surface emission levels (`.active`, `.inactive`).
 -- @field emissionLevels.labels   table  Label emission levels (`.active`, `.inactive`).
+--
+-- Fundamental visualization (mfState)
+-- @field mfState               number   Fundamental visualization mode: 0=off, 1=joints only, 2=labels only, 3=joints+labels.
+-- @field mfJointScaleYMultiplier number Multiplier applied to joint size when the note matches the detected fundamental (scaled by y).
+-- @field mfLabelScaleYMultiplier number Multiplier applied to label size when the note matches the detected fundamental (scaled by y).
 
 local M = {}
 
@@ -133,5 +138,9 @@ M.emissionLevels = {
   surfaces = { active = 0.05, inactive = 0.015 },
   labels   = { active = 0.40, inactive = 0.005 },
 }
+-- Fundamental visualization
+M.mfState = 2 -- 0=no fundamentals, 1=joints, 2=labels, 3=joints+labels
+M.mfJointScaleYMultiplier = 1.4
+M.mfLabelScaleYMultiplier = 1.5
 
 return M

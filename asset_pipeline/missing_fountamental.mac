@@ -1,0 +1,186 @@
+/* [wxMaxima: input   start ] */
+/* Fundamental root finder using ezgcd */
+G([arguments]) := block(
+    [i, x, y, marg, minmarg, sol, ratprint, ratepsilon],
+    ratprint:false,
+    ratepsilon:1e-2,
+    marg:mod(arguments,12),
+    minmarg:first(marg),
+    marg:mod(marg-minmarg,12),
+    y:apply('ezgcd, rat(bfloat(2^(args(marg)/12))))[1],
+    i:0,
+    while y*2^i < 1 do i:i+1,
+    sol:round(rhs(solve([2^(x/12)=2^i*y],[x])[1])),
+    [y, arguments, mod(sol+minmarg,12)]
+)$
+
+/* Precompute rational approximations for semitone steps 0..11 */
+ratprint:false$
+ratepsilon:1e-2$
+
+rat_table : makelist([n, rat(bfloat(2^(n/12)))], n, 0, 11)$
+
+ldisp(rat_table)$
+
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+G(0,6);G(6,0);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/* Alternate fundamental root finder using precomputed rat_table */
+G_table([arguments]) := block(
+    [i, x, y, marg, minmarg, sol],
+    /* normalize arguments relative to bass (first element) */
+    marg:mod(arguments,12),
+    minmarg:first(marg),
+    marg:mod(marg-minmarg,12),
+
+    /* look up rational approximations from rat_table */
+    y:apply('ezgcd, map(lambda([k], second(rat_table[k+1])), args(marg)))[1],
+
+    /* rescale into [1,2) */
+    i:0,
+    while y*2^i < 1 do i:i+1,
+
+    /* solve for missing fundamental */
+    sol:round(rhs(solve([2^(x/12)=2^i*y],[x])[1])),
+
+    [y, arguments, mod(sol+minmarg,12)]
+)$
+/* Fundamental root finder without ezgcd */
+G_noez([arguments]) := block(
+    [i, x, y_num, y_den, marg, minmarg, sol],
+    /* normalize arguments relative to bass (first element) */
+    marg:mod(arguments,12),
+    minmarg:first(marg),
+    marg:mod(marg-minmarg,12),
+
+    /* compute product of rationals from rat_table */
+    y_num:1, y_den:1,
+    for k in args(marg) do (
+        y_num : y_num * numerator(second(rat_table[k+1])),
+        y_den : y_den * denominator(second(rat_table[k+1]))
+    ),
+    /* reduce fraction */
+    y_num : y_num/gcd(y_num,y_den),
+    y_den : y_den/gcd(y_num,y_den),
+    y : y_num/y_den,
+
+    /* rescale into [1,2) */
+    i:0,
+    while y*2^i < 1 do i:i+1,
+
+    /* solve for missing fundamental */
+    sol:round(rhs(solve([2^(x/12)=2^i*y],[x])[1])),
+
+    [y, arguments, mod(sol+minmarg,12)]
+)$
+G(2,7,11,4);G_table(2,7,11,4);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/* robust numerator/denominator */
+rat_int_pair(r) := block(
+  [rr, e],
+  rr : rat(r),
+  e  : ratdisrep(rr),
+  if atom(e) then [e, 1]
+  else if op(e) = "/" then [first(args(e)), second(args(e))]
+  else [e, 1]
+)$
+
+int_exp_map(n) := block([nn], nn : abs(n), if nn = 0 then [] else ifactors(nn))$
+
+rat_exp_map(r) := block(
+  [num, den, mnum, mden, m : []],
+  [num, den] : rat_int_pair(r),
+  mnum : int_exp_map(num),
+  mden : map(lambda([pe],[first(pe), -second(pe)]), int_exp_map(den)),
+  for pe in mnum do (
+    if member(first(pe), map(first, m))
+    then m : map(lambda([q], if first(q)=first(pe) then [first(pe), second(q)+second(pe)] else q), m)
+    else m : endcons([first(pe), second(pe)], m)
+  ),
+  for pe in mden do (
+    if member(first(pe), map(first, m))
+    then m : map(lambda([q], if first(q)=first(pe) then [first(pe), second(q)+second(pe)] else q), m)
+    else m : endcons([first(pe), second(pe)], m)
+  ),
+  m
+)$
+
+all_primes(rs) := block(
+  [ps : []],
+  for r in rs do (
+    for pe in rat_exp_map(r) do (
+      if not member(first(pe), ps) then ps : endcons(first(pe), ps)
+    )
+  ),
+  ps
+)$
+
+get_exp(m, p) := block([e : 0], for pe in m do if first(pe)=p then e:second(pe), e)$
+
+rat_mgcd(rs) := block(
+  [maps, ps, y : 1],
+  maps : map(rat_exp_map, rs),
+  ps   : all_primes(rs),
+  for p in ps do (
+    block([minexp : get_exp(first(maps), p)],
+      for m in rest(maps) do minexp : min(minexp, get_exp(m, p)),
+      if minexp > 0 then y : y * p^minexp
+      else if minexp < 0 then y : y / p^(-minexp)
+    )
+  ),
+  ratsimp(y)
+)$
+
+G_noez([arguments]) := block(
+  [i, x, y, marg, minmarg, sol, rs],
+  marg : mod(arguments, 12),
+  minmarg : first(marg),
+  marg : mod(marg - minmarg, 12),
+  rs   : map(lambda([k], second(rat_table[k + 1])), marg),
+  y    : rat_mgcd(rs),
+  i : 0,
+  while y * 2^i < 1 do i : i + 1,
+  sol : round(rhs(solve([2^(x/12) = 2^i*y], [x])[1])),
+  [y, arguments, mod(sol + minmarg, 12)]
+)$
+
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+G(7,11,4,14);G_table(7,11,4,14);G_noez(7,11,4,14);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/* Random test loop for chord sizes 2..6 — using apply() to pass list elements - No output means intentical results for G, G_table and G_noez functions*/
+for n : 2 thru 6 do (
+  for trial : 1 thru 50 do (   /* increase trials for confidence */
+    chord : makelist(random(12), i, 1, n),
+    g1 : apply('G, chord),
+    g2 : apply('G_table, chord),
+    g3 : apply('G_noez, chord),
+    if not (string(g1) = string(g2) and string(g2) = string(g3)) then (
+      print("Mismatch for chord size", n, "trial", trial),
+      print("Chord:", chord),
+      print("G:", g1),
+      print("G_table:", g2),
+      print("G_noez:", g3),
+      print("-----")
+    )
+  )
+);
+
+/* [wxMaxima: input   end   ] */
+
+
+

@@ -277,6 +277,16 @@ function scene.draw(dream)
     dream:addLight(headLight)
   end
 
+  -- Fundamental info and name→semitone mapping (C=0)
+  local fundamentalInfo = scene.noteSystem.getFundamentalInfo and scene.noteSystem:getFundamentalInfo() or { hasFundamental=false }
+  local nameToSemitone = {
+    C  = 0,  F  = 5,  Bb = 10, Eb = 3,
+    Ab = 8,  Db = 1,  Gb = 6,  B  = 11,
+    E  = 4,  A  = 9,  D  = 2,  G  = 7,
+  }
+  local hasFund = fundamentalInfo.hasFundamental
+  local fundSemitone = fundamentalInfo.fundamental
+
   -- Joints
   if scene.showJoints then
     local jointPos = JointLayout.getJointPositions()
@@ -286,6 +296,14 @@ function scene.draw(dream)
       local s = constants.jointScale
       if noteInfo.active then
         s = s * constants.scaleFactor
+      end
+
+      -- fundamental scaling for joints (steady multiplier)
+      if hasFund and (constants.mfState == 1 or constants.mfState == 3) then
+        local ns = nameToSemitone[noteInfo.name]
+        if ns ~= nil and ns == fundSemitone then
+          s = s * constants.mfJointScaleYMultiplier
+        end
       end
 
       -- draw main joint
@@ -335,6 +353,14 @@ function scene.draw(dream)
         local baseScale = constants.label_scale
         if lbl.active then
           baseScale = baseScale * constants.label_active_scale
+        end
+
+        -- fundamental scaling for labels (steady multiplier)
+        if hasFund and (constants.mfState == 2 or constants.mfState == 3) then
+          local ns = nameToSemitone[lbl.name]
+          if ns ~= nil and ns == fundSemitone then
+            baseScale = baseScale * constants.mfLabelScaleYMultiplier
+          end
         end
 
         dream:draw(mesh, transform * dream.mat4.getScale(baseScale))

@@ -1,12 +1,15 @@
 --- Manages a 12-note system, syncing MIDI‐driven note activation to joint visuals.
 -- Supports circular shifts, and both “instant” and “offset” activation modes.
+-- Also computes and caches fundamental root information from active MIDI notes.
 -- @module src.systems.note_system
 
-local constants = require("src.constants")
-local backend = constants.backend or "fluidsynth"
+local constants   = require("src.constants")
+local backend     = constants.backend or "fluidsynth"
 
 -- select the appropriate note‐state backend
-local NoteState = require("src.backends.note_state")
+local NoteState   = require("src.backends.note_state")
+-- fundamental root finder
+local Fundamental = require("src.systems.fountamental")
 
 --- Single‐note abstraction, tracking its slot, name, visual joint, and state.
 -- @type Note
@@ -37,10 +40,10 @@ end
 
 --- The main note system, managing 12 Note instances and their state.
 -- @type NoteSystem
--- @field noteMode              string   "instant" or "offset"
--- @field offsetDuration        number   Delay in seconds for note‐off in offset mode
--- @field bassOffsetDuration    number   Delay in seconds for bass note‐off in offset mode
-
+-- @field noteMode           string   "instant" or "offset"
+-- @field offsetDuration     number   Delay in seconds for note‐off in offset mode
+-- @field bassOffsetDuration number   Delay in seconds for bass note‐off in offset mode
+-- @field fundamentalInfo    table    Cached fundamental detection result ({hasFundamental, fundamental, y})
 local NoteSystem = {}
 NoteSystem.__index = NoteSystem
 
@@ -71,6 +74,7 @@ function NoteSystem:new(scene)
     bassDeactivationTimers = {},  -- number[]
     offsetDuration         = constants.offsetDuration or 0.2,
     bassOffsetDuration     = constants.bassOffsetDuration or 0.1,
+    fundamentalInfo        = { hasFundamental=false, fundamental=nil, y=1 },
   }, NoteSystem)
 
   -- instantiate Note objects and defaults
@@ -121,6 +125,7 @@ end
 --- Update note and bass states based on MIDI input.
 -- In “offset” mode, uses timers to delay deactivation.
 -- In “instant” mode, applies state changes immediately.
+-- Also computes fundamental info from current active notes.
 -- @tparam number dt  Delta time in seconds since last frame
 -- @treturn boolean True if any note or bass state changed
 function NoteSystem:update(dt)
@@ -191,7 +196,35 @@ function NoteSystem:update(dt)
     self.prevBass[slotIdx]   = isBass
   end
 
+  --- Fundamental detection hook.
+  -- Normalises the backend’s active notes into a dense, sorted list,
+  -- then computes fundamental info via the Fundamental module.
+  -- @local
+  local raw = NoteState.getActiveNotes and NoteState.getActiveNotes() or {}
+  local activeMidiNotes = {}
+  for k,v in pairs(raw) do
+    if type(k) == "number" and v == true then
+      activeMidiNotes[#activeMidiNotes+1] = k
+    elseif type(v) == "number" then
+      activeMidiNotes[#activeMidiNotes+1] = v
+    end
+  end
+  table.sort(activeMidiNotes)
+
+  local fInfo = Fundamental.G_noez_from_midi(activeMidiNotes)
+  self.fundamentalInfo = {
+    hasFundamental = fInfo.has_fundamental,
+    fundamental    = fInfo.fundamental,
+    y              = fInfo.y,
+  }
+
   return changed
+end
+
+--- Accessor for fundamental info.
+-- @treturn table {hasFundamental, fundamental, y}
+function NoteSystem:getFundamentalInfo()
+  return self.fundamentalInfo
 end
 
 return NoteSystem
