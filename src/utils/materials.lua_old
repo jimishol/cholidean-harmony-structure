@@ -85,7 +85,6 @@ end
 
 --- Recolor all scene objects according to their note states.
 -- Applies materials for joints, edges, curves, labels, and surfaces.
--- Highlights bass and topVoice notes with override colors if configured.
 -- @tparam table       scene       Scene containing categories: `joints`, `labels`, `edges`, `curves`, `surfaces`, etc.
 -- @tparam table       matLib      Material library (currently unused)
 -- @tparam table       noteSystem  Note system with a `.notes` array of note tables
@@ -132,16 +131,6 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
 
       -- Apply base color
       local r, g, b = Colors.getNoteColor(useIndex)
-
-      -- Override colors for bass/topVoice only on joints
-      if category == "joints" then
-        if note.isBass and constants.bassColor then
-          r, g, b = table.unpack(constants.bassColor)
-        elseif note.isTopVoice and constants.topVoiceColor then
-          r, g, b = table.unpack(constants.topVoiceColor)
-        end
-      end
-
       matInst:setColor(r, g, b)
 
       -- Apply emission
@@ -156,33 +145,18 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
   end
 
   -- Label meshes (always original tint + emission)
-  -- Bass and topVoice notes can override label color if configured
   for i, lbl in ipairs(scene.labels_to_Draw) do
     local mesh = scene.labelModels[lbl.name] or scene.labels[i]
     if mesh and mesh._matInst then
       local inst   = mesh._matInst
       local levels = constants.emissionLevels.labels or { active = 0, inactive = 0 }
       local factor = lbl.active and levels.active or levels.inactive
-
-      local r, g, b = lbl.color[1], lbl.color[2], lbl.color[3]
-
-      -- Apply bass/topVoice overrides on labels
-      local note = notes[i]
-      if note then
-        if note.isBass and constants.bassColor then
-          r, g, b = table.unpack(constants.bassColor)
-        elseif note.isTopVoice and constants.topVoiceColor then
-          r, g, b = table.unpack(constants.topVoiceColor)
-        end
-      end
-
-      inst:setColor(r, g, b)
+      inst:setColor(lbl.color[1], lbl.color[2], lbl.color[3])
       inst:setEmission(factor, factor, factor)
     end
   end
 
   -- Surfaces: ghost/X-ray vs solid-emissive
-  -- No bass/topVoice overrides here
   for idx, obj in ipairs(scene.surfaces) do
     local note    = noteSystem.notes[idx]
     if not note then

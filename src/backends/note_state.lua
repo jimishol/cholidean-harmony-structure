@@ -72,4 +72,30 @@ function M.isNoteBass(stepIndex)
   return step0 == bassStep
 end
 
+--- Return true if the given stepIndex (1–12) is the highest active pitch's step.
+-- Mirrors the bass checker but for the highest MIDI note.
+-- @tparam number stepIndex Circle-of-fourths step index (1–12)
+-- @treturn boolean
+function M.isNoteHighest(stepIndex)
+  local active = M.getActiveNotes()
+  if not active or #active == 0 then
+    return false
+  end
+
+  -- Find the highest MIDI note number
+  local highestNote = active[1]
+  for i = 2, #active do
+    if active[i] > highestNote then
+      highestNote = active[i]
+    end
+  end
+
+  -- Map MIDI note -> pitch class -> circle-of-fourths step
+  local pc = highestNote % 12
+  local highestStep = fourthIndex[pc]
+
+  local step0 = (stepIndex - 1) % 12
+  return step0 == highestStep
+end
+
 return M

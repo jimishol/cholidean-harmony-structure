@@ -62,6 +62,10 @@
 -- @field mfState               number   Fundamental visualization mode: 0=off, 1=joints only, 2=labels only, 3=joints+labels.
 -- @field mfJointScaleYMultiplier number Multiplier applied to joint size when the note matches the detected fundamental (scaled by y).
 -- @field mfLabelScaleYMultiplier number Multiplier applied to label size when the note matches the detected fundamental (scaled by y).
+--
+-- topVoice visualization
+-- @field topVoice        boolean  Enable/disable highlighting of the highest active pitch (TopVoice).
+-- @field topVoiceColor   table    RGB triplet for TopVoice override color (e.g. {1,1,1} for white).
 
 local M = {}
 
@@ -142,5 +146,9 @@ M.emissionLevels = {
 M.mfState = 2 -- 0=no fundamentals, 1=joints, 2=labels, 3=joints+labels
 M.mfJointScaleYMultiplier = 1.4
 M.mfLabelScaleYMultiplier = 1.5
+
+-- topVoice visualization
+M.topVoice = true
+M.topVoiceColor = {1, 1, 1}  -- better nautral color such as white {1,1,1} or grey, e.g., {0.8, 0.8, 0.8}
 
 return M

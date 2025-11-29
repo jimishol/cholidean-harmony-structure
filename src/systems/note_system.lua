@@ -2,7 +2,7 @@
 -- Supports circular shifts, and both “instant” and “offset” activation modes.
 -- Also computes and caches fundamental root information from active MIDI notes.
 -- @module src.systems.note_system
-
+--
 local constants   = require("src.constants")
 local backend     = constants.backend or "fluidsynth"
 
@@ -13,37 +13,36 @@ local Fundamental = require("src.systems.fountamental")
 
 --- Single‐note abstraction, tracking its slot, name, visual joint, and state.
 -- @type Note
--- @field index     number   Slot index 1–12 on the circle of fourths
--- @field name      string   Note name (e.g. "C", "F#", etc.)
--- @field joint     table    The mesh object representing this joint in the scene
--- @field active    boolean  Whether the note is currently active
--- @field isBass    boolean  Whether the note is currently the bass (lowest) note
--- @field midiProps table    Placeholder for future MIDI properties
+-- @field index      number   Slot index 1–12 on the circle of fourths
+-- @field name       string   Note name (e.g. "C", "F#", etc.)
+-- @field joint      table    The mesh object representing this joint in the scene
+-- @field active     boolean  Whether the note is currently active
+-- @field isBass     boolean  Whether the note is currently the bass (lowest) note
+-- @field isTopVoice boolean  Whether the note is currently the top voice (highest) note (respects general offset)
+-- @field midiProps  table    Placeholder for future MIDI properties
 local Note = {}
 Note.__index = Note
 
 --- Construct a new Note object.
--- @tparam number idx     Slot index 1–12
--- @tparam string name    Note name
+-- @function Note:new
+-- @tparam number idx Slot index 1–12
+-- @tparam string name Note name
 -- @tparam table jointObj Mesh object for this joint
 -- @treturn Note
 function Note:new(idx, name, jointObj)
   return setmetatable({
-    index     = idx,
-    name      = name,
-    joint     = jointObj,
-    active    = false,
-    isBass    = false,
-    midiProps = {},
+    index      = idx,
+    name       = name,
+    joint      = jointObj,
+    active     = false,
+    isBass     = false,
+    isTopVoice = false,
+    midiProps  = {},
   }, Note)
 end
 
 --- The main note system, managing 12 Note instances and their state.
 -- @type NoteSystem
--- @field noteMode           string   "instant" or "offset"
--- @field offsetDuration     number   Delay in seconds for note‐off in offset mode
--- @field bassOffsetDuration number   Delay in seconds for bass note‐off in offset mode
--- @field fundamentalInfo    table    Cached fundamental detection result ({hasFundamental, fundamental, y})
 local NoteSystem = {}
 NoteSystem.__index = NoteSystem
 
@@ -51,6 +50,7 @@ NoteSystem.__index = NoteSystem
 NoteSystem.noteMode = constants.defaultNoteMode
 
 --- Toggle between "instant" and "offset" note modes.
+-- @function NoteSystem:toggleNoteMode
 -- @treturn nil
 function NoteSystem:toggleNoteMode()
   if self.noteMode == "instant" then
@@ -62,22 +62,22 @@ end
 
 --- Create a new NoteSystem bound to a scene.
 -- Initializes 12 Note objects and their previous‐state tables.
--- @tparam table scene  Scene containing `scene.joints`
+-- @function NoteSystem:new
+-- @tparam table scene Scene containing `scene.joints`
 -- @treturn NoteSystem
 function NoteSystem:new(scene)
   local instance = setmetatable({
     scene                  = scene,
-    notes                  = {},  -- Note[]
-    prevActive             = {},  -- boolean[]
-    prevBass               = {},  -- boolean[]
-    deactivationTimers     = {},  -- number[]
-    bassDeactivationTimers = {},  -- number[]
+    notes                  = {},
+    prevActive             = {},
+    prevBass               = {},
+    deactivationTimers     = {},
+    bassDeactivationTimers = {},
     offsetDuration         = constants.offsetDuration or 0.2,
     bassOffsetDuration     = constants.bassOffsetDuration or 0.1,
     fundamentalInfo        = { hasFundamental=false, fundamental=nil, y=1 },
   }, NoteSystem)
 
-  -- instantiate Note objects and defaults
   for i, name in ipairs(constants.NOTE_ORDER) do
     local jointID = string.format("joint_%02d", i-1)
     local jointObj
@@ -98,19 +98,18 @@ end
 --- Shift all note slots by a given offset.
 -- Positive values rotate slots right; negative rotate left.
 -- Rebinds each Note to the correct joint object afterward.
--- @tparam number offset  Number of slots to shift
+-- @function NoteSystem:shift
+-- @tparam number offset Number of slots to shift
 -- @treturn nil
 function NoteSystem:shift(offset)
   local n = #self.notes
   local tmp = {}
-
   for i, note in ipairs(self.notes) do
     local j = ((i - 1 + offset) % n) + 1
     tmp[j] = note
   end
   self.notes = tmp
 
-  -- rebind joints after shift
   for i, note in ipairs(self.notes) do
     local jointID = string.format("joint_%02d", i-1)
     for _, obj in ipairs(self.scene.joints) do
@@ -122,22 +121,26 @@ function NoteSystem:shift(offset)
   end
 end
 
---- Update note and bass states based on MIDI input.
--- In “offset” mode, uses timers to delay deactivation.
--- In “instant” mode, applies state changes immediately.
+--- Update note, bass, and topVoice states based on MIDI input.
+-- In “offset” mode, uses timers to delay deactivation for notes.
+-- Bass uses its own offset duration. TopVoice respects the general offset (no separate timer).
 -- Also computes fundamental info from current active notes.
--- @tparam number dt  Delta time in seconds since last frame
--- @treturn boolean True if any note or bass state changed
+-- @function NoteSystem:update
+-- @tparam number dt Delta time in seconds since last frame
+-- @treturn boolean True if any note, bass, or topVoice state changed
 function NoteSystem:update(dt)
   local changed   = false
   local useOffset = (self.noteMode == "offset")
 
   for slotIdx, note in ipairs(self.notes) do
-    local isActive = NoteState.isNoteActive(note.index)
-    local isBass   = NoteState.isNoteBass(note.index)
+    local isActive   = NoteState.isNoteActive(note.index)
+    local isBass     = NoteState.isNoteBass(note.index)
+    local isTopVoice = false
+    if constants.topVoice then
+      isTopVoice = NoteState.isNoteHighest and NoteState.isNoteHighest(note.index) or false
+    end
 
     if useOffset then
-      -- handle activation with offset
       if     isActive and not self.prevActive[slotIdx] then
         note.active = true
         self.deactivationTimers[slotIdx] = nil
@@ -158,7 +161,6 @@ function NoteSystem:update(dt)
         end
       end
 
-      -- handle bass with offset
       if     isBass and not self.prevBass[slotIdx] then
         note.isBass = true
         self.bassDeactivationTimers[slotIdx] = nil
@@ -179,8 +181,14 @@ function NoteSystem:update(dt)
         end
       end
 
+      -- topVoice respects general offset: only active notes (including offset-linger) can be topVoice
+      local newTop = note.active and isTopVoice or false
+      if note.isTopVoice ~= newTop then
+        note.isTopVoice = newTop
+        changed = true
+      end
+
     else
-      -- instant mode: apply immediately
       if isActive ~= self.prevActive[slotIdx] then
         note.active = isActive
         changed = true
@@ -189,17 +197,18 @@ function NoteSystem:update(dt)
         note.isBass = isBass
         changed = true
       end
+      -- TopVoice only if the note is currently active
+      local newTop = isActive and isTopVoice or false
+      if note.isTopVoice ~= newTop then
+        note.isTopVoice = newTop
+        changed = true
+      end
     end
 
-    -- record for next update
     self.prevActive[slotIdx] = isActive
     self.prevBass[slotIdx]   = isBass
   end
 
-  --- Fundamental detection hook.
-  -- Normalises the backend’s active notes into a dense, sorted list,
-  -- then computes fundamental info via the Fundamental module.
-  -- @local
   local raw = NoteState.getActiveNotes and NoteState.getActiveNotes() or {}
   local activeMidiNotes = {}
   for k,v in pairs(raw) do
@@ -222,6 +231,7 @@ function NoteSystem:update(dt)
 end
 
 --- Accessor for fundamental info.
+-- @function NoteSystem:getFundamentalInfo
 -- @treturn table {hasFundamental, fundamental, y}
 function NoteSystem:getFundamentalInfo()
   return self.fundamentalInfo
