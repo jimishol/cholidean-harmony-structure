@@ -1,5 +1,5 @@
--- test_fountamental.lua
-local Gnoez = dofile("../src/systems/fountamental.lua")
+-- test_fundamental.lua
+local Gnoez = dofile("../src/systems/fundamental.lua")
 
 -- Some test chords (MIDI note numbers)
 local tests = {

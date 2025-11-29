@@ -1,4 +1,4 @@
--- src/systems/fountamental.lua
+-- src/systems/fundamental.lua
 -- Fundamental root finder without ezgcd (multiplicative rational GCD over just intonation approximations)
 
 local M = {}

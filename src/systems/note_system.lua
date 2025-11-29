@@ -9,7 +9,7 @@ local backend     = constants.backend or "fluidsynth"
 -- select the appropriate note‐state backend
 local NoteState   = require("src.backends.note_state")
 -- fundamental root finder
-local Fundamental = require("src.systems.fountamental")
+local Fundamental = require("src.systems.fundamental")
 
 --- Single‐note abstraction, tracking its slot, name, visual joint, and state.
 -- @type Note
