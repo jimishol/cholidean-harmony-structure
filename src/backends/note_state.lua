@@ -1,6 +1,15 @@
--- Active MIDI note state backend (Channel version)
--- Reads the latest active notes snapshot from a shared thread channel ("active_notes"),
--- caches its list of MIDI notes, and exposes lookup functions.
+--- Active MIDI note state backend (Channel version)
+--- Reads the latest active notes snapshot from a shared thread channel ("active_notes"),
+--- caches its list of MIDI notes, and exposes lookup functions.
+--- @module src.backends.note_state
+
+--- Module table returned by this file.
+--- @table note_state
+--- @field getActiveNotes function Returns the raw list of active MIDI notes
+--- @field isNoteActive function Check if a given circle-of-fourths step is active
+--- @field isNoteBass function Check if a given step is the bass (lowest) active note
+--- @field isNoteHighest function Check if a given step is the highest active pitch's step
+local M = {}
 
 local notesChannel = love.thread.getChannel("active_notes")
 
@@ -47,22 +56,28 @@ end
 -- Initialize state on module load
 reloadFromChannel()
 
-local M = {}
-
--- Returns the raw list of active MIDI notes
+--- Returns the raw list of active MIDI notes.
+--- Reloads the channel snapshot before returning.
+--- @treturn table list of MIDI note numbers (array of integers)
 function M.getActiveNotes()
   reloadFromChannel()
   return activeNotes
 end
 
--- Check if a given circle‐of‐fourths step is active
+--- Check if a given circle-of-fourths step is active.
+--- The function accepts a 1–12 step index and maps it to internal 0–11 step0.
+--- @tparam number stepIndex Circle-of-fourths step index (1–12)
+--- @treturn boolean true if the step is currently active
 function M.isNoteActive(stepIndex)
   reloadFromChannel()
   local step0 = (stepIndex - 1) % 12
   return activeSteps[step0] == true
 end
 
--- Check if a given step is the bass (lowest) active note
+--- Check if a given step is the bass (lowest) active note.
+--- Returns false if the step is not active or if there are no active notes.
+--- @tparam number stepIndex Circle-of-fourths step index (1–12)
+--- @treturn boolean true if the step corresponds to the lowest active MIDI note
 function M.isNoteBass(stepIndex)
   reloadFromChannel()
   local step0 = (stepIndex - 1) % 12
@@ -73,9 +88,9 @@ function M.isNoteBass(stepIndex)
 end
 
 --- Return true if the given stepIndex (1–12) is the highest active pitch's step.
--- Mirrors the bass checker but for the highest MIDI note.
--- @tparam number stepIndex Circle-of-fourths step index (1–12)
--- @treturn boolean
+--- Mirrors the bass checker but for the highest MIDI note.
+--- @tparam number stepIndex Circle-of-fourths step index (1–12)
+--- @treturn boolean true if the step corresponds to the highest active MIDI note
 function M.isNoteHighest(stepIndex)
   local active = M.getActiveNotes()
   if not active or #active == 0 then
