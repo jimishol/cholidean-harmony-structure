@@ -483,7 +483,7 @@ return {
 
 | Channel Name    | Purpose                                                      |
 |-----------------|--------------------------------------------------------------|
-| backend         | Backend identifier (`"fluidsynth"`, `"midiport"`, or `"null"`) |
+| backend         | Backend identifier (`"fluidsynth"`, `"midiport"`, `udpMidi` or `"null"`) |
 | soundfonts      | Path or comma-separated list of SoundFont files              |
 | songs           | Comma-separated list of MIDI files to play                   |
 | shellHost       | TCP host for backend control commands                        |
