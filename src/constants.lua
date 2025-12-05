@@ -124,7 +124,7 @@ M.sensitivity = {
   keyboard_angle = 0.20,
   keyboard_height= 5,
   keyboard_fov   = 8,
-  free_move      = 5.0,
+  free_move      = 15.0,
   free_mouse     = 0.1,
 }
 
