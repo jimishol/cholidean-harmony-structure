@@ -1,11 +1,10 @@
--- src/systems/fundamental.lua
--- Fundamental root finder without ezgcd (multiplicative rational GCD over just-intonation approximations).
+--- Fundamental root finder without ezgcd (multiplicative rational GCD over just-intonation approximations).
 -- The first element of `midi_notes` is used as the reference tone for calculations.
---- @module src.systems.fundamental
---- Fundamental root finder using multiplicative GCD over simple just-intonation-like
---- rational approximations for semitone steps. The implementation intentionally
---- avoids ezgcd and uses small prime factorization for rationals used here.
-
+-- Fundamental root finder using multiplicative GCD over simple just-intonation-like
+-- rational approximations for semitone steps. The implementation intentionally
+-- avoids ezgcd and uses small prime factorization for rationals used here.
+-- @module src.systems.fundamental
+--
 local M = {}
 
 -- Just-intonation-like rational approximations for semitone steps 0..11.

@@ -31,6 +31,10 @@
   <li><a href="../index.html">Index</a></li>
 </ul>
 
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
 
 
 <h2>Modules</h2>
@@ -50,12 +54,12 @@
   <li><a href="../modules/src.backends.midiport.backend_controls.html">src.backends.midiport.backend_controls</a></li>
   <li><a href="../modules/src.backends.midiport.command_menu.html">src.backends.midiport.command_menu</a></li>
   <li><a href="../modules/src.backends.camera.html">src.backends.camera</a></li>
-  <li><strong>constants</strong></li>
+  <li><a href="../modules/constants.html">constants</a></li>
   <li><a href="../modules/src.input.actions.html">src.input.actions</a></li>
   <li><a href="../modules/src.input.init.html">src.input.init</a></li>
   <li><a href="../modules/src.input.key_bindings.html">src.input.key_bindings</a></li>
   <li><a href="../modules/src.scene.html">src.scene</a></li>
-  <li><a href="../modules/src.systems.fundamental.html">src.systems.fundamental</a></li>
+  <li><strong>src.systems.fundamental</strong></li>
   <li><a href="../modules/src.systems.note_system.html">src.systems.note_system</a></li>
   <li><a href="../modules/src.utils.colors.html">src.utils.colors</a></li>
   <li><a href="../modules/src.helpers.daycycle.html">src.helpers.daycycle</a></li>
@@ -68,17 +72,67 @@
 
 <div id="content">
 
-<h1>Module <code>constants</code></h1>
-<p>Centralized configuration constants for the structure viewer project.</p>
-<p>
-</p>
+<h1>Module <code>src.systems.fundamental</code></h1>
+<p>Fundamental root finder without ezgcd (multiplicative rational GCD over just-intonation approximations).</p>
+<p> The first element of <code>midi_notes</code> is used as the reference tone for calculations.
+ Fundamental root finder using multiplicative GCD over simple just-intonation-like
+ rational approximations for semitone steps. The implementation intentionally
+ avoids ezgcd and uses small prime factorization for rationals used here.</p>
 
 
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#G_noez_from_midi">G_noez_from_midi (midi_notes)</a></td>
+	<td class="summary">Public API: compute fundamental from MIDI note list with audibility guard.</td>
+	</tr>
+</table>
 
 <br/>
 <br/>
 
 
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "G_noez_from_midi"></a>
+    <strong>G_noez_from_midi (midi_notes)</strong>
+    </dt>
+    <dd>
+    Public API: compute fundamental from MIDI note list with audibility guard.
+ FUNDAMENTAL INPUT CONTRACT
+ The fundamental finder treats the first element of the <code>midi_notes</code> list
+ as the reference tone. Callers are responsible for ordering the list if
+ they want a specific reference. This design lets callers choose the
+ reference explicitly by placing it first; note_system sorts notes before
+ calling this function, so typical usage receives a pitch-ordered list.</p>
+
+<p> The function returns a table with fields:
+  <em> y number multiplicative gcd of the chord rationals
+  </em> chord table the original midi_notes table passed in
+  <em> fundamental number|nil semitone class (0..11) of the inferred fundamental, or nil if inaudible
+  </em> has_fundamental boolean whether a valid fundamental (>= C0) was found
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">midi_notes</span>
+         table array of MIDI note numbers (integers). The first element is the reference.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table { y=number, chord=table, fundamental=number|nil, has_fundamental=boolean }
+    </ol>
+
+
+
+
+</dd>
+</dl>
 
 
 </div> <!-- id="content" -->
