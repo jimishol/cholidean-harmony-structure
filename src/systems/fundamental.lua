@@ -1,9 +1,15 @@
 -- src/systems/fundamental.lua
--- Fundamental root finder without ezgcd (multiplicative rational GCD over just intonation approximations)
+-- Fundamental root finder without ezgcd (multiplicative rational GCD over just-intonation approximations).
+-- The first element of `midi_notes` is used as the reference tone for calculations.
+--- @module src.systems.fundamental
+--- Fundamental root finder using multiplicative GCD over simple just-intonation-like
+--- rational approximations for semitone steps. The implementation intentionally
+--- avoids ezgcd and uses small prime factorization for rationals used here.
 
 local M = {}
 
 -- Just-intonation-like rational approximations for semitone steps 0..11.
+-- Each entry is a two-element array {numerator, denominator}.
 local rat_table = {
   [0] = {1,1},
   [1] = {17,16},
@@ -19,7 +25,12 @@ local rat_table = {
   [11] = {15,8},
 }
 
--- Factor a positive integer into prime exponents
+--- Factor a positive integer into prime exponents.
+--- Returns a table mapping prime -> exponent.
+--- This is a small, specialized factorization that checks a few small primes
+--- and treats any remaining factor as a single prime.
+--- @param n number positive integer to factor
+--- @return table map of prime -> exponent
 local function factor_int(n)
   local exps = {}
   local function bump(p,e) exps[p] = (exps[p] or 0) + e end
@@ -36,7 +47,12 @@ local function factor_int(n)
   return exps
 end
 
--- Build exponent map for a rational num/den
+--- Build exponent map for a rational numerator/denominator.
+--- Combines prime exponents of numerator and denominator into a single map
+--- where denominator exponents are subtracted.
+--- @param num number numerator
+--- @param den number denominator
+--- @return table map of prime -> exponent (can be negative)
 local function rat_exp_map(num,den)
   local mnum=factor_int(math.abs(num))
   local mden=factor_int(math.abs(den))
@@ -46,7 +62,12 @@ local function rat_exp_map(num,den)
   return m
 end
 
--- Multiplicative GCD across a list of rationals
+--- Multiplicative GCD across a list of rationals.
+--- Each rational is represented as {num, den}. The function computes the
+--- greatest common multiplicative factor (as a floating number) shared by all
+--- rationals in the list.
+--- @param rats table array of rationals, each rational is {numerator, denominator}
+--- @return number multiplicative gcd as a floating point value (num/den)
 local function rat_mgcd(rats)
   local maps={}
   for i=1,#rats do maps[i]=rat_exp_map(rats[i][1],rats[i][2]) end
@@ -69,17 +90,36 @@ local function rat_mgcd(rats)
   return num/den
 end
 
--- Normalize MIDI notes to semitone classes mod 12
+--- Normalize MIDI notes to semitone classes mod 12.
+--- @param notes table array of MIDI note numbers
+--- @return table array of semitone classes (0..11) in same order
 local function classes12(notes)
   local c={}
   for i=1,#notes do c[i]=notes[i]%12 end
   return c
 end
 
--- Round to nearest integer
+--- Round to nearest integer.
+--- @param x number
+--- @return number rounded integer
 local function round(x) return math.floor(x+0.5) end
 
--- Public API: compute fundamental from MIDI note list with audibility guard
+--- Public API: compute fundamental from MIDI note list with audibility guard.
+--- FUNDAMENTAL INPUT CONTRACT
+--- The fundamental finder treats the first element of the `midi_notes` list
+--- as the reference tone. Callers are responsible for ordering the list if
+--- they want a specific reference. This design lets callers choose the
+--- reference explicitly by placing it first; note_system sorts notes before
+--- calling this function, so typical usage receives a pitch-ordered list.
+---
+--- The function returns a table with fields:
+---  * y number multiplicative gcd of the chord rationals
+---  * chord table the original midi_notes table passed in
+---  * fundamental number|nil semitone class (0..11) of the inferred fundamental, or nil if inaudible
+---  * has_fundamental boolean whether a valid fundamental (>= C0) was found
+---
+--- @param midi_notes table array of MIDI note numbers (integers). The first element is the reference.
+--- @return table { y=number, chord=table, fundamental=number|nil, has_fundamental=boolean }
 function M.G_noez_from_midi(midi_notes)
   if #midi_notes==0 then
     return {y=1,chord={},fundamental=nil,has_fundamental=false}
