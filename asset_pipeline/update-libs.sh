@@ -14,6 +14,8 @@ fi
 # Core update
 echo "→ 3DreamEngine (core)"
 git fetch 3DreamEngine master
+git rm -r --cached 3DreamEngine || true
+git commit -m "Clear old 3DreamEngine subtree index" || true
 git read-tree --prefix=3DreamEngine/ -u 3DreamEngine/master:3DreamEngine
 git commit -m "Update 3DreamEngine core subtree"
 HASH_CORE=$(git log -1 --pretty=format:"%h" -- 3DreamEngine)
@@ -21,6 +23,8 @@ HASH_CORE=$(git log -1 --pretty=format:"%h" -- 3DreamEngine)
 # Extensions update
 echo "→ 3DreamEngine (extensions)"
 git fetch 3DreamEngine master
+git rm -r --cached extensions || true
+git commit -m "Clear old extensions subtree index" || true
 git read-tree --prefix=extensions/ -u 3DreamEngine/master:extensions
 git commit -m "Update 3DreamEngine extensions subtree"
 HASH_EXT=$(git log -1 --pretty=format:"%h" -- extensions)

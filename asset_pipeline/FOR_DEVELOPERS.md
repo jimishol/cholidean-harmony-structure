@@ -79,7 +79,14 @@ git commit -m "Merge in 3DreamEngine subtree (upstream 3DreamEngine/ folder) int
 ```
 **Update** (Core)
 ```
+# Fetch latest upstream changes
 git fetch 3DreamEngine master
+
+# Clear old index entries to avoid overlap errors
+git rm -r --cached 3DreamEngine
+git commit -m "Clear old 3DreamEngine subtree index"
+
+# Re-import the upstream folder
 git read-tree --prefix=3DreamEngine/ -u 3DreamEngine/master:3DreamEngine
 git commit -m "Update 3DreamEngine core subtree"
 ```
@@ -91,7 +98,14 @@ git commit -m "Import 3DreamEngine extensions into root/extensions/"
 ```
 **Update** (Extensions)
 ```
+# Fetch latest upstream changes
 git fetch 3DreamEngine master
+
+# Clear old index entries to avoid overlap errors
+git rm -r --cached extensions
+git commit -m "Clear old extensions subtree index"
+
+# Re-import the upstream folder
 git read-tree --prefix=extensions/ -u 3DreamEngine/master:extensions
 git commit -m "Update 3DreamEngine extensions subtree"
 ```
