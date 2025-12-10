@@ -77,7 +77,7 @@ M.soundfonts          = "FluidR3_GM.sf2"
 M.shellPort           = 9800
 M.shellHost           = "localhost" --"192.168.x.x" IP of TCP server 
 
-M.bck_image           = "assets/sky/DaySkyHDRI021A_4K.hdr"
+M.bck_image           = "assets/sky/DaySkyHDRI021A_4K-HDR.exr"
 M.day_night           = 8
 M.day_night_speed     = 0.15
 M.maxBright           = 1.40
