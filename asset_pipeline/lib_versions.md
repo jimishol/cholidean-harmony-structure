@@ -1,11 +1,11 @@
 # 📚 Library Versions
-Last updated: 2025-08-03
+Last updated: 2025-12-11
 
 ## 3DreamEngine (Core)
-- 📌 Commit:  (2025-08-03)
-- 🗂️ Path: 3DreamEngine/3DreamEngine/
+- 📌 Commit:  (2025-12-11)
+- 🗂️ Path: 3DreamEngine/
 
 ## 3DreamEngine (Extensions)
-- 📌 Commit:  (2025-08-03)
-- 🗂️ Path: 3DreamEngine/extensions/
+- 📌 Commit: d48d1a9 (2025-12-11)
+- 🗂️ Path: extensions/
 

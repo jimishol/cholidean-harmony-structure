@@ -72,25 +72,26 @@ To keep the project self-contained and updatable, key third-party libraries are 
 #### 1 **Initial Integration** (Core)
 ```
 git remote add -f 3DreamEngine https://github.com/3dreamengine/3DreamEngine.git
+git fetch 3DreamEngine master
 git merge -s ours --no-commit --allow-unrelated-histories 3DreamEngine/master
-git read-tree --prefix=3DreamEngine/3DreamEngine/ -u 3DreamEngine/master:3DreamEngine
-git commit -m "Merge in 3DreamEngine/3DreamEngine subtree into 3DreamEngine/"
+git read-tree --prefix=3DreamEngine/ -u 3DreamEngine/master:3DreamEngine
+git commit -m "Merge in 3DreamEngine subtree (upstream 3DreamEngine/ folder) into local 3DreamEngine/"
 ```
 **Update** (Core)
 ```
-git fetch 3DreamEngine
-git subtree pull --prefix=3DreamEngine/3DreamEngine 3DreamEngine master --squash
+git fetch 3DreamEngine master
+git subtree pull --prefix=3DreamEngine 3DreamEngine master --squash
 ```
 #### 2 **Initial Integration** (Extensions)
 
 ```
-git read-tree --prefix=3DreamEngine/extensions/ -u 3DreamEngine/master:extensions
-git commit -m "Import 3DreamEngine extensions into root/Extensions/"
+git read-tree --prefix=extensions/ -u 3DreamEngine/master:extensions
+git commit -m "Import 3DreamEngine extensions into root/extensions/"
 ```
 **Update** (Extensions)
 ```
 git fetch 3DreamEngine
-git subtree pull --prefix=3DreamEngine/extensions 3DreamEngine master --squash
+git subtree pull --prefix=extensions 3DreamEngine master --squash
 ```
 
 🧰 Tips for Development & Branching
