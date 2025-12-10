@@ -3,7 +3,7 @@
 OUT="asset_pipeline/lib_versions.md"
 DATE=$(date +%Y-%m-%d)
 
-echo "🔄 Updating Git subtrees..."
+echo "🔄 Updating Git subtrees with read-tree..."
 
 # Safety check: abort if working tree is dirty
 if ! git diff-index --quiet HEAD --; then
@@ -11,18 +11,21 @@ if ! git diff-index --quiet HEAD --; then
     exit 1
 fi
 
-# 3DreamEngine core
+# Core update
 echo "→ 3DreamEngine (core)"
-git fetch 3DreamEngine
-git subtree pull --prefix=3DreamEngine 3DreamEngine master --squash
+git fetch 3DreamEngine master
+git read-tree --prefix=3DreamEngine/ -u 3DreamEngine/master:3DreamEngine
+git commit -m "Update 3DreamEngine core subtree"
 HASH_CORE=$(git log -1 --pretty=format:"%h" -- 3DreamEngine)
 
-# 3DreamEngine extensions
+# Extensions update
 echo "→ 3DreamEngine (extensions)"
-git subtree pull --prefix=extensions 3DreamEngine master --squash
+git fetch 3DreamEngine master
+git read-tree --prefix=extensions/ -u 3DreamEngine/master:extensions
+git commit -m "Update 3DreamEngine extensions subtree"
 HASH_EXT=$(git log -1 --pretty=format:"%h" -- extensions)
 
-# Now regenerate the report file AFTER successful pulls
+# Report file
 echo "# 📚 Library Versions" > "$OUT"
 echo "Last updated: $DATE" >> "$OUT"
 echo "" >> "$OUT"

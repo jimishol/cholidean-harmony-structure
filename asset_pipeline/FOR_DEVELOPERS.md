@@ -80,7 +80,8 @@ git commit -m "Merge in 3DreamEngine subtree (upstream 3DreamEngine/ folder) int
 **Update** (Core)
 ```
 git fetch 3DreamEngine master
-git subtree pull --prefix=3DreamEngine 3DreamEngine master --squash
+git read-tree --prefix=3DreamEngine/ -u 3DreamEngine/master:3DreamEngine
+git commit -m "Update 3DreamEngine core subtree"
 ```
 #### 2 **Initial Integration** (Extensions)
 
@@ -90,8 +91,9 @@ git commit -m "Import 3DreamEngine extensions into root/extensions/"
 ```
 **Update** (Extensions)
 ```
-git fetch 3DreamEngine
-git subtree pull --prefix=extensions 3DreamEngine master --squash
+git fetch 3DreamEngine master
+git read-tree --prefix=extensions/ -u 3DreamEngine/master:extensions
+git commit -m "Update 3DreamEngine extensions subtree"
 ```
 
 🧰 Tips for Development & Branching
