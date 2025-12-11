@@ -3,9 +3,6 @@
 **/*_NormalGL.png filter=lfs diff=lfs merge=lfs -text
 src/backends/udpMidi/binaries/* filter=lfs diff=lfs merge=lfs -text
 
-# Except the following
-extensions/sky/res/moon_normal.png -filter -diff -merge text
-
 # Exclude dev-only folders from git archive / GitHub source ZIP
 asset_pipeline/ export-ignore
 docs/ldoc/ export-ignore
