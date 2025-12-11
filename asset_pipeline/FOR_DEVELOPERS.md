@@ -83,6 +83,8 @@ git commit -m "Merge in 3DreamEngine subtree (upstream 3DreamEngine/ folder) int
 #### 2. **Initial Integration (Extensions)**
 
 ```bash
+git fetch 3DreamEngine master
+git merge -s ours --no-commit --allow-unrelated-histories 3DreamEngine/master
 git read-tree --prefix=extensions/ -u 3DreamEngine/master:extensions
 git commit -m "Import 3DreamEngine extensions into root/extensions/"
 ```
