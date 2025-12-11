@@ -57,74 +57,94 @@ Learn more about the theory at [Cholidean Harmony Structure blog post](https://j
 
 ## 📦 Git Subtree Integrations
 
-To keep the project self-contained and updatable, key third-party libraries are included using Git subtrees.
+To keep the project self‑contained and updatable, key third‑party libraries are included using Git subtrees.
 
 ---
 
 ### 3DreamEngine
 
-🗂️ Paths:
+**🗂️ Paths:**
 
-*    Core: 3DreamEngine/3DreamEngine/
+- Core: `3DreamEngine/3DreamEngine/`
+- Extensions: `3DreamEngine/extensions/`
 
-*    Extensions: 3DreamEngine/extensions/
+---
 
-#### 1 **Initial Integration** (Core)
-```
+#### 1. **Initial Integration (Core)**
+
+```bash
 git remote add -f 3DreamEngine https://github.com/3dreamengine/3DreamEngine.git
 git fetch 3DreamEngine master
 git merge -s ours --no-commit --allow-unrelated-histories 3DreamEngine/master
 git read-tree --prefix=3DreamEngine/ -u 3DreamEngine/master:3DreamEngine
 git commit -m "Merge in 3DreamEngine subtree (upstream 3DreamEngine/ folder) into local 3DreamEngine/"
 ```
-**Update** (Core)
-```
-# Fetch latest upstream changes
-git fetch 3DreamEngine master
 
-# Clear old index entries to avoid overlap errors
-git rm -r --cached 3DreamEngine
-git commit -m "Clear old 3DreamEngine subtree index"
+#### 2. **Initial Integration (Extensions)**
 
-# Re-import the upstream folder
-git read-tree --prefix=3DreamEngine/ -u 3DreamEngine/master:3DreamEngine
-git commit -m "Update 3DreamEngine core subtree"
-```
-#### 2 **Initial Integration** (Extensions)
-
-```
+```bash
 git read-tree --prefix=extensions/ -u 3DreamEngine/master:extensions
 git commit -m "Import 3DreamEngine extensions into root/extensions/"
 ```
-**Update** (Extensions)
-```
-# Fetch latest upstream changes
-git fetch 3DreamEngine master
-
-# Clear old index entries to avoid overlap errors
-git rm -r --cached extensions
-git commit -m "Clear old extensions subtree index"
-
-# Re-import the upstream folder
-git read-tree --prefix=extensions/ -u 3DreamEngine/master:extensions
-git commit -m "Update 3DreamEngine extensions subtree"
-```
-
-🧰 Tips for Development & Branching
-
-   Use feature branches (e.g. insert_mats) to test integrations before merging to main
-
-   All subtree operations should be committed with descriptive messages
-
-   Always commit or stash local changes before running subtree pull
-
-   From project's root directory, you can run
-```    
-    ./asset_pipeline/update-libs.sh
-```
-   to automate library updates. You’ll see the subtrees update, followed by the message:
-   ✅ All subtrees updated and version log written to asset_pipeline/lib_versions.md
-
-⚠️ Caution: Using Git LFS with an embedded 3DreamEngine can easily push your repository beyond 5 GB due to ~4+ GB of unnecessary history blobs. Review your workflow carefully—certain commands that add large binaries or rewrite history can trigger a data flood.
 
 ---
+
+#### 🔄 Update Procedure (Combined)
+
+When upstream changes need to be pulled in, we do **not** merge into existing folders. Instead, we always delete the old subtree folders and re‑import them fresh. This guarantees a clean snapshot and avoids index overlap errors.
+
+**Steps:**
+
+```bash
+# 1. Remove old subtree folders
+rm -rf 3DreamEngine extensions
+git rm -r --cached 3DreamEngine extensions || true
+git commit -m "Clear old 3DreamEngine and extensions subtree folders before re-import"
+
+# 2. Fetch latest upstream
+git fetch 3DreamEngine master
+
+# 3. Re-import fresh snapshots
+git read-tree --prefix=3DreamEngine/ -u 3DreamEngine/master:3DreamEngine
+git read-tree --prefix=extensions/ -u 3DreamEngine/master:extensions
+git commit -m "Re-import 3DreamEngine core and extensions subtrees from latest master"
+```
+
+---
+
+### 🧾 Notes
+
+- This procedure produces **two commits**:  
+  1. One clearing the old folders.  
+  2. One re‑importing the new snapshots.  
+- Keeps history clean and predictable.  
+- After running, you can regenerate `asset_pipeline/lib_versions.md` with your script to document the new commit hashes.
+
+---
+
+### 🧰 Tips for Development & Branching
+
+- Use feature branches (e.g. `insert_mats`) to test integrations before merging to `main`.  
+- All subtree operations should be committed with descriptive messages.  
+- Always commit or stash local changes before running subtree operations.  
+- From the project’s root directory, you can run:
+
+```bash
+./asset_pipeline/update-libs.sh
+```
+
+This automates library documentation. You’ll see the subtrees update, followed by:
+
+```
+✅ All subtrees updated and version log written to asset_pipeline/lib_versions.md
+```
+
+---
+
+### ⚠️ Caution
+
+Using Git LFS with an embedded 3DreamEngine can easily push your repository beyond **5 GB** due to ~4+ GB of unnecessary history blobs. Review your workflow carefully — certain commands that add large binaries or rewrite history can trigger a data flood.
+
+---
+
+This version keeps everything consistent: headings, spacing, code blocks, and lists are aligned. Would you like me to also add a **table of commands vs commit messages** at the end, so developers can quickly see which commit message to use for each step?
