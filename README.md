@@ -4,25 +4,25 @@
 
 # Cholidean Harmony Structure
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/jimishol/cholidean-harmony-structure)
+
 </div>
 
-  <img src="https://github.com/jimishol/jimishol.github.io/blob/main/tonality/cholidean_structure.png" alt="Theme Image" width="100%" />
+<img src="https://github.com/jimishol/jimishol.github.io/blob/main/tonality/cholidean_structure.png" alt="Theme Image" width="100%" />
 
-Quick start examples |[MIDIport ▶](https://jimishol.github.io/tonality/cholidean-harmony-midiport.webm)  |
-[FluidSynth ▶](https://jimishol.github.io/tonality/cholidean-harmony-structure.webm)  | 
+Quick start examples | [MIDIport ▶](https://jimishol.github.io/tonality/cholidean-harmony-midiport.webm) |
+[FluidSynth ▶](https://jimishol.github.io/tonality/cholidean-harmony-structure.webm) |
 [Windows ▶](https://jimishol.github.io/tonality/cholidean-harmony-windows.webm)
 
 ![The Cholidean harmonic structure operates in parallel with MuseScore, unveiling the harmony within the composition.](https://jimishol.github.io/tonality/cholidean-harmony-musescore.gif)
 
 *The Cholidean harmonic structure operates in parallel with MuseScore, unveiling the harmony within the composition.*
 
-Cholidean Harmony Structure is a projection of 12-tone Equal Temperament ([12ET](https://en.wikipedia.org/wiki/12_equal_temperament)) music systems into 3D space. The twelve tones are placed on a 3D parametric closed curve. The fact that each tone is related to two and only two other tones, creates strongly the perception of a two-dimensional surface strip that curves in three-dimensional space to fit the surface of an [umbilic torus](https://en.wikipedia.org/wiki/Umbilic_torus).
+Cholidean Harmony Structure is a projection of 12-tone Equal Temperament ([12ET](https://en.wikipedia.org/wiki/12_equal_temperament)) music systems into 3D space. The twelve tones are placed on a 3D parametric closed curve. The fact that each tone is related to two and only two other tones creates strongly the perception of a two-dimensional surface strip that curves in three-dimensional space to fit the surface of an [umbilic torus](https://en.wikipedia.org/wiki/Umbilic_torus).
 
 Project's integration with [FluidSynth](https://github.com/FluidSynth/fluidsynth), as a MIDI backend player, demonstrates a powerful method for visualizing and exploring harmony theories.
 
-*At its heart, this project offers full 3D harmony exploration — a feature that works on all platforms when run with the null backend (no audio), so anyone can experience the concept without setup hurdles.
-*
-
+*At its heart, this project offers full 3D harmony exploration — a feature that works on all platforms when run with the null backend (no audio), so anyone can experience the concept without setup hurdles.*
 📖 **Two ways into this world:**  
 - *The Watch and the Twelve Realms* — [read the origin fable](docs/the_story.md) *(first watch story at → https://jimishol.github.io/post/circle_of_fifths)*  
 - *Tonality Structure in Music* — [read the tonal structure article](https://jimishol.github.io/post/tonality/)
