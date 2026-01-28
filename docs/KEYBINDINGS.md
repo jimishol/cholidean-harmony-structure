@@ -28,7 +28,7 @@
 | Shift + ↑        | MOVE_FORWARD     | Move camera forward along view direction     |
 | Shift + ↓        | MOVE_BACKWARD    | Move camera backward along view direction    |
 | h              | TOGGLE_NOTE_MODE        | Toggle mode for instant or delayed note OFF event                       |
-| p              | TOGGLE_PLAYBACK         | Play/pause MIDI playback               |
+| p              | TOGGLE_PLAYBACK         | Play/pause playback (power‑saving pause) |
 | tab            | BEGIN_SONG              | Start song from beginning              |
 | return         | NEXT_SONG               | Advance to next song                   |
 |-------------------------------------------|---------------------------------------------|-------------------------------------------|

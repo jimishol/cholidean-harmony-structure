@@ -179,7 +179,7 @@ This project works like a minimalist music player — but with a twist. Instead 
 
 - **Supported Format:** Currently supports MIDI files via FluidSynth or via the Linux ALSA midiport backend—both emit real-time note ON/OFF events for 3D visualization. On Windows, use the `udpMidi` backend for full audio‑visual output, or the `null` backend for visualization only (without audio).
 
-- **Interactive Controls:** Users can pause playback or adjust tempo via TCP commands, making it ideal for music students or harmony learners.
+- **Interactive Controls:** Users can pause playback (a power‑saving feature) or adjust tempo via TCP commands, making it ideal for music students or harmony learners.
 - **No Technical Setup Required:** Just launch the app, load a MIDI file, and enjoy the visual harmony.
 
 📝 Note: Future versions may support additional formats, depending on backend contributions.
@@ -421,7 +421,7 @@ Only the h, d, and Ctrl + Q keys are consumed by the visualizer itself. All othe
 
 | Key     | Function                                 |
 |---------|-------------------------------------------|
-| p       | Toggle play / pause                       |
+| p       | Toggle play / pause (power‑saving pause)  |
 | tab     | Play current song from start              |
 | Enter   | Move to next song                         |
 | h       | Toggle “instant” vs “offset” note-off mode|

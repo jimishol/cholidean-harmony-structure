@@ -60,6 +60,14 @@ function M.setup(backendName)
     M.controls = loadModule(candidate, "backend_controls")
     M.commandMenu = loadModule(candidate, "command_menu")
 
+    -- Ensure all backends implement togglePlayback (needed for Freeze Mode)
+    if type(M.controls.togglePlayback) ~= "function" then
+        function M.controls.togglePlayback()
+            -- No-op fallback so main.lua can still toggle Freeze Mode
+            return true
+        end
+    end
+
     -- thread will be assigned when .start() is called
     M.thread = nil
     return M

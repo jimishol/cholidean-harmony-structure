@@ -20,6 +20,8 @@ package.path = table.concat({
 -- 2) Require & instantiate 3DreamEngine
 local Engine = require("3DreamEngine")
 local dream  = (type(Engine) == "function" and Engine() or Engine)
+local FREEZE = false
+local freezeCanvas = nil
 
 -- 3) Require your modules
 local scene  = require("scene")
@@ -127,6 +129,10 @@ end
 -- @tparam number dt Delta time since last frame.
 -- @return nil
 function love.update(dt)
+  if FREEZE then
+        return
+  end
+
   dream:update(dt)
   camera:update(dt)
   scene:update(dt)
@@ -135,13 +141,61 @@ end
 --- Callback invoked every frame to render the scene and overlays.
 -- Prepares the 3D engine, draws the scene, then switches to screen-space
 -- to render the HUD, debug text, command menu, and fallback messages.
+-- Also shows a visual indicator when Freeze Mode is active.
 -- @function love.draw
 -- @return nil
 function love.draw()
+  -- ============================
+  -- FREEZE MODE: draw frozen 3D frame + live HUD/debug
+  -- ============================
+  if FREEZE and freezeCanvas then
+      -- Draw the frozen 3D frame
+      love.graphics.setColor(1, 1, 1, 1)
+      love.graphics.draw(freezeCanvas, 0, 0)
+
+      -- Draw HUD/debug overlays (dynamic)
+      love.graphics.push()
+      love.graphics.origin()
+      love.graphics.setColor(1, 1, 1, 1)
+
+      scene.apply()
+
+      if scene.commandMenu.visible then
+        scene.commandMenu:draw(10, 120)
+      end
+
+      if Backend.fallbackMessage then
+        love.graphics.setColor(1, 0.8, 0)
+        love.graphics.print(Backend.fallbackMessage, 10, 10)
+      end
+
+      love.graphics.pop()
+
+      -- Draw FREEZE MODE overlay
+      local w, h = love.graphics.getDimensions()
+      local oldFont = love.graphics.getFont()
+      local freezeFont = love.graphics.newFont(32)
+      love.graphics.setFont(freezeFont)
+
+      love.graphics.setColor(1, 0.2, 0.2, 1)
+      local text = "Power-Saving Pause"
+      local tw = freezeFont:getWidth(text)
+      love.graphics.print(text, (w - tw) / 2, 20)
+
+      love.graphics.setFont(oldFont)
+      return
+  end
+
+  -- ============================
+  -- NORMAL RENDERING
+  -- ============================
+
+  -- 3D scene rendering
   dream:prepare()
   scene.draw(dream)
   dream:present()
 
+  -- Screen-space overlays (HUD, menus, messages)
   love.graphics.push()
   love.graphics.origin()
   love.graphics.setColor(1, 1, 1, 1)
@@ -157,6 +211,7 @@ function love.draw()
     love.graphics.print(Backend.fallbackMessage, 10, 10)
   end
 
+  love.graphics.setColor(1, 1, 1, 1)
   love.graphics.pop()
 end
 
@@ -193,11 +248,13 @@ end
 
 --- Callback to handle keypress events.
 -- Processes command menu input, internal actions, and dispatches backend controls.
+-- Also toggles Freeze Mode when playback is toggled.
 -- @function love.keypressed
 -- @tparam string key Key that was pressed.
 -- @tparam string scancode Platform-specific scancode.
 -- @return nil
 function love.keypressed(key, scancode)
+  -- Command menu handling
   if scene.commandMenu.visible then
     local topic = scene.commandMenu:keypressed(key, scancode)
 
@@ -214,38 +271,83 @@ function love.keypressed(key, scancode)
     return
   end
 
+  -- Map key to action
   local action = Input:onKey(key)
   if not action then return end
 
+  -- Restart application
   if action == A.RESTART then
     genericQuit()
     love.event.quit(42)
     return
   end
 
+  -- Toggle command menu
   if action == A.SHOW_COMMAND_MENU then
     scene.commandMenu:toggle()
     return
   end
 
+  -- Quit application
   if action == A.QUIT and ctrlDown() then
     genericQuit()
     love.event.quit()
     return
   end
 
+  -- Backend action dispatch table
   local backendActions = {
     [A.TOGGLE_PLAYBACK] = "togglePlayback",
     [A.BEGIN_SONG]      = "beginSong",
     [A.NEXT_SONG]       = "nextSong",
   }
 
+  -- Execute backend action
   local methodName = backendActions[action]
   if methodName and backendModules.controls[methodName] then
     backendModules.controls[methodName](host, shellPort)
+
+    -- ============================
+    -- FREEZE MODE TOGGLE + CANVAS CAPTURE
+    -- ============================
+    if action == A.TOGGLE_PLAYBACK then
+      FREEZE = not FREEZE
+
+      if FREEZE then
+        -- Capture the current frame into a Canvas
+        local w, h = love.graphics.getDimensions()
+        freezeCanvas = love.graphics.newCanvas(w, h)
+
+        freezeCanvas:renderTo(function()
+          -- Draw the current frame into the canvas
+          dream:prepare()
+          scene.draw(dream)
+          dream:present()
+
+          -- Draw HUD overlays into the canvas too
+          love.graphics.push()
+          love.graphics.origin()
+          love.graphics.setColor(1, 1, 1, 1)
+          scene.apply()
+
+          if scene.commandMenu.visible then
+            scene.commandMenu:draw(10, 120)
+          end
+
+          if Backend.fallbackMessage then
+            love.graphics.setColor(1, 0.8, 0)
+            love.graphics.print(Backend.fallbackMessage, 10, 10)
+          end
+
+          love.graphics.pop()
+        end)
+      end
+    end
+
     return
   end
 
+  -- Scene-level actions
   if scene.pressedAction and scene.pressedAction(action) then
     if action == A.ROTATE_CW or action == A.ROTATE_CCW then
       scene.updateLabels()
@@ -253,6 +355,7 @@ function love.keypressed(key, scancode)
     return
   end
 
+  -- Camera-level actions
   if camera.pressedAction and camera:pressedAction(action) then
     return
   end
