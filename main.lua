@@ -173,16 +173,14 @@ function love.draw()
 
       -- Draw FREEZE MODE overlay
       local w, h = love.graphics.getDimensions()
-      local oldFont = love.graphics.getFont()
-      local freezeFont = love.graphics.newFont(32)
-      love.graphics.setFont(freezeFont)
 
       love.graphics.setColor(1, 0.2, 0.2, 1)
       local text = "Power-Saving Pause"
-      local tw = freezeFont:getWidth(text)
-      love.graphics.print(text, (w - tw) / 2, 20)
+      local margin = 20
+      local font = love.graphics.getFont()
+      local tw = font:getWidth(text)
+      love.graphics.print(text, w - tw - margin, 20)
 
-      love.graphics.setFont(oldFont)
       return
   end
 
