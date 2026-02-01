@@ -99,7 +99,8 @@ love.thread.getChannel("songs"):push(songList)
 -- @function love.load
 -- @return nil
 function love.load()
-  love.window.setTitle("Cholidean Harmony Structure")
+  local window_title = love.window.getTitle()
+  love.window.setTitle(window_title .. ": " .. tostring(backend))
   love.keyboard.setTextInput(true)
 
   -- 4) Load all materials, then init the engine in the callback
