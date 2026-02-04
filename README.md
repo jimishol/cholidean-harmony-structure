@@ -27,6 +27,19 @@ Project's integration with [FluidSynth](https://github.com/FluidSynth/fluidsynth
 - *The Watch and the Twelve Realms* — [read the origin fable](docs/the_story.md) *(first watch story at → https://jimishol.github.io/post/circle_of_fifths)*  
 - *Tonality Structure in Music* — [read the tonal structure article](https://jimishol.github.io/post/tonality/)
 
+### 📐 Case Study: The Geometry of Melancholy
+
+The visualization of **Chopin's Prelude No. 4** (seen in the animation above) reveals that the piece's "suffocating" tension is not random, but a rigorous geometric conflict between **Gravity** (Station Shifts) and **Will** (Pivots).
+
+I have published the complete theoretical framework and analysis in the `docs/` folder:
+
+1.  **[Umbilic-Surface Grammar (The Spec)](docs/01-umbilic-surface-grammar-spec.md)**
+    *   *For Developers & Logicians:* Defines the 3D coordinate system, token syntax, and navigation rules on the Circle-of-Fourths lattice.
+2.  **[Topology of Western Harmony (The Classical Filter)](docs/02-topology-of-western-harmony.md)**
+    *   *For Theorists:* Explains how standard Western Tonal functions (Dominant, Subdominant) emerge naturally from the lattice topology.
+3.  **[Case Study: Chopin Prelude No. 4 (The Rectified Analysis)](docs/03-case-study-chopin-prelude04.md)**
+    *   *The Demonstration:* A bar-by-bar geometric decoding of the Prelude, explaining the "Shearing Effect" and "Decomposed Snaps" visible in the animation.
+
 ## Installation Prerequisites and Steps 🚀
 
 This project embeds [3DreamEngine](https://github.com/3dreamengine/3DreamEngine) — an awesome 3D engine for [LÖVE](https://love2d.org/) — directly in its codebase. Users only need to install LÖVE to run the project; no separate installation of 3DreamEngine is required.
