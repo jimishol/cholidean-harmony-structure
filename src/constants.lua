@@ -76,6 +76,7 @@ M.DEFAULT_MIDI_PORT   = "14:0"
 M.soundfonts          = "FluidR3_GM.sf2"
 M.shellPort           = 9800
 M.shellHost           = "localhost" --"192.168.x.x" IP of TCP server 
+M.excludeChannels     = {9}  -- Exlcude percussion channel. Set to {} to allow all channels
 
 M.bck_image           = "assets/sky/DaySkyHDRI021A_4K-HDR.exr"
 M.day_night           = 8

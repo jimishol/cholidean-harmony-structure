@@ -3,6 +3,8 @@
 local quit_ch    = love.thread.getChannel("quit")
 local notes_ch   = love.thread.getChannel("active_notes")
 local control_ch = love.thread.getChannel("track_control")
+local excludeChannel = love.thread.getChannel("excludeChannels")
+local exclude = excludeChannel:peek() or {}
 
 local socket     = require "socket"
 local bit        = require "bit"
@@ -84,13 +86,20 @@ while true do
     local changed = false
     local pkt = udp:receive()
     while pkt do
-      local status, note, vel = pkt:byte(1,3)
+    local status, note, vel = pkt:byte(1,3)
+    local ch = bit.band(status, 0x0F)
+    local shouldExclude = false
+    for _, v in ipairs(exclude) do
+      if ch == v then shouldExclude = true; break end
+    end
+    if not shouldExclude then
       local typ = bit.band(status, 0xF0)
       if typ == 0x90 and vel > 0 then
         if not liveState[note] then liveState[note] = true; changed = true end
       elseif typ == 0x80 or (typ == 0x90 and vel == 0) then
         if liveState[note] then liveState[note] = nil; changed = true end
       end
+    end
       pkt = udp:receive()
     end
 

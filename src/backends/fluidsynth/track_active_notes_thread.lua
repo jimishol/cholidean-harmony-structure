@@ -22,6 +22,10 @@ local platform        = platformChannel:peek()
 -- @local
 local backendChannel   = love.thread.getChannel("backend")
 
+--- Channel providing the percussion excluded midi channels.
+-- @local
+local excludeChannel = love.thread.getChannel("excludeChannels")
+
 --- Channel providing the selected SoundFont path (may be nil or empty).
 -- @local
 local soundfontChannel = love.thread.getChannel("soundfonts")
@@ -148,6 +152,7 @@ end
 print(">> Fluidsynth command:", cmd)
 local pipe = assert(io.popen(cmd, "r"))
 
+local exclude = excludeChannel:peek() or {}
 -- Main event loop: listens for clear commands and note events
 while true do
   if clearChannel:pop() == "clear" then
@@ -157,14 +162,21 @@ while true do
 
   local line = pipe:read("*l")
   if not line then break end
-
   local ch, key = line:match("noteon%s+(%d+)%s+(%d+)%s+%d+")
   if ch then
-    active_notes[ch..":"..key] = { channel=tonumber(ch), key=tonumber(key) }
-    publish_active()
+    local chNum = tonumber(ch)
+    local shouldExclude = false
+    for _, v in ipairs(exclude) do
+      if chNum == v then shouldExclude = true; break end
+    end
+    if not shouldExclude then
+      active_notes[ch..":"..key] = { channel=chNum, key=tonumber(key) }
+      publish_active()
+    end
   else
     local ch2, key2 = line:match("noteoff%s+(%d+)%s+(%d+)")
     if ch2 then
+      -- Always allow noteoff to remove the note
       active_notes[ch2..":"..key2] = nil
       publish_active()
     end

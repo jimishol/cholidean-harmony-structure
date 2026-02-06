@@ -9,6 +9,7 @@ local quit_channel     = love.thread.getChannel("quit")
 local notesChannel     = love.thread.getChannel("active_notes")
 local midiPortChannel  = love.thread.getChannel("midiPort")
 local control_channel  = love.thread.getChannel("track_control")
+local excludeChannel = love.thread.getChannel("excludeChannels")
 local love_timer       = require("love.timer")
 
 ---------------------------------------------------------
@@ -130,6 +131,7 @@ C.snd_seq_nonblock(seq, C.SND_SEQ_NONBLOCK)
 -- Real ALSA sniffer
 ---------------------------------------------------------
 local ACTIVE = {}
+local exclude = excludeChannel:peek() or {}
 
 --- Poll ALSA for note on/off events and update ACTIVE.
 -- Returns a sorted list of active note keys.
@@ -146,8 +148,12 @@ local function sniff()
     local key = ev.data.note.note
     local vel = ev.data.note.velocity
 
+    local shouldExclude = false
+    for _, v in ipairs(exclude) do
+      if ch == v then shouldExclude = true; break end
+    end
     if (t == C.SND_SEQ_EVENT_NOTEON or t == C.SND_SEQ_EVENT_NOTEOFF)
-       and ch ~= 9 then
+       and not shouldExclude then
       if t == C.SND_SEQ_EVENT_NOTEOFF or vel == 0 then
         ACTIVE[key] = nil
       else

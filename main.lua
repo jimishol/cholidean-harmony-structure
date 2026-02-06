@@ -81,6 +81,10 @@ local songList = (#selectedSongs > 0)
   and table.concat(selectedSongs, " ")
   or ""
 
+-- Exclude percussion channels  
+local excludeChannelsChannel = love.thread.getChannel("excludeChannels")
+excludeChannelsChannel:push(constants.excludeChannels or {})
+
 love.thread.getChannel("songs"):push(songList)
 -- -- ✅ Load backend-neutral playlist
 -- local ok_playlist, playlist = pcall(require, "src.backends.playlist")
