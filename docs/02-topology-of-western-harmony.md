@@ -160,7 +160,7 @@ To visualize the hidden geometry, we use the **"Skeleton Melody" (F -> D -> B ->
 
 | Step | Chord | Surface | Skeleton Note | Geometric Action |
 | :--- | :--- | :--- | :--- | :--- |
-| **1** | **Dm** | **Bb'** | **F** | **Activate Left Pole.**<br>The chord `m` (D-F-A) sounds the **Diagonal `d`** (F-D) of the Bb-Surface. It also semi-activates F-surface. The skeleton note **F** highlights this semi-active state. |
+| **1** | **Dm** | **Bb'** | **D** | **Activate Left Pole.**<br>The chord `m` (D-F-A) sounds the **Diagonal `d`** (F-D) of the Bb-Surface. It also semi-activates F-surface. The skeleton note **F** highlights this semi-active state. |
 | **2** | **G** | **G'** | **B** | **Activate Right Pole.**<br>The chord `M` (G-B-D) sounds the **Diagonal `d`** (B-D) of the G-Surface. The skeleton note **B** highlights this active state.<br>**The Pivot:** The transition relies on the geometric singularity **D**, which is the only common tone between the active Bb' and G' surfaces. |
 | **3** | **C** | **C'** | **C** | **Resolution.**<br>The tension resolves to the geometric center. The arrival of the **C-E** dyad locks the F' surface (Semi-Active), preventing forward rotation. |
 
@@ -226,7 +226,8 @@ These pairs reveal why some moves are "Free" (Gravity), some are "Gated" (Modula
     *   *Musical Effect:* **V -> i.**
 *   **Backward `3S` (The Neapolitan Snap):** `(3, 1)`.
     *   *Mechanism:* Anti-Gravity + Snap.
-    *   *Musical Effect:* **bII -> i.**
+    *   *Musical Effect:* **i->V** (Half Cadence / Return).
+
 *   *Status:* **Forced.** The S-operator is the "Strong Force." It appears symmetrically in both directions to force resolution to the center.
 
 ## 7. Geometric Correspondence with Neo-Riemannian Theory (NRT)
