@@ -85,6 +85,15 @@ local M = {}
 function M.togglePlayback(host, port)
   if M._isPlaying == nil then M._isPlaying = true end
 
+  -- Consume flag only once on the first toggle after freeze
+  if M._forceContOnNextToggle then
+    M._forceContOnNextToggle = false
+    send_command("player_cont", host, port)
+    M._isPlaying = true
+    print("[midi_controls] forced player_cont on unfreeze")
+    return
+  end
+
   local cmd = M._isPlaying and "player_stop" or "player_cont"
   send_command(cmd, host, port)
   M._isPlaying = not M._isPlaying

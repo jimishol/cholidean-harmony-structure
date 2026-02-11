@@ -22,6 +22,7 @@ local Engine = require("3DreamEngine")
 local dream  = (type(Engine) == "function" and Engine() or Engine)
 local FREEZE = false
 local freezeCanvas = nil
+local forceContOnNextToggle = false
 
 -- 3) Require your modules
 local scene  = require("scene")
@@ -81,7 +82,7 @@ local songList = (#selectedSongs > 0)
   and table.concat(selectedSongs, " ")
   or ""
 
--- Exclude percussion channels  
+-- Exclude percussion channels
 local excludeChannelsChannel = love.thread.getChannel("excludeChannels")
 excludeChannelsChannel:push(constants.excludeChannels or {})
 
@@ -305,39 +306,39 @@ function love.keypressed(key, scancode)
     [A.NEXT_SONG]       = "nextSong",
   }
 
-  -- Execute backend action
-  local methodName = backendActions[action]
-  if methodName and backendModules.controls[methodName] then
-    backendModules.controls[methodName](host, shellPort)
+-- In love.keypressed, backend action block:
+local methodName = backendActions[action]
+if methodName and backendModules.controls[methodName] then
+  backendModules.controls[methodName](host, shellPort)
 
-    -- ============================
-    -- FREEZE MODE TOGGLE + CANVAS CAPTURE
-    -- ============================
-    if action == A.TOGGLE_PLAYBACK then
-      FREEZE = not FREEZE
-
-      if FREEZE then
-        -- Capture the current frame into a Canvas
-        local w, h = love.graphics.getDimensions()
-        freezeCanvas = love.graphics.newCanvas(w, h)
-
-        freezeCanvas:renderTo(function()
-          -- Draw the current frame into the canvas
-          dream:prepare()
-          scene.draw(dream)
-          dream:present()
-
-          if Backend.fallbackMessage then
-            love.graphics.setColor(1, 0.8, 0)
-            love.graphics.print(Backend.fallbackMessage, 10, 10)
-          end
-
-        end)
-      end
+  if action == A.TOGGLE_PLAYBACK then
+    -- Set flag only when we are about to enter freeze (FREEZE is currently false)
+    if not FREEZE then
+      forceContOnNextToggle = true
+      backendModules.controls._forceContOnNextToggle = true
     end
+    FREEZE = not FREEZE
 
-    return
+    if FREEZE then
+      -- Capture the current frame into a Canvas
+      local w, h = love.graphics.getDimensions()
+      freezeCanvas = love.graphics.newCanvas(w, h)
+
+      freezeCanvas:renderTo(function()
+        dream:prepare()
+        scene.draw(dream)
+        dream:present()
+
+        if Backend.fallbackMessage then
+          love.graphics.setColor(1, 0.8, 0)
+          love.graphics.print(Backend.fallbackMessage, 10, 10)
+        end
+      end)
+    end
   end
+
+  return
+end
 
   -- Scene-level actions
   if scene.pressedAction and scene.pressedAction(action) then
