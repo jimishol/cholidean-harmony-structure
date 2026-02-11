@@ -17,15 +17,15 @@ local ringCapacity = 3
 -- @treturn number The wrapped index (1=C, 12=G).
 local function wrap12(n) return ((n - 1) % 12) + 1 end
 
---- Mapping of Target Key Index 't' to its display name.
--- @local
+--- Compact Mapping of Target Key Index 't'.
+-- Format: "Major|RelativeMinor"
 local targetToKey = {
-  [1]  = "C Major or A minor",    [2]  = "F Major or D minor",
-  [3]  = "Bb Major or G minor",   [4]  = "Eb Major or C minor",
-  [5]  = "Ab Major or F minor",   [6]  = "Db Major or Bb minor",
-  [7]  = "Gb Major or Eb minor",  [8]  = "B Major or G# minor",
-  [9]  = "E Major or C# minor",   [10] = "A Major or F# minor",
-  [11] = "D Major or B minor",    [12] = "G Major or E minor",
+  [1]  = "C|Am",    [2]  = "F|Dm",
+  [3]  = "Bb|Gm",   [4]  = "Eb|Cm",
+  [5]  = "Ab|Fm",   [6]  = "Db|Bbm",
+  [7]  = "Gb|Ebm",  [8]  = "B|G#m",
+  [9]  = "E|C#m",   [10] = "A|F#m",
+  [11] = "D|Bm",    [12] = "G|Em",
 }
 
 --- Estimates the Key based on active notes and surface topology.
@@ -105,7 +105,8 @@ function KeyEstimation.estimate(notes)
 
   local result = "Key: None"
   if #foundKeys > 0 then
-    result = "Key: " .. table.concat(foundKeys, " + ")
+    -- Join with double space for clean reading: "C|Am  Eb|Cm"
+    result = "Key: " .. table.concat(foundKeys, "  ")
   end
 
   -- Cache result
