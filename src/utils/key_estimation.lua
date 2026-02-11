@@ -32,7 +32,7 @@ local targetToKey = {
 -- @tparam table notes The array of Note objects from the NoteSystem.
 -- @tparam table _ignoredSurfaceStates Ignored; we calculate states via materials.lua to avoid visual shift errors.
 -- @treturn string The estimated key name (e.g., "Key: C Major") or "Key: None".
-function KeyEstimation.estimate(notes, _ignoredSurfaceStates)
+function KeyEstimation.estimate(notes)
 
   -- 1) BUILD CANONICAL NOTE MAP (Absolute Geometry)
   -- We construct a virtual array where Index 1 is ALWAYS C, Index 2 is ALWAYS F.
