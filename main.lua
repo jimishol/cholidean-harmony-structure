@@ -327,22 +327,11 @@ function love.keypressed(key, scancode)
           scene.draw(dream)
           dream:present()
 
-          -- Draw HUD overlays into the canvas too
-          love.graphics.push()
-          love.graphics.origin()
-          love.graphics.setColor(1, 1, 1, 1)
-          scene.apply()
-
-          if scene.commandMenu.visible then
-            scene.commandMenu:draw(10, 120)
-          end
-
           if Backend.fallbackMessage then
             love.graphics.setColor(1, 0.8, 0)
             love.graphics.print(Backend.fallbackMessage, 10, 10)
           end
 
-          love.graphics.pop()
         end)
       end
     end
