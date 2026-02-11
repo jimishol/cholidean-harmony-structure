@@ -13,6 +13,7 @@ local camera      = require("camera")
 local A           = require("src.input.actions")
 local Colors      = require("src.utils.colors")
 local materials   = require("src.utils.materials")
+local KeyEstimation = require("src.utils.key_estimation")
 
 --- Main scene table.
 -- @table scene
@@ -198,6 +199,11 @@ function scene.load(dream, commandMenu)
 
   -- initialize command menu (closed)
   scene.commandMenu = commandMenu:new()
+
+  -- initialize key estimation (true)
+  scene.showKeyEstimation = true
+  scene.estimatedKey = ""
+
 end
 
 --- Per-frame update.
@@ -229,6 +235,14 @@ function scene:update(dt)
     self:updateLabels()
     materials.assignAll(self, self.materialLibrary, self.noteSystem)
   end
+
+-- Update key estimation if enabled  
+  if scene.showKeyEstimation then
+    -- Pass the FULL note system. 
+    -- The module handles active/inactive checks and surface logic internally.
+    scene.estimatedKey = KeyEstimation.estimate(self.noteSystem.notes)
+  end
+
 end
 
 --- Update label positions and colors based on current note system.
@@ -403,12 +417,25 @@ function scene.pressedAction(action)
     return true
   end
 
+  if action == A.TOGGLE_KEY_ESTIMATION then
+    scene.showKeyEstimation = not scene.showKeyEstimation
+    return true
+  end
+
   return false
 end
 
 --- Draw debug overlay with stats when `showDebug` is true.
 -- @return nil
 function scene.apply()
+
+  if scene.showKeyEstimation then
+    local w, h = love.graphics.getDimensions()
+    local font = love.graphics.getFont()
+    local textW = font:getWidth(scene.estimatedKey)
+    love.graphics.print(scene.estimatedKey, w - textW - 10, h - 30)
+  end
+
   if not scene.showDebug then return end
   local V = camera.View
   love.graphics.setColor(1,1,1)
@@ -418,6 +445,7 @@ function scene.apply()
   love.graphics.print(string.format("FOV: %.2f", V.fov), 10,80)
   local mode = NoteSystem.noteMode == "instant" and "INSTANT" or "OFFSET"
   love.graphics.print("Note Mode: " .. mode, 10,100)
+
 end
 
 return scene

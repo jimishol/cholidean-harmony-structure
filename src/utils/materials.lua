@@ -198,4 +198,6 @@ function M.assignAll(scene, matLib, noteSystem, categoryMap)
   end
 end
 
+M.checkSurfState = checkSurfState
+
 return M

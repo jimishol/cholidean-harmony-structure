@@ -23,6 +23,7 @@ M.bindings = {
   [A.NEXT_SONG]          = { "return" },
   [A.SHOW_COMMAND_MENU]  = { ":" },
   [A.RESTART]            = { "f10" },
+  [A.TOGGLE_KEY_ESTIMATION] = { "k" },
 }
 
 --- Returns the action constant for a given key or nil.

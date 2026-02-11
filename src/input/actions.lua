@@ -89,6 +89,9 @@ local A = {}
 --- UI interaction: show the extended command popup (triggered by “:”).
 -- @field SHOW_COMMAND_MENU string
 
+--- UI controls: toggle key estimation display.  
+-- @field TOGGLE_KEY_ESTIMATION string
+
 -- String values for each action
 A.QUIT               = "quit"
 A.RESTART            = "restart"
@@ -127,5 +130,7 @@ A.BEGIN_SONG         = "play_from_begin"
 A.NEXT_SONG          = "move_to_next_song"
 
 A.SHOW_COMMAND_MENU  = "show_command_menu"
+
+A.TOGGLE_KEY_ESTIMATION = "TOGGLE_KEY_ESTIMATION"
 
 return A

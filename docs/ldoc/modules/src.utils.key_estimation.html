@@ -64,25 +64,26 @@
   <li><a href="../modules/src.utils.colors.html">src.utils.colors</a></li>
   <li><a href="../modules/src.helpers.daycycle.html">src.helpers.daycycle</a></li>
   <li><a href="../modules/src.utils.joint_layout.html">src.utils.joint_layout</a></li>
-  <li><a href="../modules/src.utils.key_estimation.html">src.utils.key_estimation</a></li>
+  <li><strong>src.utils.key_estimation</strong></li>
   <li><a href="../modules/src.materials.html">src.materials</a></li>
-  <li><strong>src.utils.os_detect</strong></li>
+  <li><a href="../modules/src.utils.os_detect.html">src.utils.os_detect</a></li>
 </ul>
 
 </div>
 
 <div id="content">
 
-<h1>Module <code>src.utils.os_detect</code></h1>
-<p>OS detection module.</p>
-<p> Uses LÖVE’s system API to determine the host operating system.</p>
+<h1>Module <code>src.utils.key_estimation</code></h1>
+<p>Key Estimation Module for Umbilic-Surface Harmony.</p>
+<p> Detects the Diatonic Key based on the geometric activation of Dominant and Subdominant surfaces.
+ Uses src.materials as the single source of truth for surface activation physics.</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#getPlatform">getPlatform ()</a></td>
-	<td class="summary">Returns a normalized platform name.</td>
+	<td class="name" nowrap><a href="#KeyEstimation.estimate">KeyEstimation.estimate (notes, _ignoredSurfaceStates)</a></td>
+	<td class="summary">Estimates the Key based on active notes and surface topology.</td>
 	</tr>
 </table>
 
@@ -94,24 +95,30 @@
 
     <dl class="function">
     <dt>
-    <a name = "getPlatform"></a>
-    <strong>getPlatform ()</strong>
+    <a name = "KeyEstimation.estimate"></a>
+    <strong>KeyEstimation.estimate (notes, _ignoredSurfaceStates)</strong>
     </dt>
     <dd>
-    Returns a normalized platform name.
- Queries <code>love.system.getOS()</code>, lowercases the result,
- and matches against known substrings.
+    Estimates the Key based on active notes and surface topology.
 
 
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">notes</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         The array of Note objects from the NoteSystem.
+        </li>
+        <li><span class="parameter">_ignoredSurfaceStates</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         Ignored; we calculate states via materials.lua to avoid visual shift errors.
+        </li>
+    </ul>
 
     <h3>Returns:</h3>
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
-           &ldquo;windows&rdquo; if on any Windows OS<br/>
-   &ldquo;macos&rdquo;   if on macOS<br/>
-   &ldquo;linux&rdquo;   if on Linux<br/>
-   &ldquo;unknown&rdquo; otherwise
+        The estimated key name (e.g., &ldquo;Key: C Major&rdquo;) or &ldquo;Key: None&rdquo;.
     </ol>
 
 
