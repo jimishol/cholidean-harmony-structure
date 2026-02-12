@@ -6,19 +6,25 @@ local materials = require("src.utils.materials")
 
 local KeyEstimation = {}
 
--- Ring buffer setup for caching results
+-- Ring buffer setup for caching results (Vertical States only)
 local ring = {}
 local ringSize = 0
-local ringCapacity = 3 
+local ringCapacity = 1
+
+-- Silence Detection
+local silenceTimer = 0
+local SILENCE_THRESHOLD = 2.0 -- Seconds before hard reset
+
+-- Module-level storage for the LAST DISTINCT harmonic event
+local previousState = {
+  notes = {},
+  surfaceActive = {}
+}
 
 --- Wraps an integer into the 1–12 Circle of Fourths range.
--- @local
--- @tparam number n The input index.
--- @treturn number The wrapped index (1=C, 12=G).
 local function wrap12(n) return ((n - 1) % 12) + 1 end
 
 --- Compact Mapping of Target Key Index 't'.
--- Format: "Major|RelativeMinor"
 local targetToKey = {
   [1]  = "C|Am",    [2]  = "F|Dm",
   [3]  = "Bb|Gm",   [4]  = "Eb|Cm",
@@ -29,29 +35,23 @@ local targetToKey = {
 }
 
 --- Estimates the Key based on active notes and surface topology.
--- @tparam table notes The array of Note objects from the NoteSystem.
--- @tparam table _ignoredSurfaceStates Ignored; we calculate states via materials.lua to avoid visual shift errors.
--- @treturn string The estimated key name (e.g., "Key: C Major") or "Key: None".
-function KeyEstimation.estimate(notes)
+-- @tparam table notes The array of Note objects.
+-- @tparam number dt Delta time for silence detection.
+-- @treturn string The estimated key name.
+function KeyEstimation.estimate(notes, dt)
 
   -- 1) BUILD CANONICAL NOTE MAP (Absolute Geometry)
-  -- We construct a virtual array where Index 1 is ALWAYS C, Index 2 is ALWAYS F.
-  -- This neutralizes the user's visual shift/rotation.
-
   local canonicalNotes = {}
   local activeNoteIds = {}
-  local notePresent = {} -- For Veto lookup
+  local notePresent = {}
 
-  -- Initialize empty slots
   for i = 1, 12 do canonicalNotes[i] = { active = false, index = i } end
 
-  -- Fill with actual data
   for _, n in ipairs(notes) do
     if n then
       local idx = tonumber(n.index)
       if idx then
         canonicalNotes[idx] = n
-
         if n.active then
           notePresent[idx] = true
           table.insert(activeNoteIds, tostring(idx))
@@ -60,63 +60,108 @@ function KeyEstimation.estimate(notes)
     end
   end
 
-  -- 2) CALCULATE ABSOLUTE SURFACE STATES
-  -- We ask materials.lua: "If the notes were arranged like this, which surfaces would glow?"
-  local absSurfaceState = {}
+  -- 1.5) SILENCE & RESET LOGIC
+  if #activeNoteIds == 0 then
+     if dt then
+        silenceTimer = silenceTimer + dt
+        if silenceTimer > SILENCE_THRESHOLD then
+           -- HARD RESET: New Song / Long Silence
+           ringSize = 0
+           previousState = { notes = {}, surfaceActive = {} }
+           silenceTimer = 0
+           return "Key:     "
+        end
+     end
+     -- If silence is short, we just return empty but keep history
+     return "Key:     "
+  else
+     -- Notes are present, reset timer
+     silenceTimer = 0
+  end
+
+  -- 2) CALCULATE ABSOLUTE SURFACE BOOLEANS
+  local surfaceActive = {}
   for i = 1, 12 do
-    absSurfaceState[i] = materials.checkSurfState(i, canonicalNotes)
+    local state = materials.checkSurfState(i, canonicalNotes)
+    surfaceActive[i] = (state ~= "inactive")
   end
 
   -- 3) FINGERPRINT
   table.sort(activeNoteIds)
-  -- Fingerprint the Absolute States to ensure cache validity
   local stateStr = ""
-  for i = 1, 12 do stateStr = stateStr .. absSurfaceState[i] end
+  for i = 1, 12 do
+    stateStr = stateStr .. (surfaceActive[i] and "T" or "F")
+  end
 
   local key = table.concat(activeNoteIds, ",") .. "|" .. stateStr
 
-  -- 4) CACHE CHECK
+  -- 4) CACHE CHECK (Vertical Optimization)
   for i = 0, ringSize - 1 do
     if ring[i] and ring[i].fingerprint == key then return ring[i].result end
   end
 
-  local foundKeys = {}
+local foundKeys = {}
+  local conflictDetected = false -- Flag to track Veto failures
 
   -- 5) SURFACE-DRIVEN LOGIC (Absolute Geometry)
   for t = 1, 12 do
-    local sDom = wrap12(t - 1) -- Dominant Side
-    local sSub = wrap12(t + 2) -- Subdominant Side
+    local sDom = wrap12(t - 1)
+    local sSub = wrap12(t + 2)
 
-    -- Check the Calculated States
-    -- We accept "active" or "semiactive" as valid structural brackets
-    if absSurfaceState[sDom] ~= "inactive" and absSurfaceState[sSub] ~= "inactive" then
+    -- Check if the Axis exists (Dominant + Subdominant surfaces active)
+    if surfaceActive[sDom] and surfaceActive[sSub] then
 
-       -- 6) THE HINGE VETO (Absolute Pitch)
-       -- If the Supertonic's Augmented Partners are present, the Key is unstable.
+       -- 6) THE HINGE VETO
        local hinge = wrap12(t - 2)
        local aug1 = wrap12(hinge + 4)
        local aug2 = wrap12(hinge + 8)
 
        if not notePresent[aug1] and not notePresent[aug2] then
+         -- SUCCESS: Clean Diatonic Key
          table.insert(foundKeys, targetToKey[t])
+       else
+         -- FAILURE: Axis exists, but Geometry is "Dirty" (Modulation/Conflict)
+         conflictDetected = true
        end
     end
   end
 
-  local result = "Key: None"
+  -- FINAL RESULT CONSTRUCTION
+  -- Priority 1: We found a valid key.
+  -- Priority 2: We found a conflict (Axis but Vetoed) -> "Key: None"
+  -- Priority 3: We found nothing (No Axis) -> "Key:     "
+
+  local result = "Key:     " -- Default (Ambiguity)
+
   if #foundKeys > 0 then
-    -- Join with double space for clean reading: "C|Am  Eb|Cm"
     result = "Key: " .. table.concat(foundKeys, "  ")
+  elseif conflictDetected then
+    result = "Key: None"     -- Conflict detected
+  end
+  ---------------------------------------------------------
+  -- 6.5) HORIZONTAL LOGIC PLACEHOLDER
+  ---------------------------------------------------------
+  local extendedResult = result
+
+  if previousState.surfaceActive[1] ~= nil then
+     -- [[ FUTURE LOGIC INSERTION POINT ]]
+     -- Compare previousState vs. surfaceActive
   end
 
-  -- Cache result
+  -- UPDATE HISTORY
+  previousState.notes = activeNoteIds
+  previousState.surfaceActive = surfaceActive
+
+  ---------------------------------------------------------
+  -- 7) CACHE RESULT
+  ---------------------------------------------------------
   if ringCapacity > 0 then
     for i = ringCapacity - 1, 1, -1 do ring[i] = ring[i - 1] end
     ring[0] = { fingerprint = key, result = result }
     if ringSize < ringCapacity then ringSize = ringSize + 1 end
   end
 
-  return result
+  return extendedResult
 end
 
 return KeyEstimation

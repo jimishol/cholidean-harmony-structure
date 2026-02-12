@@ -236,14 +236,13 @@ function scene:update(dt)
     materials.assignAll(self, self.materialLibrary, self.noteSystem)
   end
 
--- Update key estimation if enabled  
-  if scene.showKeyEstimation then
-    -- Pass the FULL note system. 
-    -- The module handles active/inactive checks and surface logic internally.
-    scene.estimatedKey = KeyEstimation.estimate(self.noteSystem.notes)
+  -- Update key estimation if enabled  
+    if self.showKeyEstimation then
+      -- The module now handles caching internally. 
+      -- It returns the correct text for the current frame (including "Key:     " for silence).
+      self.estimatedKey = KeyEstimation.estimate(self.noteSystem.notes, dt)
+    end
   end
-
-end
 
 --- Update label positions and colors based on current note system.
 -- Populates `scene.labels_to_Draw` with name, color, position, and active state.
