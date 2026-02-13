@@ -35,11 +35,12 @@ local targetToKey = {
 }
 
 --- Helper: Scans the 12 surfaces to find valid Key Candidates.
--- @param surfaces The boolean topology to check (Current or Accumulated).
+-- @param surfaces The boolean topology to check.
 -- @param notePresent The map of currently active notes (for Veto).
--- @return table foundKeys, boolean conflictDetected
+-- @return table foundNames, table foundIndices, boolean conflictDetected
 local function detectKeyCandidates(surfaces, notePresent)
-  local found = {}
+  local foundNames = {}
+  local foundIndices = {}
   local conflict = false
 
   for t = 1, 12 do
@@ -49,31 +50,25 @@ local function detectKeyCandidates(surfaces, notePresent)
     -- Check if the Axis exists (Dominant + Subdominant surfaces active)
     if surfaces[sDom] and surfaces[sSub] then
        -- THE HINGE VETO
-       -- We check the Augmented Partners of the Supertonic (Hinge).
-       -- If they are present in the notePresent map, the Key is invalid.
        local hinge = wrap12(t - 2)
        local aug1 = wrap12(hinge + 4)
        local aug2 = wrap12(hinge + 8)
 
        if not notePresent[aug1] and not notePresent[aug2] then
-         -- SUCCESS: Clean Diatonic Key
-         table.insert(found, targetToKey[t])
+         table.insert(foundNames, targetToKey[t])
+         table.insert(foundIndices, t)
        else
-         -- FAILURE: Axis exists, but Geometry is "Dirty" (Modulation/Conflict)
          conflict = true
        end
     end
   end
-  return found, conflict
+  return foundNames, foundIndices, conflict
 end
 
 --- Estimates the Key based on active notes and surface topology.
--- @tparam table notes The array of Note objects.
--- @tparam number dt Delta time for silence detection.
--- @treturn string The estimated key name.
 function KeyEstimation.estimate(notes, dt)
 
-  -- 1) BUILD CANONICAL NOTE MAP (Absolute Geometry)
+  -- 1) BUILD CANONICAL NOTE MAP
   local canonicalNotes = {}
   local activeNoteIds = {}
   local notePresent = {}
@@ -97,104 +92,115 @@ function KeyEstimation.estimate(notes, dt)
   if #activeNoteIds == 0 then
      if dt then
         silenceTimer = silenceTimer + dt
-
         if silenceTimer > SILENCE_THRESHOLD then
-           -- HARD RESET: Long Silence -> Clear Memory
            ringSize = 0
            previousState = { notes = {}, surfaceActive = {} }
            silenceTimer = 0
            return "Key:     "
         else
-           -- SHORT SILENCE: Harmonic Sustain
-           -- Return the last known stable result from the Ring
-           if ringSize > 0 then
-              return ring[0].result
-           else
-              return "Key:     "
-           end
+           if ringSize > 0 then return ring[0].result else return "Key:     " end
         end
      end
-     -- Fallback if dt is missing
      return "Key:     "
   else
-     -- Notes are present -> Reset Timer
      silenceTimer = 0
   end
 
   -- 2) CALCULATE ABSOLUTE SURFACE BOOLEANS
-  local surfaceActive = {}
+  local currentSurfaceActive = {}
   for i = 1, 12 do
     local state = materials.checkSurfState(i, canonicalNotes)
-    surfaceActive[i] = (state ~= "inactive")
+    currentSurfaceActive[i] = (state ~= "inactive")
   end
 
   -- 3) FINGERPRINT
   table.sort(activeNoteIds)
   local stateStr = ""
-  for i = 1, 12 do
-    stateStr = stateStr .. (surfaceActive[i] and "T" or "F")
-  end
-
+  for i = 1, 12 do stateStr = stateStr .. (currentSurfaceActive[i] and "T" or "F") end
   local key = table.concat(activeNoteIds, ",") .. "|" .. stateStr
 
-  -- 4) CACHE CHECK (Vertical Optimization)
+  -- 4) CACHE CHECK
   for i = 0, ringSize - 1 do
     if ring[i] and ring[i].fingerprint == key then return ring[i].result end
   end
 
-  -- 5) SURFACE-DRIVEN LOGIC (Absolute Geometry)
-  -- We use the helper to check the CURRENT surfaces against CURRENT notes.
-  local foundKeys, conflictDetected = detectKeyCandidates(surfaceActive, notePresent)
+  -- 5) SURFACE-DRIVEN LOGIC (Strict Priority Strategy)
 
-  -- FINAL RESULT CONSTRUCTION
-  -- Priority 1: New Valid Key found -> Overwrite.
-  -- Priority 2: Conflict detected (Axis exists but Veto failed) -> Force "Key: None".
-  -- Priority 3: Ambiguity (No Axis) -> Persist the PREVIOUS result (Harmonic Inertia).
-  -- Priority 4: Cold Start -> Default to "Key:     ".
+  -- Initialize result with Persistence (Inertia)
+  local result = "Key:     "
+  if ringSize > 0 then result = ring[0].result end
 
-  local result = "Key:     " -- Default for Cold Start
+  -- A. Check LOCAL (Current Chord Only)
+  local foundLocalNames, foundLocalIndices, conflictLocal = detectKeyCandidates(currentSurfaceActive, notePresent)
 
-  -- 1. Load Persistence (if available)
-  if ringSize > 0 then
-     result = ring[0].result
-  end
+  if #foundLocalNames > 0 then
+     -- PRIORITY 1: LOCAL SUCCESS
+     result = "Key: " .. table.concat(foundLocalNames, "  ")
 
-  -- 2. Apply Logic
-  if #foundKeys > 0 then
-    -- Strong Geometric Evidence
-    result = "Key: " .. table.concat(foundKeys, "  ")
-  elseif conflictDetected then
-    -- Geometric Conflict (Modulation/Non-Diatonic)
-    result = "Key: None"
+     -- RESET HISTORY (The chord stands alone)
+     previousState.surfaceActive = currentSurfaceActive
+
+  elseif conflictLocal then
+     -- PRIORITY 2: LOCAL CONFLICT
+     result = "Key: None"
+
+     -- RESET HISTORY
+     previousState.surfaceActive = currentSurfaceActive
+
   else
-    -- AMBIGUITY: No new key, no conflict.
-    -- We do nothing. 'result' remains the value from ring[0].
+     -- PRIORITY 3: LOCAL AMBIGUITY -> CHECK GLOBAL
+
+     local accumulatedSurfaces = {}
+     for i = 1, 12 do
+       accumulatedSurfaces[i] = (previousState.surfaceActive[i] or currentSurfaceActive[i])
+     end
+
+     local foundGlobalNames, foundGlobalIndices, conflictGlobal = detectKeyCandidates(accumulatedSurfaces, notePresent)
+
+     if #foundGlobalNames > 0 then
+        -- GLOBAL SUCCESS
+        result = "Key: " .. table.concat(foundGlobalNames, "  ")
+
+        -- FILTER HISTORY (Keep A2 + Supporting Surfaces)
+        local newHistory = {}
+        for i = 1, 12 do newHistory[i] = currentSurfaceActive[i] end
+        for _, t in ipairs(foundGlobalIndices) do
+           local sDom = wrap12(t - 1)
+           local sSub = wrap12(t + 2)
+           newHistory[sDom] = true
+           newHistory[sSub] = true
+        end
+        previousState.surfaceActive = newHistory
+
+     elseif conflictGlobal then
+        -- GLOBAL CONFLICT (Modulation Pivot)
+        -- The History contradicts the Present. The Accumulated Key is dead.
+        -- The Present is Ambiguous.
+        result = "Key:     "
+
+        -- RESET HISTORY (Break the geometric link)
+        previousState.surfaceActive = currentSurfaceActive
+
+     else
+        -- GLOBAL AMBIGUITY
+        -- Result remains Persistent (Inertia).
+
+        -- ACCUMULATE
+        previousState.surfaceActive = accumulatedSurfaces
+     end
   end
 
-  ---------------------------------------------------------
-  -- 6.5) HORIZONTAL LOGIC PLACEHOLDER
-  ---------------------------------------------------------
-  local extendedResult = result
-
-  if previousState.surfaceActive[1] ~= nil then
-     -- [[ FUTURE LOGIC INSERTION POINT ]]
-     -- Compare previousState vs. surfaceActive
-  end
-
-  -- UPDATE HISTORY
+  -- UPDATE HISTORY (Notes always update to current)
   previousState.notes = activeNoteIds
-  previousState.surfaceActive = surfaceActive
 
-  ---------------------------------------------------------
   -- 7) CACHE RESULT
-  ---------------------------------------------------------
   if ringCapacity > 0 then
     for i = ringCapacity - 1, 1, -1 do ring[i] = ring[i - 1] end
     ring[0] = { fingerprint = key, result = result }
     if ringSize < ringCapacity then ringSize = ringSize + 1 end
   end
 
-  return extendedResult
+  return result
 end
 
 return KeyEstimation
