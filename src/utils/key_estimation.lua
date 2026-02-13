@@ -34,6 +34,39 @@ local targetToKey = {
   [11] = "D|Bm",    [12] = "G|Em",
 }
 
+--- Helper: Scans the 12 surfaces to find valid Key Candidates.
+-- @param surfaces The boolean topology to check (Current or Accumulated).
+-- @param notePresent The map of currently active notes (for Veto).
+-- @return table foundKeys, boolean conflictDetected
+local function detectKeyCandidates(surfaces, notePresent)
+  local found = {}
+  local conflict = false
+
+  for t = 1, 12 do
+    local sDom = wrap12(t - 1)
+    local sSub = wrap12(t + 2)
+
+    -- Check if the Axis exists (Dominant + Subdominant surfaces active)
+    if surfaces[sDom] and surfaces[sSub] then
+       -- THE HINGE VETO
+       -- We check the Augmented Partners of the Supertonic (Hinge).
+       -- If they are present in the notePresent map, the Key is invalid.
+       local hinge = wrap12(t - 2)
+       local aug1 = wrap12(hinge + 4)
+       local aug2 = wrap12(hinge + 8)
+
+       if not notePresent[aug1] and not notePresent[aug2] then
+         -- SUCCESS: Clean Diatonic Key
+         table.insert(found, targetToKey[t])
+       else
+         -- FAILURE: Axis exists, but Geometry is "Dirty" (Modulation/Conflict)
+         conflict = true
+       end
+    end
+  end
+  return found, conflict
+end
+
 --- Estimates the Key based on active notes and surface topology.
 -- @tparam table notes The array of Note objects.
 -- @tparam number dt Delta time for silence detection.
@@ -60,7 +93,7 @@ function KeyEstimation.estimate(notes, dt)
     end
   end
 
--- 1.5) SILENCE & HARMONIC SUSTAIN
+  -- 1.5) SILENCE & HARMONIC SUSTAIN
   if #activeNoteIds == 0 then
      if dt then
         silenceTimer = silenceTimer + dt
@@ -109,33 +142,11 @@ function KeyEstimation.estimate(notes, dt)
     if ring[i] and ring[i].fingerprint == key then return ring[i].result end
   end
 
-local foundKeys = {}
-  local conflictDetected = false -- Flag to track Veto failures
-
   -- 5) SURFACE-DRIVEN LOGIC (Absolute Geometry)
-  for t = 1, 12 do
-    local sDom = wrap12(t - 1)
-    local sSub = wrap12(t + 2)
+  -- We use the helper to check the CURRENT surfaces against CURRENT notes.
+  local foundKeys, conflictDetected = detectKeyCandidates(surfaceActive, notePresent)
 
-    -- Check if the Axis exists (Dominant + Subdominant surfaces active)
-    if surfaceActive[sDom] and surfaceActive[sSub] then
-
-       -- 6) THE HINGE VETO
-       local hinge = wrap12(t - 2)
-       local aug1 = wrap12(hinge + 4)
-       local aug2 = wrap12(hinge + 8)
-
-       if not notePresent[aug1] and not notePresent[aug2] then
-         -- SUCCESS: Clean Diatonic Key
-         table.insert(foundKeys, targetToKey[t])
-       else
-         -- FAILURE: Axis exists, but Geometry is "Dirty" (Modulation/Conflict)
-         conflictDetected = true
-       end
-    end
-  end
-
--- FINAL RESULT CONSTRUCTION
+  -- FINAL RESULT CONSTRUCTION
   -- Priority 1: New Valid Key found -> Overwrite.
   -- Priority 2: Conflict detected (Axis exists but Veto failed) -> Force "Key: None".
   -- Priority 3: Ambiguity (No Axis) -> Persist the PREVIOUS result (Harmonic Inertia).
