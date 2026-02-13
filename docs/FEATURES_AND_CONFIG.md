@@ -108,6 +108,24 @@
 | `surfaces`| `0.05`  | `0.015`  | Surface emission levels       |
 | `labels`  | `0.40`  | `0.005`  | Label emission levels         |
 
+---
+
+## Real-Time Analysis
+
+The system includes a geometric **Key Estimation** module that analyzes the active surface topology in real-time. This feature visualizes the "Harmonic Wake"—the trajectory of the lattice as it moves through the Circle of Fourths.
+
+| Control | Action | Description |
+| :--- | :--- | :--- |
+| **k** | Toggle Harmonic Wake | Switches the multi-line analysis display on/off. |
+
+### Visualization Logic
+*   **The Chimney:** The display uses a bottom-up stack.
+    *   **Active (Bottom):** The current geometric truth (Bright White).
+    *   **History (Rising):** Previous states float upward and fade out (Grey).
+*   **Relative Pairs:** Keys are displayed as geometric pairs (e.g., `G | Em`) to respect the topological unity of relative scales.
+*   **Strict Veto:** The system uses "Survival of the Present" logic. If a chromatic note conflicts with the current key, the system immediately reports `None` or the new key, ensuring the display reflects the exact geometric reality of the moment.
+
+---
 
 <p align="right">
   <a href="../README.md">← Back to Main README</a>

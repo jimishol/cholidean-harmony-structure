@@ -40,6 +40,9 @@ I have published the complete theoretical framework and analysis in the `docs/` 
 3.  **[Case Study: Chopin Prelude No. 4 (The Rectified Analysis)](docs/03-case-study-chopin-prelude04.md)**
     *   *The Demonstration:* A bar-by-bar geometric decoding of the Prelude, explaining the "Shearing Effect" and "Decomposed Snaps" visible in the animation.
 
+> **Real-Time Analysis:** How the topology estimates relative scales of Western Classical music is visible in the bottom-right of the screen.  
+> *Those who disagree with the results or analyze other genres can toggle it off by pressing **'k'**.*
+
 ## Installation Prerequisites and Steps 🚀
 
 This project embeds [3DreamEngine](https://github.com/3dreamengine/3DreamEngine) — an awesome 3D engine for [LÖVE](https://love2d.org/) — directly in its codebase. Users only need to install LÖVE to run the project; no separate installation of 3DreamEngine is required.
@@ -435,6 +438,7 @@ Only the h, d, and Ctrl + Q keys are consumed by the visualizer itself. All othe
 | Key     | Function                                 |
 |---------|-------------------------------------------|
 | p       | Toggle play / pause (power‑saving pause)  |
+| k | Toggle Key Estimation display |
 | tab     | Play current song from start              |
 | Enter   | Move to next song                         |
 | h       | Toggle “instant” vs “offset” note-off mode|

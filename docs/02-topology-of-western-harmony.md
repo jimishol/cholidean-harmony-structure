@@ -295,7 +295,26 @@ We can now visualize the 12ET system as the union of these overlapping maps.
 
 > **Note on Minor Function:** While the strip defines the *Natural* Minor (Aeolian), the *Functional* Minor (Harmonic) requires an additional geometric operation. The single `1P` rotation of the strip produces the Major Dominant (`V`) for the Major Key, but only the Subtonic (`VII`) for the Minor Key. To establish a true Minor Dominant (e.g., E Major in A Minor), the system must execute a secondary rotation (e.g., `iiø7 > V` via `Pd > PM`) to access the leading tone outside the natural strip.
 
-## **9. Conclusion**
+---
+
+## 9. Real-Time Estimation: The Survival of the Present
+
+The **Umbilic-Surface Key Estimator** applies the topological rules of this document to real-time input. It operates on a strict axiom: **"Survival of the Present."**
+
+### 9.1 The Geometric Veto
+Unlike traditional algorithms that average pitch classes over time to guess a key, this system prioritizes the **Geometric Truth** of the current moment.
+*   **Local Truth:** The system first checks if the current chord alone defines a stable Axis (Dominant + Subdominant/Tonic neighbors).
+*   **The Veto:** If a chromatic note enters the structure that contradicts the current Key's definition (e.g., an F-natural in the key of G), the Key is **immediately destroyed**. The system does not "smooth over" this conflict; it reports the geometric break as `None`.
+
+### 9.2 The Harmonic Wake (Visualization)
+The system visualizes the trajectory of the lattice as a **Harmonic Chimney**:
+1.  **The Generator (Bottom):** The active, confirmed Key (e.g., `G | Em`). This is the "Head" of the Turing machine.
+2.  **The Wake (Rising):** As the harmony shifts, previous keys detach and float upward, fading into the past.
+3.  **Relative Pairs:** Because the Umbilic Torus connects relative scales geometrically, the estimator always outputs the **Key Signature Pair** (e.g., `C | Am`) rather than guessing a single tonic. This respects the topological reality that relative keys share the same surface structure.
+
+---
+
+## **10. Conclusion**
 
 The **Cholidean Harmony Structure** proposes a 3D geometric model for tonal analysis, visualizing chords not just as stacks of intervals, but as objects residing on a rotating **Circle-of-Fourths Lattice**.
 
@@ -310,25 +329,25 @@ This project does not seek to replace existing theories but to provide a **mnemo
 
 ---
 
-## **10. Appendix: The Wireframe View (Geometric Correspondence with Tonal Regions)**
+## **11. Appendix: The Wireframe View (Geometric Correspondence with Tonal Regions)**
 
 While the previous sections describe the navigation of *chords* upon surfaces, the Umbilic-Surface structure also offers a global map of *Tonal Regions* (Keys). By stripping away the surface containers and viewing the lattice as a raw wireframe graph, we observe a strict geometric duality that mirrors Arnold Schoenberg’s "Chart of Regions."
 
 In this macroscopic view, we identify the two primary vectors not as intervals, but as **Axes of Tonality**:
 
-### **10.1 The Major Axis (The `c` Vector)**
+### **11.1 The Major Axis (The `c` Vector)**
 The **Curve (`c`)**—the vector connecting a Generator to its Fifth (e.g., G -> C)—represents the **Major Center** (e.g C major chord or scale).
 *   **Geometry:** These vectors form the longitudinal rings of the torus (The Circle of Fourths).
 *   **Function:** They provide the "Vertical" structural stability of the lattice.
 *   **Correspondence:** The 12 `c` vectors map directly to the 12 Major Keys.
 
-### **10.2 The Minor Axis (The `e` Vector)**
+### **11.2 The Minor Axis (The `e` Vector)**
 The **Edge (`e`)**—the vector connecting the components of the Augmented Triad (e.g., the directed edge B -> G on the G-Triangle)—represents the **Minor Center**.
 *   **Geometry:** These vectors form the diagonal spirals that bind the rings together.
 *   **Function:** They represent the "Relative" connection.
 *   **Correspondence:** The edge B -> G acts as the geometric kernel for **E Minor** (where G-B is the defining minor third). Thus, the 12 `e` vectors map to the 12 Minor Keys.
 
-### **10.3 Resolving the "Schoenberg Shift"**
+### **11.3 Resolving the "Schoenberg Shift"**
 Traditional 2D theory often struggles to explain the asymmetry between Major and Minor keys. On a flat chart, C Major and A Minor appear as symmetric neighbors.
 
 The 3D Wireframe reveals the topological truth: **They are not symmetric.**
