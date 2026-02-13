@@ -60,22 +60,31 @@ function KeyEstimation.estimate(notes, dt)
     end
   end
 
-  -- 1.5) SILENCE & RESET LOGIC
+-- 1.5) SILENCE & HARMONIC SUSTAIN
   if #activeNoteIds == 0 then
      if dt then
         silenceTimer = silenceTimer + dt
+
         if silenceTimer > SILENCE_THRESHOLD then
-           -- HARD RESET: New Song / Long Silence
+           -- HARD RESET: Long Silence -> Clear Memory
            ringSize = 0
            previousState = { notes = {}, surfaceActive = {} }
            silenceTimer = 0
            return "Key:     "
+        else
+           -- SHORT SILENCE: Harmonic Sustain
+           -- Return the last known stable result from the Ring
+           if ringSize > 0 then
+              return ring[0].result
+           else
+              return "Key:     "
+           end
         end
      end
-     -- If silence is short, we just return empty but keep history
+     -- Fallback if dt is missing
      return "Key:     "
   else
-     -- Notes are present, reset timer
+     -- Notes are present -> Reset Timer
      silenceTimer = 0
   end
 
