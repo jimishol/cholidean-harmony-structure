@@ -204,6 +204,11 @@ function scene.load(dream, commandMenu)
   scene.showKeyEstimation = true
   scene.estimatedKey = ""
 
+  -- Initialize History Queue
+  scene.keyHistory = {}
+  scene.maxHistory = 4         -- Show last 4 states
+  scene.lastRegisteredKey = "" -- Duplicate prevention
+
 end
 
 --- Per-frame update.
@@ -236,13 +241,25 @@ function scene:update(dt)
     materials.assignAll(self, self.materialLibrary, self.noteSystem)
   end
 
-  -- Update key estimation if enabled  
-    if self.showKeyEstimation then
-      -- The module now handles caching internally. 
-      -- It returns the correct text for the current frame (including "Key:     " for silence).
-      self.estimatedKey = KeyEstimation.estimate(self.noteSystem.notes, dt)
+  -- Key estimation with History Logic
+  if self.showKeyEstimation then
+    local currentKey = KeyEstimation.estimate(self.noteSystem.notes, dt)
+    self.estimatedKey = currentKey 
+
+    -- Only update history if the Geometric State has changed
+    if currentKey ~= self.lastRegisteredKey then
+      table.insert(self.keyHistory, 1, currentKey) -- Add new to top
+
+      -- Trim old history
+      if #self.keyHistory > self.maxHistory then
+        table.remove(self.keyHistory)
+      end
+
+      self.lastRegisteredKey = currentKey
     end
   end
+
+end
 
 --- Update label positions and colors based on current note system.
 -- Populates `scene.labels_to_Draw` with name, color, position, and active state.
@@ -431,8 +448,38 @@ function scene.apply()
   if scene.showKeyEstimation then
     local w, h = love.graphics.getDimensions()
     local font = love.graphics.getFont()
-    local textW = font:getWidth(scene.estimatedKey)
-    love.graphics.print(scene.estimatedKey, w - textW - 10, h - 30)
+    local lineHeight = font:getHeight() + 4
+    local baseX = w - 10
+    local baseY = h - 30
+
+    for i, keyString in ipairs(scene.keyHistory) do
+      local alpha = 1.0 - ((i - 1) * 0.25)
+
+      if alpha > 0 then
+        -- 1. Determine Display Text
+        local displayString = keyString
+
+        -- If it is History (i > 1), strip the "Key: " prefix
+        if i > 1 then
+            displayString = keyString:gsub("Key: ", "")
+        end
+
+        -- 2. Set Color
+        if i == 1 then
+            love.graphics.setColor(1, 1, 1, 1) -- Bright White
+        else
+            love.graphics.setColor(0.7, 0.7, 0.7, alpha) -- Fading Grey
+        end
+
+        -- 3. Calculate Width based on the CLEAN string
+        local textW = font:getWidth(displayString)
+
+        -- 4. Draw
+        love.graphics.print(displayString, baseX - textW, baseY - ((i-1) * lineHeight))
+      end
+    end
+
+    love.graphics.setColor(1, 1, 1, 1)
   end
 
   if not scene.showDebug then return end
