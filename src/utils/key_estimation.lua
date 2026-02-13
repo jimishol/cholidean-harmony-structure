@@ -135,18 +135,31 @@ local foundKeys = {}
     end
   end
 
-  -- FINAL RESULT CONSTRUCTION
-  -- Priority 1: We found a valid key.
-  -- Priority 2: We found a conflict (Axis but Vetoed) -> "Key: None"
-  -- Priority 3: We found nothing (No Axis) -> "Key:     "
+-- FINAL RESULT CONSTRUCTION
+  -- Priority 1: New Valid Key found -> Overwrite.
+  -- Priority 2: Conflict detected (Axis exists but Veto failed) -> Force "Key: None".
+  -- Priority 3: Ambiguity (No Axis) -> Persist the PREVIOUS result (Harmonic Inertia).
+  -- Priority 4: Cold Start -> Default to "Key:     ".
 
-  local result = "Key:     " -- Default (Ambiguity)
+  local result = "Key:     " -- Default for Cold Start
 
+  -- 1. Load Persistence (if available)
+  if ringSize > 0 then
+     result = ring[0].result
+  end
+
+  -- 2. Apply Logic
   if #foundKeys > 0 then
+    -- Strong Geometric Evidence
     result = "Key: " .. table.concat(foundKeys, "  ")
   elseif conflictDetected then
-    result = "Key: None"     -- Conflict detected
+    -- Geometric Conflict (Modulation/Non-Diatonic)
+    result = "Key: None"
+  else
+    -- AMBIGUITY: No new key, no conflict.
+    -- We do nothing. 'result' remains the value from ring[0].
   end
+
   ---------------------------------------------------------
   -- 6.5) HORIZONTAL LOGIC PLACEHOLDER
   ---------------------------------------------------------
