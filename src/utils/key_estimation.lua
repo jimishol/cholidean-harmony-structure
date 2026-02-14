@@ -76,8 +76,8 @@ end
 function KeyEstimation.reset()
   ring = {}
   ringSize = 0
-  silenceTimer = 0
   previousState = { notes = {}, surfaceActive = {} }
+  silenceTimer = 0
   return "Key:     "
 end
 

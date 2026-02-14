@@ -306,39 +306,38 @@ function love.keypressed(key, scancode)
     [A.NEXT_SONG]       = "nextSong",
   }
 
--- In love.keypressed, backend action block:
-local methodName = backendActions[action]
-if methodName and backendModules.controls[methodName] then
-  backendModules.controls[methodName](host, shellPort)
+  -- In love.keypressed, backend action block:
+  local methodName = backendActions[action]
+  if methodName and backendModules.controls[methodName] then
+    backendModules.controls[methodName](host, shellPort)
 
-  if action == A.TOGGLE_PLAYBACK then
-    -- Set flag only when we are about to enter freeze (FREEZE is currently false)
-    if not FREEZE then
-      forceContOnNextToggle = true
-      backendModules.controls._forceContOnNextToggle = true
+    if action == A.TOGGLE_PLAYBACK then
+      -- Set flag only when we are about to enter freeze (FREEZE is currently false)
+      if not FREEZE then
+        forceContOnNextToggle = true
+        backendModules.controls._forceContOnNextToggle = true
+      end
+      FREEZE = not FREEZE
+
+      if FREEZE then
+        -- Capture the current frame into a Canvas
+        local w, h = love.graphics.getDimensions()
+        freezeCanvas = love.graphics.newCanvas(w, h)
+
+        freezeCanvas:renderTo(function()
+          dream:prepare()
+          scene.draw(dream)
+          dream:present()
+
+          if Backend.fallbackMessage then
+            love.graphics.setColor(1, 0.8, 0)
+            love.graphics.print(Backend.fallbackMessage, 10, 10)
+          end
+        end)
+      end
     end
-    FREEZE = not FREEZE
 
-    if FREEZE then
-      -- Capture the current frame into a Canvas
-      local w, h = love.graphics.getDimensions()
-      freezeCanvas = love.graphics.newCanvas(w, h)
-
-      freezeCanvas:renderTo(function()
-        dream:prepare()
-        scene.draw(dream)
-        dream:present()
-
-        if Backend.fallbackMessage then
-          love.graphics.setColor(1, 0.8, 0)
-          love.graphics.print(Backend.fallbackMessage, 10, 10)
-        end
-      end)
-    end
   end
-
-  return
-end
 
   -- Scene-level actions
   if scene.pressedAction and scene.pressedAction(action) then
