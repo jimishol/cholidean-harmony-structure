@@ -243,25 +243,29 @@ function scene:update(dt)
 
   if self.showKeyEstimation then
     local currentKey = KeyEstimation.estimate(self.noteSystem.notes, dt)
-    self.estimatedKey = currentKey 
+    self.estimatedKey = currentKey -- Always holds the current truth
 
-    -- [NEW] DETECT SILENCE RESET
-    -- If the module returns "Key:     " (Silence), wipe the history immediately.
+    -- LOGIC: Manage the Wake
     if currentKey == "Key:     " then
-        self.keyHistory = {} 
+        -- Silence: The chimney collapses (History wiped).
+        self.keyHistory = {}
         self.lastRegisteredKey = ""
 
-    -- [EXISTING] Update History on Change
     elseif currentKey ~= self.lastRegisteredKey then
-      table.insert(self.keyHistory, 1, currentKey)
-      if #self.keyHistory > self.maxHistory then
-        table.remove(self.keyHistory)
-      end
+        -- Change Detected: Push the *previous* valid key to history
+        -- We only record it if it wasn't silence or empty
+        if self.lastRegisteredKey ~= "" and self.lastRegisteredKey ~= "Key:     " then
+            table.insert(self.keyHistory, 1, self.lastRegisteredKey)
 
-      self.lastRegisteredKey = currentKey
+            -- Trim history
+            if #self.keyHistory > self.maxHistory then
+                table.remove(self.keyHistory)
+            end
+        end
+
+        self.lastRegisteredKey = currentKey
     end
   end
-
 end
 
 --- Update label positions and colors based on current note system.
@@ -455,34 +459,32 @@ function scene.apply()
     local baseX = w - 10
     local baseY = h - 30
 
--- [NEW] Calculate dynamic fade step so the last item is always visible.
-    -- We use (maxHistory + 1) to ensure the oldest item doesn't hit 0.0 alpha.
+    -- 1. DRAW THE ANCHOR (Current State) - Always Visible
+    love.graphics.setColor(1, 1, 1, 1) -- Bright White
+    local anchorText = scene.estimatedKey
+    local anchorW = font:getWidth(anchorText)
+    love.graphics.print(anchorText, baseX - anchorW, baseY)
+
+    -- 2. DRAW THE WAKE (History) - Fading Upwards
+    -- Note: We use 'i' to stack above the anchor
     local fadeStep = 1.0 / (scene.maxHistory + 1)
 
     for i, keyString in ipairs(scene.keyHistory) do
-      -- Calculate Alpha: 1.0 at bottom, fading upwards
-      local alpha = 1.0 - ((i - 1) * fadeStep)
+      local alpha = 1.0 - (i * fadeStep) -- Start fading immediately
 
-      if alpha > 0.05 then -- Render only if visible
+      if alpha > 0.05 then
+        -- Strip "Key: " from history items
+        local displayString = keyString:gsub("Key: ", "")
 
-        -- 1. Determine Display Text (Strip "Key: " from history lines)
-        local displayString = keyString
-        if i > 1 then
-            displayString = keyString:gsub("Key: ", "")
-        end
-
-        -- 2. Set Color
-        if i == 1 then
-            love.graphics.setColor(1, 1, 1, 1) -- Bright White (The Present)
-        else
-            love.graphics.setColor(0.7, 0.7, 0.7, alpha) -- Fading Grey (The Wake)
-        end
-
-        -- 3. Draw (Stacking Upwards)
+        love.graphics.setColor(0.7, 0.7, 0.7, alpha)
         local textW = font:getWidth(displayString)
-        love.graphics.print(displayString, baseX - textW, baseY - ((i-1) * lineHeight))
+
+        -- Stack upwards: baseY - (lineHeight * i)
+        -- i=1 is immediately above the anchor
+        love.graphics.print(displayString, baseX - textW, baseY - (i * lineHeight))
       end
     end
+
     love.graphics.setColor(1, 1, 1, 1)
   end
 
