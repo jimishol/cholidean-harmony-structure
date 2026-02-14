@@ -152,4 +152,7 @@ M.mfLabelScaleYMultiplier = 1.5
 M.topVoice = true
 M.topVoiceColor = {1, 1, 1}  -- better nautral color such as white {1,1,1} or grey, e.g., {0.8, 0.8, 0.8}
 
+-- Analysis & UI
+M.key_history_length = 6 -- Number of past keys to show in the Harmonic Wake
+
 return M

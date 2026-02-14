@@ -44,12 +44,19 @@ local function detectKeyCandidates(surfaces, notePresent)
   local conflict = false
 
   for t = 1, 12 do
+    -- AXIS 1: MAJOR / JAZZ (Dominant + Subdominant)
     local sDom = wrap12(t - 1)
     local sSub = wrap12(t + 2)
+    local axisMajor = surfaces[sDom] and surfaces[sSub]
 
-    -- Check if the Axis exists (Dominant + Subdominant surfaces active)
-    if surfaces[sDom] and surfaces[sSub] then
-       -- THE HINGE VETO
+    -- AXIS 2: HARMONIC MINOR (Relative Tonic + Harmonic Dominant)
+    -- CORRECTION: B7 (on B', t=8) is the Dominant of Em (on C', t=1) in Key G (t=12).
+    local sMinTonic = wrap12(t + 1)
+    local sMinDom   = wrap12(t + 8)
+    local axisMinor = surfaces[sMinTonic] and surfaces[sMinDom]
+
+    if axisMajor or axisMinor then
+       -- THE HINGE VETO (t-2)
        local hinge = wrap12(t - 2)
        local aug1 = wrap12(hinge + 4)
        local aug2 = wrap12(hinge + 8)
@@ -63,6 +70,15 @@ local function detectKeyCandidates(surfaces, notePresent)
     end
   end
   return foundNames, foundIndices, conflict
+end
+
+--- Resets the internal state of the estimator.
+function KeyEstimation.reset()
+  ring = {}
+  ringSize = 0
+  silenceTimer = 0
+  previousState = { notes = {}, surfaceActive = {} }
+  return "Key:     "
 end
 
 --- Estimates the Key based on active notes and surface topology.
@@ -88,21 +104,26 @@ function KeyEstimation.estimate(notes, dt)
     end
   end
 
-  -- 1.5) SILENCE & HARMONIC SUSTAIN
+  -- 1.5) SILENCE & DENSITY CHECK
   if #activeNoteIds == 0 then
      if dt then
         silenceTimer = silenceTimer + dt
         if silenceTimer > SILENCE_THRESHOLD then
-           ringSize = 0
-           previousState = { notes = {}, surfaceActive = {} }
-           silenceTimer = 0
+           KeyEstimation.reset()
            return "Key:     "
         else
            if ringSize > 0 then return ring[0].result else return "Key:     " end
         end
      end
      return "Key:     "
+
+  elseif #activeNoteIds < 2 then
+     -- CASE B: MONAD / SINGLE NOTE (Sustain)
+     silenceTimer = 0
+     if ringSize > 0 then return ring[0].result else return "Key:     " end
+
   else
+     -- CASE C: HARMONIC INPUT (2+ notes)
      silenceTimer = 0
   end
 
@@ -126,7 +147,6 @@ function KeyEstimation.estimate(notes, dt)
 
   -- 5) SURFACE-DRIVEN LOGIC (Strict Priority Strategy)
 
-  -- Initialize result with Persistence (Inertia)
   local result = "Key:     "
   if ringSize > 0 then result = ring[0].result end
 
@@ -136,15 +156,11 @@ function KeyEstimation.estimate(notes, dt)
   if #foundLocalNames > 0 then
      -- PRIORITY 1: LOCAL SUCCESS
      result = "Key: " .. table.concat(foundLocalNames, "  ")
-
-     -- RESET HISTORY (The chord stands alone)
      previousState.surfaceActive = currentSurfaceActive
 
   elseif conflictLocal then
      -- PRIORITY 2: LOCAL CONFLICT
      result = "Key: None"
-
-     -- RESET HISTORY
      previousState.surfaceActive = currentSurfaceActive
 
   else
@@ -161,36 +177,50 @@ function KeyEstimation.estimate(notes, dt)
         -- GLOBAL SUCCESS
         result = "Key: " .. table.concat(foundGlobalNames, "  ")
 
-        -- FILTER HISTORY (Keep A2 + Supporting Surfaces)
-        local newHistory = {}
-        for i = 1, 12 do newHistory[i] = currentSurfaceActive[i] end
+        -- [INTERSECTION FILTER]
+        -- Logic: Keep history ONLY if it supports ALL found candidates.
+        -- If multiple keys are found (Soup), their intersection is likely empty -> History Wiped.
+        -- If 1 key is found, intersection is that key -> History Preserved.
+
+        local commonMask = {}
+        for i = 1, 12 do commonMask[i] = true end -- Start assuming everything is valid
+
         for _, t in ipairs(foundGlobalIndices) do
-           local sDom = wrap12(t - 1)
-           local sSub = wrap12(t + 2)
-           newHistory[sDom] = true
-           newHistory[sSub] = true
+            local keyMask = {} -- false by default
+
+            -- Mark the 4 defining surfaces of this key
+            keyMask[wrap12(t - 1)] = true -- Major Dom
+            keyMask[wrap12(t + 2)] = true -- Major Sub
+            keyMask[wrap12(t + 1)] = true -- Minor Tonic
+            keyMask[wrap12(t + 8)] = true -- Minor Dom
+
+            -- Intersect with common mask
+            for i = 1, 12 do
+                commonMask[i] = commonMask[i] and keyMask[i]
+            end
+        end
+
+        -- Rebuild History
+        local newHistory = {}
+        for i = 1, 12 do
+             -- Keep if it is CURRENTLY active
+             -- OR if it was historically active AND it is in the common mask
+             newHistory[i] = currentSurfaceActive[i] or (previousState.surfaceActive[i] and commonMask[i])
         end
         previousState.surfaceActive = newHistory
 
      elseif conflictGlobal then
-        -- GLOBAL CONFLICT (Modulation Pivot)
-        -- The History contradicts the Present. The Accumulated Key is dead.
-        -- The Present is Ambiguous.
+        -- GLOBAL CONFLICT
         result = "Key:     "
-
-        -- RESET HISTORY (Break the geometric link)
         previousState.surfaceActive = currentSurfaceActive
 
      else
         -- GLOBAL AMBIGUITY
-        -- Result remains Persistent (Inertia).
-
-        -- ACCUMULATE
         previousState.surfaceActive = accumulatedSurfaces
      end
   end
 
-  -- UPDATE HISTORY (Notes always update to current)
+  -- UPDATE HISTORY
   previousState.notes = activeNoteIds
 
   -- 7) CACHE RESULT

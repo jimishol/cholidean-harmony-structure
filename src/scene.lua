@@ -206,7 +206,7 @@ function scene.load(dream, commandMenu)
 
   -- Initialize History Queue
   scene.keyHistory = {}
-  scene.maxHistory = 4         -- Show last 4 states
+  scene.maxHistory = constants.key_history_length -- [LINKED TO CONSTANT]
   scene.lastRegisteredKey = "" -- Duplicate prevention
 
 end
@@ -241,16 +241,19 @@ function scene:update(dt)
     materials.assignAll(self, self.materialLibrary, self.noteSystem)
   end
 
-  -- Key estimation with History Logic
   if self.showKeyEstimation then
     local currentKey = KeyEstimation.estimate(self.noteSystem.notes, dt)
     self.estimatedKey = currentKey 
 
-    -- Only update history if the Geometric State has changed
-    if currentKey ~= self.lastRegisteredKey then
-      table.insert(self.keyHistory, 1, currentKey) -- Add new to top
+    -- [NEW] DETECT SILENCE RESET
+    -- If the module returns "Key:     " (Silence), wipe the history immediately.
+    if currentKey == "Key:     " then
+        self.keyHistory = {} 
+        self.lastRegisteredKey = ""
 
-      -- Trim old history
+    -- [EXISTING] Update History on Change
+    elseif currentKey ~= self.lastRegisteredKey then
+      table.insert(self.keyHistory, 1, currentKey)
       if #self.keyHistory > self.maxHistory then
         table.remove(self.keyHistory)
       end
@@ -452,37 +455,39 @@ function scene.apply()
     local baseX = w - 10
     local baseY = h - 30
 
+-- [NEW] Calculate dynamic fade step so the last item is always visible.
+    -- We use (maxHistory + 1) to ensure the oldest item doesn't hit 0.0 alpha.
+    local fadeStep = 1.0 / (scene.maxHistory + 1)
+
     for i, keyString in ipairs(scene.keyHistory) do
-      local alpha = 1.0 - ((i - 1) * 0.25)
+      -- Calculate Alpha: 1.0 at bottom, fading upwards
+      local alpha = 1.0 - ((i - 1) * fadeStep)
 
-      if alpha > 0 then
-        -- 1. Determine Display Text
+      if alpha > 0.05 then -- Render only if visible
+
+        -- 1. Determine Display Text (Strip "Key: " from history lines)
         local displayString = keyString
-
-        -- If it is History (i > 1), strip the "Key: " prefix
         if i > 1 then
             displayString = keyString:gsub("Key: ", "")
         end
 
         -- 2. Set Color
         if i == 1 then
-            love.graphics.setColor(1, 1, 1, 1) -- Bright White
+            love.graphics.setColor(1, 1, 1, 1) -- Bright White (The Present)
         else
-            love.graphics.setColor(0.7, 0.7, 0.7, alpha) -- Fading Grey
+            love.graphics.setColor(0.7, 0.7, 0.7, alpha) -- Fading Grey (The Wake)
         end
 
-        -- 3. Calculate Width based on the CLEAN string
+        -- 3. Draw (Stacking Upwards)
         local textW = font:getWidth(displayString)
-
-        -- 4. Draw
         love.graphics.print(displayString, baseX - textW, baseY - ((i-1) * lineHeight))
       end
     end
-
     love.graphics.setColor(1, 1, 1, 1)
   end
 
   if not scene.showDebug then return end
+
   local V = camera.View
   love.graphics.setColor(1,1,1)
   love.graphics.print("FPS: " .. love.timer.getFPS(), 10, 10)
