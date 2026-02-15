@@ -125,6 +125,24 @@ The system includes a geometric **Key Estimation** module that analyzes the acti
 *   **Relative Pairs:** Keys are displayed as geometric pairs (e.g., `G | Em`) to respect the topological unity of relative scales.
 *   **Strict Veto:** The system uses "Survival of the Present" logic. If a chromatic note conflicts with the current key, the system immediately reports `None` or the new key, ensuring the display reflects the exact geometric reality of the moment.
 
+### Status Indicators
+
+The system provides real-time feedback on the harmonic stability of the topology:
+
+*   **`Key: None` (Local Contradiction):**
+    *   **Meaning:** The current notes form a geometrically impossible structure (e.g., mutually exclusive surfaces active simultaneously).
+    *   **Result:** The system cannot determine a root for the current moment.
+
+*   **`Key: ?` (Geometric Shear):**
+    *   **Meaning:** The **Current Notes** contradict the **Harmonic History**.
+    *   **Geometric Cause:** The "Wake" projects a specific Key Axis, but the current chord contains a "Veto Note" that destroys that axis.
+    *   **Musical Implication:** Signals a **Deceptive Resolution**, **Modal Mixture**, or sudden modulation.
+    *   **Result:** The Chimney (History) is **preserved**, acknowledging the path taken, but the current tonal center is momentarily suspended.
+
+*   **`Key:     ` (Silence / Collapse):**
+    *   **Meaning:** Harmonic energy has dissipated (No notes > 2.0s).
+    *   **Result:** The Chimney is **force-cleared**. The next chord is treated as a new harmonic anchor.
+
 ---
 
 <p align="right">

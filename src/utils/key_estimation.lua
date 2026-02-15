@@ -211,7 +211,7 @@ function KeyEstimation.estimate(notes, dt)
 
      elseif conflictGlobal then
         -- GLOBAL CONFLICT
-        result = "Key:     "
+        result = "Key: ?"
         previousState.surfaceActive = currentSurfaceActive
 
      else
