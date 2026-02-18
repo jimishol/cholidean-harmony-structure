@@ -31,7 +31,7 @@ function M.getSelectedSongs()
   local midiFiles  = {}
 
   for _, filename in ipairs(items) do
-    if filename:lower():match("%.mid$") then
+    if filename:lower():match("%.midi?$") then
       local fullPath = folder .. "/" .. filename
       midiFiles[#midiFiles + 1] = escapeSpaces(fullPath)
     end
