@@ -1,6 +1,11 @@
 --- Key Estimation Module for Umbilic-Surface Harmony.
 -- Detects the Diatonic Key based on the geometric activation of Dominant and Subdominant surfaces.
 -- Uses src.materials as the single source of truth for surface activation physics.
+-- WARNING: TOPOLOGICAL BIAS (WESTERN TONALITY)
+-- This estimator applies a "Common Practice" filter to the neutral 3D lattice.
+-- It assumes a Key is formed by a cluster of 4 adjacent Surfaces.
+-- Non-Western or experimental geometries (e.g., Symmetric/Modal) may require
+-- their own dedicated estimation modules.
 -- @module src.utils.key_estimation
 local materials = require("src.utils.materials")
 

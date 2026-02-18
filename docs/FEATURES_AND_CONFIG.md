@@ -114,6 +114,14 @@
 
 The system includes a geometric **Key Estimation** module that analyzes the active surface topology in real-time. This feature visualizes the "Harmonic Wake"—the trajectory of the lattice as it moves through the Circle of Fourths.
 
+> **NOTE: Topological Bias (Western Tonality)**
+> While the Umbilic Torus lattice is structurally neutral, this specific estimation module applies a "Common Practice" filter. It detects Keys by identifying clusters of **4 Adjacent Surfaces** (Tonic, Dominant, Subdominant, Relative).
+> *   **Supported:** Standard Western Harmony (Bach to Jazz Standards).
+> *   **Experimental:** Symmetric scales (Whole-Tone, Diminished) or Quartal harmony may result in unstable or `None` readings, as they do not form the specific topological cluster this tool is tuned to detect.
+
+*I strongly encourage developers to create custom estimation modules for other harmonic geometries.*
+
+What about that?
 | Control | Action | Description |
 | :--- | :--- | :--- |
 | **k** | Toggle Harmonic Wake | Switches the multi-line analysis display on/off. |
