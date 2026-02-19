@@ -1,11 +1,13 @@
 --- Key Estimation Module for Umbilic-Surface Harmony.
 -- Detects the Diatonic Key based on the geometric activation of Dominant and Subdominant surfaces.
 -- Uses src.materials as the single source of truth for surface activation physics.
+--
 -- WARNING: TOPOLOGICAL BIAS (WESTERN TONALITY)
 -- This estimator applies a "Common Practice" filter to the neutral 3D lattice.
 -- It assumes a Key is formed by a cluster of 4 adjacent Surfaces.
 -- Non-Western or experimental geometries (e.g., Symmetric/Modal) may require
 -- their own dedicated estimation modules.
+--
 -- @module src.utils.key_estimation
 local materials = require("src.utils.materials")
 
@@ -16,18 +18,17 @@ local ring = {}
 local ringSize = 0
 local ringCapacity = 1
 
--- Silence Detection
+-- Timers
 local silenceTimer = 0
 local SILENCE_THRESHOLD = 2.0 -- Seconds before hard reset
+local conflictTimer = 0       -- Tracks how long a conflict has persisted
+local CONFLICT_GRACE = 0.15   -- 150ms grace period for finger slips/legato
 
 -- Module-level storage for the LAST DISTINCT harmonic event
 local previousState = {
   notes = {},
   surfaceActive = {}
 }
-
---- Wraps an integer into the 1–12 Circle of Fourths range.
-local function wrap12(n) return ((n - 1) % 12) + 1 end
 
 --- Compact Mapping of Target Key Index 't'.
 local targetToKey = {
@@ -40,40 +41,53 @@ local targetToKey = {
 }
 
 --- Helper: Scans the 12 surfaces to find valid Key Candidates.
--- @param surfaces The boolean topology to check.
--- @param notePresent The map of currently active notes (for Veto).
+-- Uses Strict Topological Axis (t-1, t+2) to ensure Torque is present.
+-- @param surfaces The boolean topology to check (Active Surfaces).
+-- @param notePresent The map of currently active notes (Accumulated Notes).
 -- @return table foundNames, table foundIndices, boolean conflictDetected
 local function detectKeyCandidates(surfaces, notePresent)
   local foundNames = {}
   local foundIndices = {}
   local conflict = false
 
+  -- Helper: Wrap 1-based index to 1..12
+  local function wrap12(n) return (n - 1) % 12 + 1 end
+
   for t = 1, 12 do
-    -- AXIS 1: MAJOR / JAZZ (Dominant + Subdominant)
+    -- 1. TOPOLOGICAL AXIS CHECK
+    -- We require the Dominant Surface (t-1) AND the Torque Surface (t+2).
+    -- For C (t=1):
+    --   sDom = G' (12). Contains G, B.
+    --   sSub = Bb' (3). Contains Bb, D, F, A. (Holds the Supertonic D and Subdominant F).
+
     local sDom = wrap12(t - 1)
     local sSub = wrap12(t + 2)
-    local axisMajor = surfaces[sDom] and surfaces[sSub]
 
-    -- AXIS 2: HARMONIC MINOR (Relative Tonic + Harmonic Dominant)
-    -- CORRECTION: B7 (on B', t=8) is the Dominant of Em (on C', t=1) in Key G (t=12).
-    local sMinTonic = wrap12(t + 1)
-    local sMinDom   = wrap12(t + 8)
-    local axisMinor = surfaces[sMinTonic] and surfaces[sMinDom]
+    local axisActive = surfaces[sDom] and surfaces[sSub]
 
-    if axisMajor or axisMinor then
-       -- THE HINGE VETO (t-2)
-       local hinge = wrap12(t - 2)
-       local aug1 = wrap12(hinge + 4)
-       local aug2 = wrap12(hinge + 8)
+    -- 2. THE VETO (Material Check)
+    if axisActive then
+       -- Map relative notes using Circle Offsets from Candidate 't'
+       local function has(steps) return notePresent[wrap12(t + steps)] end
 
-       if not notePresent[aug1] and not notePresent[aug2] then
-         table.insert(foundNames, targetToKey[t])
-         table.insert(foundIndices, t)
+       -- The Walls (Vetoes)
+       -- Lydian (#4) pulls to V. Mixolydian (b7) pulls to IV. Neapolitan (b2) destabilizes.
+       local Lydian     = has(6)  -- e.g., F# in C
+       local Mixolydian = has(2)  -- e.g., Bb in C
+       local Neapolitan = has(5)  -- e.g., Db in C
+
+       if not Lydian and not Mixolydian and not Neapolitan then
+          -- Valid Candidate found
+          table.insert(foundNames, targetToKey[t])
+          table.insert(foundIndices, t)
        else
-         conflict = true
+          -- Axis was active, but contradicted by Wall notes.
+          -- This flags a "Conflict" (e.g., Whole Tone scale), distinct from "Silence".
+          conflict = true
        end
     end
   end
+
   return foundNames, foundIndices, conflict
 end
 
@@ -83,11 +97,13 @@ function KeyEstimation.reset()
   ringSize = 0
   previousState = { notes = {}, surfaceActive = {} }
   silenceTimer = 0
+  conflictTimer = 0
   return "Key:     "
 end
 
 --- Estimates the Key based on active notes and surface topology.
 function KeyEstimation.estimate(notes, dt)
+  local dt = dt or 0.016 -- Fallback if dt is missing
 
   -- 1) BUILD CANONICAL NOTE MAP
   local canonicalNotes = {}
@@ -147,10 +163,16 @@ function KeyEstimation.estimate(notes, dt)
 
   -- 4) CACHE CHECK
   for i = 0, ringSize - 1 do
-    if ring[i] and ring[i].fingerprint == key then return ring[i].result end
+    if ring[i] and ring[i].fingerprint == key then
+        conflictTimer = 0 -- Reset conflict timer on stable state match
+        return ring[i].result
+    end
   end
 
   -- 5) SURFACE-DRIVEN LOGIC (Strict Priority Strategy)
+
+  -- Helper: Wrap 1-based index to 1..12
+  local function wrap12(n) return (n - 1) % 12 + 1 end
 
   local result = "Key:     "
   if ringSize > 0 then result = ring[0].result end
@@ -162,14 +184,11 @@ function KeyEstimation.estimate(notes, dt)
      -- PRIORITY 1: LOCAL SUCCESS
      result = "Key: " .. table.concat(foundLocalNames, "  ")
      previousState.surfaceActive = currentSurfaceActive
-
-  elseif conflictLocal then
-     -- PRIORITY 2: LOCAL CONFLICT
-     result = "Key: None"
-     previousState.surfaceActive = currentSurfaceActive
+     conflictTimer = 0
 
   else
      -- PRIORITY 3: LOCAL AMBIGUITY -> CHECK GLOBAL
+     -- Note: We skip "Local Conflict" output to allow for transient clashes (legato).
 
      local accumulatedSurfaces = {}
      for i = 1, 12 do
@@ -181,46 +200,46 @@ function KeyEstimation.estimate(notes, dt)
      if #foundGlobalNames > 0 then
         -- GLOBAL SUCCESS
         result = "Key: " .. table.concat(foundGlobalNames, "  ")
+        conflictTimer = 0
 
         -- [INTERSECTION FILTER]
-        -- Logic: Keep history ONLY if it supports ALL found candidates.
-        -- If multiple keys are found (Soup), their intersection is likely empty -> History Wiped.
-        -- If 1 key is found, intersection is that key -> History Preserved.
-
         local commonMask = {}
-        for i = 1, 12 do commonMask[i] = true end -- Start assuming everything is valid
+        for i = 1, 12 do commonMask[i] = true end
 
         for _, t in ipairs(foundGlobalIndices) do
-            local keyMask = {} -- false by default
-
-            -- Mark the 4 defining surfaces of this key
+            local keyMask = {}
             keyMask[wrap12(t - 1)] = true -- Major Dom
-            keyMask[wrap12(t + 2)] = true -- Major Sub
+            keyMask[wrap12(t + 2)] = true -- Major Sub (Torque)
             keyMask[wrap12(t + 1)] = true -- Minor Tonic
             keyMask[wrap12(t + 8)] = true -- Minor Dom
-
-            -- Intersect with common mask
-            for i = 1, 12 do
-                commonMask[i] = commonMask[i] and keyMask[i]
-            end
+            for i = 1, 12 do commonMask[i] = commonMask[i] and keyMask[i] end
         end
 
-        -- Rebuild History
         local newHistory = {}
         for i = 1, 12 do
-             -- Keep if it is CURRENTLY active
-             -- OR if it was historically active AND it is in the common mask
              newHistory[i] = currentSurfaceActive[i] or (previousState.surfaceActive[i] and commonMask[i])
         end
         previousState.surfaceActive = newHistory
 
      elseif conflictGlobal then
-        -- GLOBAL CONFLICT
-        result = "Key: ?"
+        -- GLOBAL CONFLICT (The Real "None")
+        -- Only output "None" if the conflict persists longer than the grace period.
+
+        conflictTimer = conflictTimer + dt
+
+        if conflictTimer > CONFLICT_GRACE then
+            result = "Key: None"
+        else
+            -- Ghosting: Keep previous result during finger slip
+            if ringSize > 0 then result = ring[0].result end
+        end
+
         previousState.surfaceActive = currentSurfaceActive
 
      else
         -- GLOBAL AMBIGUITY
+        -- Ghosting: Keep previous result
+        conflictTimer = 0
         previousState.surfaceActive = accumulatedSurfaces
      end
   end
