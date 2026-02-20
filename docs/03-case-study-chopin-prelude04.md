@@ -1,5 +1,10 @@
 # **Umbilic-Surface Harmony Grammar: A Geometric Analysis of Chopin’s Prelude No. 4**
 
+> **Context:** This document is a case study applying the **Umbilic-Surface Grammar**.
+> *   For the core definitions of the 3D coordinate system (Station Shifts, P-Rotations), see **[The Grammar Specification](01-umbilic-surface-grammar-spec.md)**.
+> *   For the mapping of Western Tonal functions to this topology, see **[The Classical Filter](02-topology-of-western-harmony.md)**.
+
+---
 ## **1. Phenomenological Observation: Geometric Aliasing**
 
 This analysis highlights an emergent property observed during the visualization of the grammar. While the token stream dictates the logical position of the harmony, the physical realization of the voices reveals a distinct **Counter-Rotation**.
