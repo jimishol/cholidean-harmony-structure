@@ -3,7 +3,7 @@
 > **Context:** This document is a case study applying the **Umbilic-Surface Grammar**.
 > *   For the core definitions of the 3D coordinate system (Station Shifts, P-Rotations), see **[The Grammar Specification](01-umbilic-surface-grammar-spec.md)**.
 > *   For the mapping of Western Tonal functions to this topology, see **[The Classical Filter](02-topology-of-western-harmony.md)**.
-
+>
 > **Resources:**
 > *   **Audio:** [Chopin Prelude No. 4 (Wikipedia)](https://en.wikipedia.org/wiki/File:FChopinPreludeOp28n4.OGG)
 > *   **Score:** [Sheet Music (IMSLP)](https://imslp.org/wiki/Preludes,_Op.28_(Chopin,_Fr%C3%A9d%C3%A9ric))
