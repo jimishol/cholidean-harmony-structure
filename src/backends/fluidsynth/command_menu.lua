@@ -191,7 +191,7 @@ function CommandMenu:draw(x, y)
       x,
       winH - 30,
       love.graphics.getWidth() - 2 * x,
-      "right"
+      "left"
     )
     return
   end
