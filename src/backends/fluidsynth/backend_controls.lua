@@ -109,20 +109,55 @@ function M.beginSong(host, port)
   print("[midi_controls] start current song")
 end
 
---- Advance to the next song in the playlist.
+--- Advance to the next song in the playlist (Internal FluidSynth skip).
 -- Sends "player_next" after pushing a "clear" control message.
 function M.endSong(host, port)
   control:push("clear")
   send_command("player_next", host, port)
   M._isPlaying = true
-  print("[midi_controls] move to next song")
+  print("[midi_controls] move to next song (TCP)")
+end
+
+--- Force-kill the process to trigger the Thread to iterate to the next file.
+-- Closes the TCP socket first to ensure the OS releases the port.
+function M.nextSong(host, port)
+  control:push("clear")
+
+  -- 1. Close the TCP client so the OS doesn't lock the port in TIME_WAIT
+  if tcp then
+    tcp:close()
+    tcp = nil
+  end
+
+  local platform = love.thread.getChannel("platform"):peek()
+  local backendValue = love.thread.getChannel("backend"):peek()
+
+  if not backendValue then
+    print("[midi_controls] Error: Backend name not found in channel yet.")
+    return
+  end
+
+  -- Extract process name (e.g. "fluidsynth" from "bin/fluidsynth.exe")
+  local proc = backendValue:match("([^/\\]+)$"):gsub("%.exe$", ""):gsub("%.%w+$", "")
+  
+  if platform == "windows" then
+    -- /F = Force, /T = Kill child processes
+    os.execute(string.format('taskkill /IM %s.exe /F /T >NUL 2>&1', proc))
+  else
+    os.execute(string.format('pkill -9 -f "%s" > /dev/null 2>&1', proc))
+  end
+
+  M._isPlaying = true
+  print(string.format("[midi_controls] OS-killed %s and closed socket", proc))
 end
 
 --- Send an arbitrary FluidSynth command.
-M.send_message = send_command
+function M.send_message(message, host, port)
+  send_command(message, host, port)
+end
 
 --- Retrieve the static help text.
-function M.getHelp(_host, _port)
+function M.getHelp(host, port)
   return getStaticHelp()
 end
 

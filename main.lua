@@ -304,6 +304,7 @@ function love.keypressed(key, scancode)
     [A.TOGGLE_PLAYBACK] = "togglePlayback",
     [A.BEGIN_SONG]      = "beginSong",
     [A.END_SONG]       = "endSong",
+    [A.NEXT_SONG]       = "nextSong",
   }
 
   -- In love.keypressed, backend action block:
@@ -335,8 +336,15 @@ function love.keypressed(key, scancode)
           end
         end)
       end
-    end
 
+    -- NEW LOGIC: If we change the song while frozen, unfreeze the visual engine
+    elseif action == A.NEXT_SONG or action == A.BEGIN_SONG or action == A.END_SONG then
+      if FREEZE then
+        FREEZE = false
+        -- Also clear the backend's "force continue" flag since we are now playing
+        backendModules.controls._forceContOnNextToggle = false
+      end
+    end
   end
 
   -- Scene-level actions

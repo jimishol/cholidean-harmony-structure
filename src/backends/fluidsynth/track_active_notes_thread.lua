@@ -1,8 +1,10 @@
---- Active‐notes tracker thread for the Fluidsynth backend (Channel version).
--- Spawns the Fluidsynth process, listens for MIDI note‐on/off events,
+--- Active‐notes tracker thread for the Fluidsynth backend (Iteration version).
+-- Spawns Fluidsynth processes one by one, listens for MIDI note‐on/off events,
 -- maintains a table of currently active notes, and publishes them
 -- to a shared thread channel (`"active_notes"`) for consumption by the main thread.
 -- @module src.backends.fluidsynth.track_active_notes_thread
+
+local socket = require("socket")
 
 --- Incoming midiPort channel (cleared and ignored in fluidsynth backend)
 -- @local
@@ -30,7 +32,7 @@ local excludeChannel = love.thread.getChannel("excludeChannels")
 -- @local
 local soundfontChannel = love.thread.getChannel("soundfonts")
 
---- Channel providing the list of songs to play (space‐separated VFS paths).
+--- Channel providing the list of songs to play (pipe‐separated VFS paths).
 -- @local
 local songsChannel     = love.thread.getChannel("songs")
 
@@ -68,6 +70,28 @@ end
 
 -- Initial publish (empty list)
 publish_active()
+
+--- Robust check: Try to bind to the port. 
+-- If we can bind, the port is truly free for FluidSynth to use.
+-- @tparam number port The TCP port to check
+-- @treturn boolean True if port is free
+local function waitForPortFree(port)
+  local max_attempts = 50 
+  for i = 1, max_attempts do
+    local s = socket.tcp()
+    s:settimeout(0)
+    -- Try to bind to the port. If this succeeds, the port is available.
+    local ok, err = s:bind("127.0.0.1", port)
+    s:close()
+    
+    if ok then
+      return true 
+    end
+    -- Port is still busy (TIME_WAIT), wait 100ms
+    socket.sleep(0.1)
+  end
+  return false
+end
 
 --- Read a VFS file and write it to a real temporary file.
 -- @tparam string vpath Virtual filesystem path
@@ -113,13 +137,13 @@ else
 end
 
 -- Build a list of real OS MIDIs (dumped then escaped)
-local songListOS = {}
+local songTableOS = {}
 for token in songList:gmatch("[^|]+") do
   local trimmed = token:match("^%s*(.-)%s*$")  -- trim surrounding spaces  
   local vpath = trimmed:gsub("^['\"]*(.-)['\"]*$", "%1")  -- strip quotes like current code
   if love.filesystem.getInfo(vpath, "file") then
     local realPath = dumpToTemp(vpath)
-    table.insert(songListOS, shellEscape(realPath))
+    table.insert(songTableOS, shellEscape(realPath))
   end
 end
 
@@ -133,55 +157,91 @@ if platform == "windows" then
   )
 elseif platform == "macos" then
   -- macOS: requires coreutils (brew install coreutils) to get gstdbuf
-  prefix = string.format('gstdbuf -oL %s -ds -o shell.port=%d', backend, shellPort)
+  prefix = string.format('gstdbuf -oL %s -d -s -o shell.port=%d', backend, shellPort)
 else
   prefix = string.format(
-    'stdbuf -oL %s -ds -o shell.port=%d',
+    'stdbuf -oL %s -d -s -o shell.port=%d',
     backend, shellPort
   )
 end
 
--- Assemble final command
-local cmd = prefix
-if sfPathOS then
-  cmd = cmd .. " " .. shellEscape(sfPathOS)
-end
-if #songListOS > 0 then
-  cmd = cmd .. " " .. table.concat(songListOS, " ")
-end
+local sfArg = sfPathOS and (" " .. shellEscape(sfPathOS)) or ""
 
-print(">> Fluidsynth command:", cmd)
-local pipe = assert(io.popen(cmd, "r"))
+-------------------------------------------------------------------------------
+-- Main Iteration Loop
+-------------------------------------------------------------------------------
+local currentIndex = 1
 
-local exclude = excludeChannel:peek() or {}
--- Main event loop: listens for clear commands and note events
 while true do
-  if clearChannel:pop() == "clear" then
+  local currentSong = songTableOS[currentIndex]
+
+  if currentSong then
+    -- 1. Ensure the port is free from the previous process
+    print(">> Checking port " .. shellPort .. " availability...")
+    waitForPortFree(shellPort)
+    socket.sleep(0.2) -- Small cushion for OS kernel
+
+    -- 2. Assemble final command for the SINGLE current song
+    local cmd = prefix .. sfArg .. " " .. currentSong
+    print(">> Fluidsynth starting song [" .. currentIndex .. "]: " .. cmd)
+    
+    local pipe = assert(io.popen(cmd, "r"))
+    local exclude = excludeChannel:peek() or {}
+
+    -- Reset active notes for the new song start
     active_notes = {}
     publish_active()
-  end
 
-  local line = pipe:read("*l")
-  if not line then break end
-  local ch, key = line:match("noteon%s+(%d+)%s+(%d+)%s+%d+")
-  if ch then
-    local chNum = tonumber(ch)
-    local shouldExclude = false
-    for _, v in ipairs(exclude) do
-      if chNum == v then shouldExclude = true; break end
+    -- 3. Inner event loop: listens for clear commands and note events
+    while true do
+      if clearChannel:pop() == "clear" then
+        active_notes = {}
+        publish_active()
+      end
+
+      local line = pipe:read("*l")
+      if not line then 
+        -- Process was killed or finished
+        break 
+      end
+
+      -- Note Parsing Logic (Untouched)
+      local ch, key = line:match("noteon%s+(%d+)%s+(%d+)%s+%d+")
+      if ch then
+        local chNum = tonumber(ch)
+        local shouldExclude = false
+        for _, v in ipairs(exclude) do
+          if chNum == v then shouldExclude = true; break end
+        end
+        if not shouldExclude then
+          active_notes[ch..":"..key] = { channel=chNum, key=tonumber(key) }
+          publish_active()
+        end
+      else
+        local ch2, key2 = line:match("noteoff%s+(%d+)%s+(%d+)")
+        if ch2 then
+          -- Always allow noteoff to remove the note
+          active_notes[ch2..":"..key2] = nil
+          publish_active()
+        end
+      end
     end
-    if not shouldExclude then
-      active_notes[ch..":"..key] = { channel=chNum, key=tonumber(key) }
-      publish_active()
-    end
+
+    -- 4. Cleanup after process dies
+    pipe:close()
+    print(">> Song process ended. Advancing index...")
+    
+    currentIndex = currentIndex + 1
+    active_notes = {} 
+    publish_active()
+
   else
-    local ch2, key2 = line:match("noteoff%s+(%d+)%s+(%d+)")
-    if ch2 then
-      -- Always allow noteoff to remove the note
-      active_notes[ch2..":"..key2] = nil
+    -- End of playlist: Wait for a "clear" signal (e.g. Restart) to reset
+    local msg = clearChannel:demand() 
+    if msg == "clear" then
+      currentIndex = 1
+      active_notes = {}
       publish_active()
     end
   end
 end
-
-pipe:close()
