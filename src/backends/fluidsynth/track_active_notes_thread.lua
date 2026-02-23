@@ -114,8 +114,9 @@ end
 
 -- Build a list of real OS MIDIs (dumped then escaped)
 local songListOS = {}
-for token in songList:gmatch("%S+") do
-  local vpath = token:gsub("^['\"]*(.-)['\"]*$", "%1")
+for token in songList:gmatch("[^|]+") do
+  local trimmed = token:match("^%s*(.-)%s*$")  -- trim surrounding spaces  
+  local vpath = trimmed:gsub("^['\"]*(.-)['\"]*$", "%1")  -- strip quotes like current code
   if love.filesystem.getInfo(vpath, "file") then
     local realPath = dumpToTemp(vpath)
     table.insert(songListOS, shellEscape(realPath))

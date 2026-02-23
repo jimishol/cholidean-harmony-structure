@@ -159,9 +159,6 @@ If you prefer a no‑audio mode, you can still set `M.backend = "null"`.
 - **Line‑buffered output isn’t working**:  
   FluidSynth’s note‑on/off events arrive in batches under Windows; see [issue #4](https://github.com/jimishol/cholidean-harmony-structure/issues/4). Fir this, instead of `fluidsynth`, use `udpMidi` backend.
 
-- **Spaces in filenames**:  
-  May break playback through the `winpty` layer — use underscores instead.
-
 - **Restart‑on‑exit disabled**:  
   The batch wrapper doesn’t propagate non‑zero exit codes, so automatic restart on exit code 42 is unavailable.
 

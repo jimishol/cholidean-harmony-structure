@@ -79,7 +79,7 @@ local selectedSongs = playlist.getSelectedSongs()
 -- If empty, push "" so Fluidsynth sees no MIDI args.
 -- If non-empty, join with spaces.
 local songList = (#selectedSongs > 0)
-  and table.concat(selectedSongs, " ")
+  and table.concat(selectedSongs, "|")
   or ""
 
 -- Exclude percussion channels
