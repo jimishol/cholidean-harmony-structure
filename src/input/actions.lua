@@ -86,6 +86,9 @@ local A = {}
 --- Playback control: advance to next song.
 -- @field NEXT_SONG string
 
+--- Playback control: end song. Send player_next to TCP server
+-- @field END_SONG string
+
 --- UI interaction: show the extended command popup (triggered by “:”).
 -- @field SHOW_COMMAND_MENU string
 
@@ -127,6 +130,7 @@ A.TOGGLE_NOTE_MODE   = "toggle_note_mode"
 
 A.TOGGLE_PLAYBACK    = "toggle_playback"
 A.BEGIN_SONG         = "play_from_begin"
+A.END_SONG           = "end_song"
 A.NEXT_SONG          = "move_to_next_song"
 
 A.SHOW_COMMAND_MENU  = "show_command_menu"

@@ -98,7 +98,7 @@ end
 
 --- Next song (Enter binding).
 -- Pushes "clear" to track_control before advancing.
-function M.nextSong()
+function M.endSong()
   control:push("clear")
   -- Add any other nextSong logic here if needed
 end

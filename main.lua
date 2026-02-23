@@ -303,7 +303,7 @@ function love.keypressed(key, scancode)
   local backendActions = {
     [A.TOGGLE_PLAYBACK] = "togglePlayback",
     [A.BEGIN_SONG]      = "beginSong",
-    [A.NEXT_SONG]       = "nextSong",
+    [A.END_SONG]       = "endSong",
   }
 
   -- In love.keypressed, backend action block:

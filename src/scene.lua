@@ -445,7 +445,7 @@ function scene.pressedAction(action)
     return true
   end
 
-  if action == A.BEGIN_SONG or action == A.NEXT_SONG then
+  if action == A.BEGIN_SONG or action == A.NEXT_SONG or action == A.END_SONG then
     KeyEstimation.reset()
     scene.estimatedKey = ""          -- clear current display
     scene.keyHistory = {}

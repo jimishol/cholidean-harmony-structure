@@ -111,7 +111,7 @@ end
 
 --- Advance to the next song in the playlist.
 -- Sends "player_next" after pushing a "clear" control message.
-function M.nextSong(host, port)
+function M.endSong(host, port)
   control:push("clear")
   send_command("player_next", host, port)
   M._isPlaying = true

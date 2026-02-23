@@ -33,6 +33,7 @@ function M:actionForKey(key)
   local shiftDown = love.keyboard.isDown("lshift", "rshift")
   if shiftDown and key == "left"  then return A.ROTATE_CW  end
   if shiftDown and key == "right" then return A.ROTATE_CCW end
+  if shiftDown and key == "return" then return A.END_SONG end
 
   for action, keys in pairs(self.bindings) do
     for _, k in ipairs(keys) do
