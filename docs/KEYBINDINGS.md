@@ -32,6 +32,7 @@
 | k              | TOGGLE_KEY_ESTIMATION   | Toggle real-time Key Estimation / Harmonic Wake display |
 | tab            | BEGIN_SONG              | Start song from beginning              |
 | return         | NEXT_SONG               | Advance to next song                   |
+| `Shift + return` | `END_SONG` | **Teacher Mode:** Stops MIDI playback but keeps the process alive for live feedback. Disables Auto-Advance. |
 |-------------------------------------------|---------------------------------------------|-------------------------------------------|
 | :              | <COMMAND_MENU>           | Send commands to the backend’s TCP control server (Fluidsynth backend uses its `-s` option server) |
 | a              | SET_TEMPO                 | Set tempo in BPM (e.g. `120`)                       |

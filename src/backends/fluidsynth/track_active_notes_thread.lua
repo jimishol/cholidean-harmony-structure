@@ -71,21 +71,21 @@ end
 -- Initial publish (empty list)
 publish_active()
 
---- Robust check: Try to bind to the port. 
+--- Robust check: Try to bind to the port.
 -- If we can bind, the port is truly free for FluidSynth to use.
 -- @tparam number port The TCP port to check
 -- @treturn boolean True if port is free
 local function waitForPortFree(port)
-  local max_attempts = 50 
+  local max_attempts = 50
   for i = 1, max_attempts do
     local s = socket.tcp()
     s:settimeout(0)
     -- Try to bind to the port. If this succeeds, the port is available.
     local ok, err = s:bind("127.0.0.1", port)
     s:close()
-    
+
     if ok then
-      return true 
+      return true
     end
     -- Port is still busy (TIME_WAIT), wait 100ms
     socket.sleep(0.1)
@@ -139,7 +139,7 @@ end
 -- Build a list of real OS MIDIs (dumped then escaped)
 local songTableOS = {}
 for token in songList:gmatch("[^|]+") do
-  local trimmed = token:match("^%s*(.-)%s*$")  -- trim surrounding spaces  
+  local trimmed = token:match("^%s*(.-)%s*$")  -- trim surrounding spaces
   local vpath = trimmed:gsub("^['\"]*(.-)['\"]*$", "%1")  -- strip quotes like current code
   if love.filesystem.getInfo(vpath, "file") then
     local realPath = dumpToTemp(vpath)
@@ -184,7 +184,7 @@ while true do
     -- 2. Assemble final command for the SINGLE current song
     local cmd = prefix .. sfArg .. " " .. currentSong
     print(">> Fluidsynth starting song [" .. currentIndex .. "]: " .. cmd)
-    
+
     local pipe = assert(io.popen(cmd, "r"))
     local exclude = excludeChannel:peek() or {}
 
@@ -200,9 +200,9 @@ while true do
       end
 
       local line = pipe:read("*l")
-      if not line then 
+      if not line then
         -- Process was killed or finished
-        break 
+        break
       end
 
       -- Note Parsing Logic (Untouched)
@@ -230,14 +230,14 @@ while true do
     -- 4. Cleanup after process dies
     pipe:close()
     print(">> Song process ended. Advancing index...")
-    
+
     currentIndex = currentIndex + 1
-    active_notes = {} 
+    active_notes = {}
     publish_active()
 
   else
     -- End of playlist: Wait for a "clear" signal (e.g. Restart) to reset
-    local msg = clearChannel:demand() 
+    local msg = clearChannel:demand()
     if msg == "clear" then
       currentIndex = 1
       active_notes = {}

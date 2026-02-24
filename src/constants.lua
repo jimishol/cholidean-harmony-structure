@@ -22,6 +22,7 @@
 -- @field defaultNoteMode       string   Note‑mode, either `"instant"` or `"offset"`.
 -- @field offsetDuration        number   Delay (s) before sending a “note‑off” when in offset mode.
 -- @field bassOffsetDuration    number   Delay (s) before sending a “note‑off” for the bass note.
+-- @field auto_advance_timeout  number   Auto-advance timeout in seconds (silence duration before skipping to next song)
 -- @field initialCameraPosition table    Starting camera position in world space.
 -- @field initialCameraPosition.x number X coordinate of initial camera.
 -- @field initialCameraPosition.y number Y coordinate of initial camera.
@@ -93,6 +94,7 @@ M.sunBrightness       = 1.0
 M.defaultNoteMode     = "instant"
 M.offsetDuration      = 0.15
 M.bassOffsetDuration  = 0.07
+M.auto_advance_timeout = 5.0
 
 M.initialCameraPosition = {
   x = -17.3,

@@ -93,9 +93,9 @@
 | `defaultNoteMode`       | `"instant"`         | Note mode: `"instant"` or `"offset"`                   |
 | `offsetDuration`        | `0.15`              | Delay before sending note-off in `"offset"` mode in seconds      |
 | `bassOffsetDuration`    | `0.07`              | Delay before sending note-off for the bass note        |
+| `auto_advance_timeout` | `5.0` | Duration of silence in seconds before the playlist automatically advances to the next song |
 | `activationThreshold`   | `0.15`              | Volume threshold for “heard” vs. “unheard” UNUSED as volume information after note OFF was not possible.             Note Mode and offset duration used instead.|
 | `NOTE_ORDER`            | Circle of fourths   | `["C","F","Bb","Eb","Ab","Db","Gb","B","E","A","D","G"]` |
-
 ---
 
 ## Emission Levels
@@ -150,6 +150,27 @@ The system provides real-time feedback on the harmonic stability of the topology
 *   **`Key:     ` (Silence / Collapse):**
     *   **Meaning:** Harmonic energy has dissipated (No notes > 2.0s).
     *   **Result:** The Chimney is **force-cleared**. The next chord is treated as a new harmonic anchor.
+
+## Playlist Automation (Auto-Advance)
+
+The system features an automated playlist manager that monitors harmonic activity.
+*   **Timeout:** If no notes are detected for a specific duration, the system automatically advances to the next song.
+*   **Configuration:** The duration is controlled by `constants.auto_advance_timeout` (default: `5.0` seconds).
+*   **Logic:** Automation is active during normal playback but is automatically disabled when the user enters **Teacher Mode** (`Shift + Return`), allowing for uninterrupted manual demonstrations.
+
+### FluidSynth Backend Architecture
+To ensure stability and clean state management, the FluidSynth backend uses a **Process-per-Song** iteration model:
+*   Each MIDI file is played by a fresh FluidSynth instance.
+*   The system performs a TCP bind-test before launching a new process to ensure the communication port is fully released by the OS.
+*   This architecture prevents "stuck notes" and memory leaks across long-running playlists.
+
+## Visualizer States
+
+### Power-Saving Pause (Freeze Mode)
+Pressing `p` toggles a high-efficiency state:
+*   **Visuals:** The 3D engine captures the current frame and stops all rendering calls, significantly reducing GPU/CPU load.
+*   **Audio:** The MIDI sequencer is paused.
+*   **Synchronization:** Changing the song via `Tab` or `Return` automatically exits Freeze mode to ensure visuals and audio remain synchronized.
 
 ---
 
