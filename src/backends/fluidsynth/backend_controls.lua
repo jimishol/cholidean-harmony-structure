@@ -100,30 +100,39 @@ function M.togglePlayback(host, port)
   print("[midi_controls] isPlaying =", M._isPlaying)
 end
 
---- Start playback of the current song.
--- Sends "player_start" after pushing a "clear" control message.
+--- Start playback of the current song (Tab).
+-- Sends "player_start" and "player_cont" to ensure playback begins
+-- even if the sequencer was previously stopped or the app was frozen.
 function M.beginSong(host, port)
   control:push("clear")
   send_command("player_start", host, port)
+  send_command("player_cont", host, port)
+
   M._isPlaying = true
+  M._forceContOnNextToggle = false
   print("[midi_controls] start current song")
 end
 
 --- Advance to the next song in the playlist (Internal FluidSynth skip).
 -- Sends "player_next" after pushing a "clear" control message.
+-- Used for Shift+Return to stop MIDI but keep process alive for live feedback.
 function M.endSong(host, port)
   control:push("clear")
+  send_command("player_stop", host, port)
   send_command("player_next", host, port)
-  M._isPlaying = true
-  print("[midi_controls] move to next song (TCP)")
+
+  -- MIDI is now stopped; set state to false so next 'p' or 'Tab' works instantly
+  M._isPlaying = false
+  M._forceContOnNextToggle = false
+  print("[midi_controls] move to next song (TCP stop)")
 end
 
 --- Force-kill the process to trigger the Thread to iterate to the next file.
 -- Closes the TCP socket first to ensure the OS releases the port.
+-- Used for Return to advance the Lua-level playlist.
 function M.nextSong(host, port)
   control:push("clear")
 
-  -- 1. Close the TCP client so the OS doesn't lock the port in TIME_WAIT
   if tcp then
     tcp:close()
     tcp = nil
@@ -137,17 +146,17 @@ function M.nextSong(host, port)
     return
   end
 
-  -- Extract process name (e.g. "fluidsynth" from "bin/fluidsynth.exe")
   local proc = backendValue:match("([^/\\]+)$"):gsub("%.exe$", ""):gsub("%.%w+$", "")
-  
+
   if platform == "windows" then
-    -- /F = Force, /T = Kill child processes
     os.execute(string.format('taskkill /IM %s.exe /F /T >NUL 2>&1', proc))
   else
     os.execute(string.format('pkill -9 -f "%s" > /dev/null 2>&1', proc))
   end
 
+  -- New process starts playing automatically
   M._isPlaying = true
+  M._forceContOnNextToggle = false
   print(string.format("[midi_controls] OS-killed %s and closed socket", proc))
 end
 

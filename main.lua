@@ -129,16 +129,37 @@ function love.load()
   Backend.start()
 end
 
---- Callback invoked every frame to update game state.
--- Updates the rendering engine, camera, and scene logic.
--- @function love.update
--- @tparam number dt Delta time since last frame.
--- @return nil
+local silenceTimer = 0
+local allowAdvance = true -- The "Teacher Mode" toggle for fluidsynth backend
+
 function love.update(dt)
-  if FREEZE then
-        return
+  -- 1. Auto-Advance Logic
+  if not FREEZE and allowAdvance then
+    local anyActive = false
+    -- Check the noteSystem state already processed by scene.lua
+    for i = 1, 12 do
+      if scene.noteSystem.notes[i].active then
+        anyActive = true
+        break
+      end
+    end
+
+    if not anyActive then
+      silenceTimer = silenceTimer + dt
+      if silenceTimer > 5.0 then
+        print("[Auto-Advance] Silence detected. Advancing...")
+        backendModules.controls.nextSong(host, shellPort)
+        silenceTimer = 0 
+      end
+    else
+      silenceTimer = 0 -- Reset if teacher or MIDI plays
+    end
+  else
+    silenceTimer = 0 -- Reset if Frozen or in Teacher Mode
   end
 
+  -- 2. Standard Engine Updates
+  if FREEZE then return end
   dream:update(dt)
   camera:update(dt)
   scene:update(dt)
@@ -310,42 +331,55 @@ function love.keypressed(key, scancode)
   -- In love.keypressed, backend action block:
   local methodName = backendActions[action]
   if methodName and backendModules.controls[methodName] then
-    backendModules.controls[methodName](host, shellPort)
 
-    if action == A.TOGGLE_PLAYBACK then
-      -- Set flag only when we are about to enter freeze (FREEZE is currently false)
-      if not FREEZE then
-        forceContOnNextToggle = true
-        backendModules.controls._forceContOnNextToggle = true
-      end
-      FREEZE = not FREEZE
-
-      if FREEZE then
-        -- Capture the current frame into a Canvas
-        local w, h = love.graphics.getDimensions()
-        freezeCanvas = love.graphics.newCanvas(w, h)
-
-        freezeCanvas:renderTo(function()
-          dream:prepare()
-          scene.draw(dream)
-          dream:present()
-
-          if Backend.fallbackMessage then
-            love.graphics.setColor(1, 0.8, 0)
-            love.graphics.print(Backend.fallbackMessage, 10, 10)
-          end
-        end)
+      -- 1. FORBID Shift+Return (Teacher Mode) during Freeze
+      if action == A.END_SONG and FREEZE then
+        return 
       end
 
-    -- NEW LOGIC: If we change the song while frozen, unfreeze the visual engine
-    elseif action == A.NEXT_SONG or action == A.BEGIN_SONG or action == A.END_SONG then
-      if FREEZE then
-        FREEZE = false
-        -- Also clear the backend's "force continue" flag since we are now playing
-        backendModules.controls._forceContOnNextToggle = false
+      -- 2. Execute the backend command (beginSong now sends start + cont)
+      backendModules.controls[methodName](host, shellPort)
+
+      -- 3. Update Auto-Advance Allowance
+      if action == A.BEGIN_SONG or action == A.NEXT_SONG then
+        allowAdvance = true
+        silenceTimer = 0
+      elseif action == A.END_SONG then
+        allowAdvance = false
+        silenceTimer = 0
+      end
+
+      -- 4. Handle Playback Toggling (Freeze Mode)
+      if action == A.TOGGLE_PLAYBACK then
+        if not FREEZE then
+          forceContOnNextToggle = true
+          backendModules.controls._forceContOnNextToggle = true
+        end
+        FREEZE = not FREEZE
+
+        if FREEZE then
+          local w, h = love.graphics.getDimensions()
+          freezeCanvas = love.graphics.newCanvas(w, h)
+          freezeCanvas:renderTo(function()
+            dream:prepare()
+            scene.draw(dream)
+            dream:present()
+            if Backend.fallbackMessage then
+              love.graphics.setColor(1, 0.8, 0)
+              love.graphics.print(Backend.fallbackMessage, 10, 10)
+            end
+          end)
+        end
+
+      -- 5. Handle Song Changes (Unfreeze visuals)
+      elseif action == A.NEXT_SONG or action == A.BEGIN_SONG then
+        if FREEZE then
+          FREEZE = false
+          -- Clear the backend's "force continue" flag since beginSong already handled it
+          backendModules.controls._forceContOnNextToggle = false
+        end
       end
     end
-  end
 
   -- Scene-level actions
   if scene.pressedAction and scene.pressedAction(action) then

@@ -30,6 +30,6 @@ function M.beginSong(host, port) end
 -- Does nothing in null backend.
 -- @tparam string host   Host address (ignored)
 -- @tparam number port   Port number (ignored)
-function M.endSong(host, port) end
+function M.nextSong(host, port) end
 
 return M
