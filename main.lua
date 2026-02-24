@@ -23,6 +23,9 @@ local dream  = (type(Engine) == "function" and Engine() or Engine)
 local FREEZE = false
 local freezeCanvas = nil
 local forceContOnNextToggle = false
+local baseTitle = ""
+local baseTitleShort = ""
+local currentSongName = "" -- New: Remember the last song name received
 
 -- 3) Require your modules
 local scene  = require("scene")
@@ -104,11 +107,20 @@ love.thread.getChannel("songs"):push(songList)
 -- @function love.load
 -- @return nil
 function love.load()
-  local window_title = love.window.getTitle()
-  love.window.setTitle(window_title .. ": " .. tostring(backend))
+  -- 1. Get the full name from conf.lua ("Cholidean harmony structure")
+  local conf_title = love.window.getTitle() or "Cholidean harmony structure"
+  -- 2. Create the Full version: "Cholidean harmony structure [fluidsynth]"
+  baseTitleFull = conf_title .. " [" .. tostring(backend) .. "]"
+  -- 3. Create the Short version: "Cholidean [fluidsynth]"
+  -- This pattern grabs the first word before the space
+  local firstWord = conf_title:match("^(%S+)") or "Cholidean"
+  baseTitleShort = firstWord .. " [" .. tostring(backend) .. "]"
+  -- 4. Set initial title to the Full version
+  love.window.setTitle(baseTitleFull)
+
   love.keyboard.setTextInput(true)
 
-  -- 4) Load all materials, then init the engine in the callback
+  -- 5. Load all materials, then init the engine in the callback
     dream:loadMaterialLibrary("assets/materials_gl")
 
   if platform == "windows" then
@@ -121,7 +133,7 @@ function love.load()
   dream:init()
   Colors.init(dream)
 
-  -- 5) Only now that the engine is initialized and textures are loaded do we load the scene & camera
+  -- 6. Only now that the engine is initialized and textures are loaded do we load the scene & camera
   scene.load(dream, backendModules.commandMenu)
   camera:init(dream)
 
@@ -133,7 +145,16 @@ local silenceTimer = 0
 local allowAdvance = true -- The "Teacher Mode" toggle for fluidsynth backend
 
 function love.update(dt)
-  -- 1. Auto-Advance Logic
+  -- 1. Check for a new song name
+  local nameChan = love.thread.getChannel("current_song_name")
+  local newName = nameChan:pop()
+
+  if newName then
+    currentSongName = newName -- Remember this name!
+    love.window.setTitle(currentSongName .. " | " .. baseTitleShort)
+  end
+
+  -- 2. Auto-Advance Logic
   if not FREEZE and allowAdvance then
     local anyActive = false
     -- Check the noteSystem state already processed by scene.lua
@@ -158,7 +179,7 @@ function love.update(dt)
     silenceTimer = 0 -- Reset if Frozen or in Teacher Mode
   end
 
-  -- 2. Standard Engine Updates
+  -- 3. Standard Engine Updates
   if FREEZE then return end
   dream:update(dt)
   camera:update(dt)
@@ -340,13 +361,22 @@ function love.keypressed(key, scancode)
       -- 2. Execute the backend command (beginSong now sends start + cont)
       backendModules.controls[methodName](host, shellPort)
 
-      -- 3. Update Auto-Advance Allowance
+-- 3. Update Auto-Advance Allowance and Window Title
       if action == A.BEGIN_SONG or action == A.NEXT_SONG then
         allowAdvance = true
         silenceTimer = 0
+
+        -- If Tab (BEGIN_SONG), restore the short title immediately using cached name
+        if action == A.BEGIN_SONG and currentSongName ~= "" then
+          love.window.setTitle(currentSongName .. " | " .. baseTitleShort)
+        end
+
       elseif action == A.END_SONG then
         allowAdvance = false
         silenceTimer = 0
+        -- Restore full title for Teacher Mode
+        love.window.setTitle(baseTitleFull)
+        print("[Main] Teacher Mode: Restored full title.")
       end
 
       -- 4. Handle Playback Toggling (Freeze Mode)

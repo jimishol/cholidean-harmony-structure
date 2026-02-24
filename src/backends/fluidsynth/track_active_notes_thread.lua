@@ -136,12 +136,16 @@ else
   end
 end
 
--- Build a list of real OS MIDIs (dumped then escaped)
+-- Build a list of real OS MIDIs and a list of names for the UI
 local songTableOS = {}
+local songNames = {} 
 for token in songList:gmatch("[^|]+") do
-  local trimmed = token:match("^%s*(.-)%s*$")  -- trim surrounding spaces
-  local vpath = trimmed:gsub("^['\"]*(.-)['\"]*$", "%1")  -- strip quotes like current code
+  local trimmed = token:match("^%s*(.-)%s*$")
+  local vpath = trimmed:gsub("^['\"]*(.-)['\"]*$", "%1")
   if love.filesystem.getInfo(vpath, "file") then
+    -- Save the filename (e.g. "Beethoven.mid")
+    table.insert(songNames, vpath:match("[^/]+$") or vpath)
+
     local realPath = dumpToTemp(vpath)
     table.insert(songTableOS, shellEscape(realPath))
   end
@@ -176,6 +180,9 @@ while true do
   local currentSong = songTableOS[currentIndex]
 
   if currentSong then
+    -- Push the song name to the window title channel
+    love.thread.getChannel("current_song_name"):push(songNames[currentIndex])
+
     -- 1. Ensure the port is free from the previous process
     print(">> Checking port " .. shellPort .. " availability...")
     waitForPortFree(shellPort)
