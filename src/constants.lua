@@ -145,7 +145,7 @@ M.emissionLevels = {
   labels   = { active = 0.40, inactive = 0.005 },
 }
 -- Fundamental visualization
-M.mfState = 2 -- 0=no fundamentals, 1=joints, 2=labels, 3=joints+labels
+M.mfState = 0 -- 0=no fundamentals, 1=joints, 2=labels, 3=joints+labels
 M.mfJointScaleYMultiplier = 1.4
 M.mfLabelScaleYMultiplier = 1.5
 
