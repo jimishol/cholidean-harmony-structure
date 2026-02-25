@@ -74,9 +74,9 @@ local function detectKeyCandidates(surfaces, notePresent)
        -- Lydian (#4) pulls to V. Mixolydian (b7) pulls to IV. Neapolitan (b2) destabilizes.
        local Lydian     = has(6)  -- e.g., F# in C
        local Mixolydian = has(2)  -- e.g., Bb in C
-       local Neapolitan = has(5)  -- e.g., Db in C
+--       local Neapolitan = has(5)  -- e.g., Db in C
 
-       if not Lydian and not Mixolydian and not Neapolitan then
+       if not Lydian and not Mixolydian then
           -- Valid Candidate found
           table.insert(foundNames, targetToKey[t])
           table.insert(foundIndices, t)
@@ -202,22 +202,35 @@ function KeyEstimation.estimate(notes, dt)
         result = "Key: " .. table.concat(foundGlobalNames, "  ")
         conflictTimer = 0
 
-        -- [INTERSECTION FILTER]
-        local commonMask = {}
-        for i = 1, 12 do commonMask[i] = true end
+	-- [UNION FILTER]
+        -- We keep a surface if it belongs to ANY of the valid candidates.
+        -- This prevents "Intersection Death" (where a surface is killed because it fits Candidate A but not B).
+
+        local unionMask = {}
+        for i = 1, 12 do unionMask[i] = false end -- Start empty
 
         for _, t in ipairs(foundGlobalIndices) do
             local keyMask = {}
-            keyMask[wrap12(t - 1)] = true -- Major Dom
-            keyMask[wrap12(t + 2)] = true -- Major Sub (Torque)
-            keyMask[wrap12(t + 1)] = true -- Minor Tonic
-            keyMask[wrap12(t + 8)] = true -- Minor Dom
-            for i = 1, 12 do commonMask[i] = commonMask[i] and keyMask[i] end
+
+            -- Standard Diatonic Habitat (4 Surfaces)
+            keyMask[wrap12(t)]     = true -- Tonic (e.g., C')
+            keyMask[wrap12(t - 1)] = true -- Major Dom (e.g., G')
+            keyMask[wrap12(t + 1)] = true -- Subdominant (e.g., F')
+            keyMask[wrap12(t + 2)] = true -- Torque/Supertonic (e.g., Bb')
+
+            -- Harmonic Minor Extension
+            keyMask[wrap12(t + 8)] = true -- Minor Dom (e.g., E' for Am)
+
+            -- Accumulate into Union
+            for i = 1, 12 do 
+                unionMask[i] = unionMask[i] or keyMask[i] 
+            end
         end
 
         local newHistory = {}
         for i = 1, 12 do
-             newHistory[i] = currentSurfaceActive[i] or (previousState.surfaceActive[i] and commonMask[i])
+             -- Keep if it is currently active OR (it was in history AND it fits the Union of candidates)
+             newHistory[i] = currentSurfaceActive[i] or (previousState.surfaceActive[i] and unionMask[i])
         end
         previousState.surfaceActive = newHistory
 
