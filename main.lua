@@ -168,7 +168,7 @@ function love.update(dt)
     if not anyActive then
       silenceTimer = silenceTimer + dt
       if silenceTimer > constants.auto_advance_timeout then
-        print("[Auto-Advance] Silence detected. Advancing...")
+        --  print("[Auto-Advance] Silence detected. Advancing...")
         backendModules.controls.nextSong(host, shellPort)
         silenceTimer = 0 
       end
