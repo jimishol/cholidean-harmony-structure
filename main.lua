@@ -22,8 +22,6 @@ local Engine = require("3DreamEngine")
 local dream  = (type(Engine) == "function" and Engine() or Engine)
 local FREEZE = false
 local freezeCanvas = nil
-local forceContOnNextToggle = false
-local baseTitle = ""
 local baseTitleShort = ""
 local currentSongName = "" -- New: Remember the last song name received
 
@@ -70,12 +68,6 @@ midiPortChannel:push(midiPort)
 local soundfontChannel = love.thread.getChannel("soundfonts")
 soundfontChannel:push(constants.soundfonts)
 
-local playlist = require("src.backends.playlist")
-backendModules.playlist = playlist
-
--- Now it’s safe to require and use the playlist backend:
-local playlist = require("src.backends.playlist")
-backendModules.playlist = playlist
 local playlist      = require("src.backends.playlist")
 local selectedSongs = playlist.getSelectedSongs()
 
@@ -90,16 +82,6 @@ local excludeChannelsChannel = love.thread.getChannel("excludeChannels")
 excludeChannelsChannel:push(constants.excludeChannels or {})
 
 love.thread.getChannel("songs"):push(songList)
--- -- ✅ Load backend-neutral playlist
--- local ok_playlist, playlist = pcall(require, "src.backends.playlist")
--- backendModules.playlist = ok_playlist and playlist or {
---   getSelectedSongs = function() return {} end  -- empty playlist in manual mode
--- }
--- local selectedSongs = backendModules.playlist.getSelectedSongs()
---
--- local songsChannel = love.thread.getChannel("songs")
--- local songList = table.concat(selectedSongs, " ")
--- songsChannel:push(songList)
 
 --- Callback invoked once when the Love2D application loads.
 -- Sets up window title, text input, material libraries, engine initialization,
@@ -143,8 +125,16 @@ end
 
 local silenceTimer = 0
 local allowAdvance = true -- The "Teacher Mode" toggle for fluidsynth backend
+local speed_channel = love.thread.getChannel("playback_speed")
+local current_speed = 1.0
 
 function love.update(dt)
+  -- 0. READ THE CHANNEL (Receive the signal from Command Menu)
+  local new_speed = speed_channel:peek() 
+  if new_speed then
+      current_speed = new_speed
+  end
+
   -- 1. Check for a new song name
   local nameChan = love.thread.getChannel("current_song_name")
   local newName = nameChan:pop()
@@ -167,10 +157,10 @@ function love.update(dt)
 
     if not anyActive then
       silenceTimer = silenceTimer + dt
-      if silenceTimer > constants.auto_advance_timeout then
+      if silenceTimer > constants.auto_advance_timeout / current_speed then
         --  print("[Auto-Advance] Silence detected. Advancing...")
         backendModules.controls.nextSong(host, shellPort)
-        silenceTimer = 0 
+        silenceTimer = 0
       end
     else
       silenceTimer = 0 -- Reset if teacher or MIDI plays
@@ -183,7 +173,9 @@ function love.update(dt)
   if FREEZE then return end
   dream:update(dt)
   camera:update(dt)
-  scene:update(dt)
+  if scene then
+      scene:update(dt, current_speed)
+  end
 end
 
 --- Callback invoked every frame to render the scene and overlays.

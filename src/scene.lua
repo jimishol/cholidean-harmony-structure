@@ -216,7 +216,8 @@ end
 -- and reassigns labels/materials if notes changed.
 -- @tparam number dt  Delta time in seconds since last frame
 -- @return nil
-function scene:update(dt)
+function scene:update(dt, speed)
+  local current_speed = speed or 1.0 -- Default to 1.0 if missing
   -- first‐frame fixed update
   if hdrImg and not sun then
     -- no-op; handled in load
@@ -242,7 +243,7 @@ function scene:update(dt)
   end
 
   if self.showKeyEstimation then
-    local currentKey = KeyEstimation.estimate(self.noteSystem.notes, dt)
+    local currentKey = KeyEstimation.estimate(self.noteSystem.notes, dt, speed)
     self.estimatedKey = currentKey -- Always holds the current truth
 
     -- LOGIC: Manage the Wake

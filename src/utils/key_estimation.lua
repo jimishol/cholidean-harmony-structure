@@ -102,8 +102,11 @@ function KeyEstimation.reset()
 end
 
 --- Estimates the Key based on active notes and surface topology.
-function KeyEstimation.estimate(notes, dt)
+function KeyEstimation.estimate(notes, dt, speed_factor)
   local dt = dt or 0.016 -- Fallback if dt is missing
+  -- [[ GEOMETRIC INJECTION ]] --
+  local s = speed_factor or 1.0
+  if s < 0.1 then s = 0.1 end
 
   -- 1) BUILD CANONICAL NOTE MAP
   local canonicalNotes = {}
@@ -129,7 +132,7 @@ function KeyEstimation.estimate(notes, dt)
   if #activeNoteIds == 0 then
      if dt then
         silenceTimer = silenceTimer + dt
-        if silenceTimer > SILENCE_THRESHOLD then
+        if silenceTimer > SILENCE_THRESHOLD / s then
            KeyEstimation.reset()
            return "Key:     "
         else
@@ -223,7 +226,7 @@ function KeyEstimation.estimate(notes, dt)
 
             -- Accumulate into Union
             for i = 1, 12 do 
-                unionMask[i] = unionMask[i] or keyMask[i] 
+                unionMask[i] = unionMask[i] or keyMask[i]
             end
         end
 
@@ -240,7 +243,7 @@ function KeyEstimation.estimate(notes, dt)
 
         conflictTimer = conflictTimer + dt
 
-        if conflictTimer > CONFLICT_GRACE then
+        if conflictTimer > CONFLICT_GRACE / s then
             result = "Key: None"
         else
             -- Ghosting: Keep previous result during finger slip

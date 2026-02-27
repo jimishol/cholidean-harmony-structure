@@ -55,73 +55,66 @@ end
 --- Handle key presses.
 -- Returns a command string on Enter; nil otherwise.
 function CommandMenu:keypressed(key)
-  if not self.visible then
-    return
-  end
+  if not self.visible then return end
 
-  -- HELP MODE: only Esc to exit
+  -- HELP MODE
   if self.state == "help" then
-    if key == "escape" then
-      self.state = "select"
-    end
+    if key == "escape" then self.state = "select" end
     return
   end
 
   -- SELECT MODE
   if self.state == "select" then
-    if key == "escape" then
-      self:toggle()
-      return
-    end
+    if key == "escape" then self:toggle(); return end
+    if key == "h" then self.state = "help"; self.scrollLine = 1; return end
 
-    -- open help
-    if key == "h" then
-      self.state      = "help"
-      self.scrollLine = 1
-      return
-    end
-
-    -- raw mode
+    -- Raw mode
     if key == "e" then
-      self.cmdKey     = "e"
-      self.state      = "input"
-      self.text       = ""
-      self._skipFirst = true
+      self.cmdKey = "e"; self.state = "input"; self.text = ""; self._skipFirst = true
       return
     end
 
-    -- numeric modes
+    -- Numeric modes (a, b, c, d)
     local letter = key:match("^([a-d])$")
     if letter then
-      self.cmdKey = letter
-      self.state  = "input"
-      self.text   = ""
+      self.cmdKey = letter; self.state = "input"; self.text = ""
     end
-
     return
   end
 
   -- INPUT MODE
   if key == "backspace" then
     self.text = self.text:sub(1, -2)
-
   elseif key == "escape" then
     self.state, self.cmdKey, self.text = "select", nil, ""
     return
-
   elseif key == "return" then
     local out
     if self.cmdKey == "e" then
       out = self.text
     else
       local topic = topics[self.cmdKey]
-      local n     = tonumber(self.text)
-      out = topic
-      if n then out = out .. " " .. n end
+      local n = tonumber(self.text)
+
+      if topic and n then
+        out = topic .. " " .. n
+
+        -- [[ GEOMETRIC INJECTION: Broadcast Time Dilation ]] --
+        local speed_channel = love.thread.getChannel("playback_speed")
+
+        if self.cmdKey == "a" then
+           -- BPM Logic: Scale = n / 90
+           speed_channel:push(n / 90)
+        elseif self.cmdKey == "b" then
+           -- Speed Logic: Scale = n
+           speed_channel:push(n)
+        end
+        -- [[ END INJECTION ]] --
+      end
     end
 
     self:toggle()
-    print("DEBUG: sending ->", out)
+    if out then print("DEBUG: sending ->", out) end
     return out
   end
 end
