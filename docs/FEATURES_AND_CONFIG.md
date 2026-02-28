@@ -115,41 +115,47 @@
 The system includes a geometric **Key Estimation** module that analyzes the active surface topology in real-time. This feature visualizes the "Harmonic Wake"—the trajectory of the lattice as it moves through the Circle of Fourths.
 
 > **NOTE: Topological Bias (Western Tonality)**
-> While the Umbilic Torus lattice is structurally neutral, this specific estimation module applies a "Common Practice" filter. It detects Keys by identifying clusters of **4 Adjacent Surfaces** (Tonic, Dominant, Subdominant, Relative).
+> While the Umbilic Torus lattice is structurally neutral, this specific estimation module applies a "Common Practice" filter. It detects Keys by identifying **Topological Axes** defined by the **Dominant (t-1)** and **Torque (t+2)** surfaces.
 > *   **Supported:** Standard Western Harmony (Bach to Jazz Standards).
-> *   **Experimental:** Symmetric scales (Whole-Tone, Diminished) or Quartal harmony may result in unstable or `None` readings, as they do not form the specific topological cluster this tool is tuned to detect.
+> *   **Experimental:** Symmetric scales (Whole-Tone, Diminished) or Quartal harmony may result in **`None`** or split readings (e.g., `Dm F#m`), as they do not form the specific topological container this tool is tuned to detect.
 
-*I strongly encourage developers to create custom estimation modules for other harmonic geometries.*
-
-What about that?
 | Control | Action | Description |
 | :--- | :--- | :--- |
 | **k** | Toggle Harmonic Wake | Switches the multi-line analysis display on/off. |
 
 ### Visualization Logic
+
 *   **The Chimney:** The display uses a bottom-up stack.
-    *   **Active (Bottom):** The current geometric truth (Bright White).
-    *   **History (Rising):** Previous states float upward and fade out (Grey).
-*   **Relative Pairs:** Keys are displayed as geometric pairs (e.g., `G | Em`) to respect the topological unity of relative scales.
-*   **Strict Veto:** The system uses "Survival of the Present" logic. If a chromatic note conflicts with the current key, the system immediately reports `None` or the new key, ensuring the display reflects the exact geometric reality of the moment.
+    *   **Active (Bottom):** The current geometric truth.
+    *   **History (Rising):** Previous states float upward and fade out, representing the "Wake" of the harmonic movement.
+*   **Mode-Agnostic Detection:**
+    *   The system identifies the **Diatonic Neighborhood** (Parent Scale) rather than enforcing a strict Tonic anchor.
+    *   *Example:* A **D Dorian** progression (`Dm` <-> `G`) will be identified as **`C | Am`**, as it geometrically resides within the C-Major axis boundaries.
+    *   *Ghostbuster Veto:* To prevent false positives, the system rejects Major Keys if the **Parallel Minor 3rd** is present without the Major 3rd (e.g., `Am` will never trigger "A Major").
+*   **Harmonic Resolution:**
+    *   **Dynamic Minor Force:** The system forces the **Minor** label (`Am`) when the Harmonic Tension (t+8) **resolves** (moves from History to Inactive).
+    *   **The Diminished Exception:** A standalone Dominant (`E7`) forces Minor, while a Diminished 7th (`B°7`) allows ambiguity (`C | Am`) because it contains the Subdominant note (t+1), creating a Plagal geometric opening.
 
 ### Status Indicators
 
-The system provides real-time feedback on the harmonic stability of the topology:
+The system provides real-time feedback on the harmonic stability of the topology using color codes:
 
-*   **`Key: None` (Local Contradiction):**
-    *   **Meaning:** The current notes form a geometrically impossible structure (e.g., mutually exclusive surfaces active simultaneously).
-    *   **Result:** The system cannot determine a root for the current moment.
+*   **`Key: C | Am` (Valid):**
+    *   **Meaning:** A stable, valid topological axis is established.
+    *   **Behavior:** The system displays the Key (or Relative Pair).
 
-*   **`Key: ?` (Geometric Shear):**
-    *   **Meaning:** The **Current Notes** contradict the **Harmonic History**.
-    *   **Geometric Cause:** The "Wake" projects a specific Key Axis, but the current chord contains a "Veto Note" that destroys that axis.
-    *   **Musical Implication:** Signals a **Deceptive Resolution**, **Modal Mixture**, or sudden modulation.
-    *   **Result:** The Chimney (History) is **preserved**, acknowledging the path taken, but the current tonal center is momentarily suspended.
+*   **`Key: None` (Geometric Conflict):**
+    *   **Meaning:** The current notes contradict the laws of the active Axis.
+    *   **Causes:**
+        1.  **The Veto:** Playing a "Wall" note (e.g., Lydian `#4` or Mixolydian `b7`) against a Major triad.
+        2.  **Geometric Saturation:** The input activates contradictory vetoes across all potential axes (e.g., Whole-Tone Scale or Chromatic Clusters).
+    *   **Result:** The system refuses to guess and reports the contradiction.
 
 *   **`Key:     ` (Silence / Collapse):**
     *   **Meaning:** Harmonic energy has dissipated (No notes > 2.0s).
-    *   **Result:** The Chimney is **force-cleared**. The next chord is treated as a new harmonic anchor.
+    *   **Result:** The Chimney is **force-cleared**. The next chord is treated as a new harmonic anchor, free from previous context.
+
+---
 
 ## Playlist Automation (Auto-Advance)
 
