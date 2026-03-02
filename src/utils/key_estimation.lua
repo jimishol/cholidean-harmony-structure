@@ -61,6 +61,9 @@ local targetToKey = {
 -- If the Harmonic Minor Dominant (t+8) existed in history but has resolved (is absent in current),
 -- and the Minor Tonic (t+1) is currently active, the system forces the Minor label.
 --
+-- **Axis 3 (Major Resolution):** Checks for V -> I resolution in the ABSENCE of Minor history.
+-- Distinguishes C Major (G->C, no E) from A Minor (G->C, E exists in history).
+--
 -- @param surfaces table The boolean topology of Accumulated History (Ring Buffer).
 -- @param currentSurfaces table The boolean topology of the CURRENT frame only.
 -- @param notePresent table The map of currently active notes (Accumulated).
@@ -110,8 +113,6 @@ local function detectKeyCandidates(surfaces, currentSurfaces, notePresent)
            -- [[ HARMONIC RESOLUTION (SUBTRACTION LOGIC) ]]
            -- We force Minor ONLY if the Harmonic Dominant (t+8) was in History
            -- but has now RESOLVED (is missing from Current).
-           -- This allows Bdim7 (t+8 current) to show "C | Am" (Ambiguous).
-           -- This forces E7 -> Am (t+8 history -> resolved) to show "Am" (Specific).
            local sMinorDom = wrap12(t + 8)
            local isHarmonicResolution = surfaces[sMinorDom] and not currentSurfaces[sMinorDom]
 
@@ -141,10 +142,35 @@ local function detectKeyCandidates(surfaces, currentSurfaces, notePresent)
     end
 
     -- ============================================================
-    -- FINAL DECISION
+    -- FINAL DECISION & AXIS 3 (MAJOR SPLIT)
     -- ============================================================
     if candidateAccepted then
-        local resolvedName = forcedMinor and labelPair.minor or (labelPair.major .. "|" .. labelPair.minor)
+        local resolvedName
+
+        if forcedMinor then
+            -- Axis 2 or Harmonic Subtraction detected Minor
+            resolvedName = labelPair.minor
+        else
+            -- Check for "Pure Major" (Axis 3)
+            -- Logic:
+            -- 1. Major Dominant (t-1) Resolved: Was in History, Gone in Current.
+            -- 2. Major Tonic (t) Arrived: Active in Current.
+            -- 3. NO MINOR HISTORY: The Minor Dominant (t+8) must be completely absent from History.
+            --    (This distinguishes V->I from VII->III in Relative Minor).
+
+            local sMajorDom = wrap12(t - 1)
+            local major_V_resolved = surfaces[sMajorDom] and not currentSurfaces[sMajorDom]
+            local major_I_active   = currentSurfaces[t]
+            local no_minor_history = not surfaces[sMinorDom] -- Crucial Filter
+
+            if major_V_resolved and major_I_active and no_minor_history then
+                resolvedName = labelPair.major
+            else
+                -- Default: Diatonic Ambiguity (C | Am)
+                resolvedName = labelPair.major .. "|" .. labelPair.minor
+            end
+        end
+
         table.insert(foundNames, resolvedName)
         table.insert(foundIndices, t)
     end
