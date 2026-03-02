@@ -259,6 +259,7 @@ end
 -- @function genericQuit
 -- @return nil
 local function genericQuit()
+  love.timer.sleep(0.3)
   if backend ~= "null" then
     local proc = backend:match("([^/\\]+)$"):gsub("%.%w+$", "")
 
