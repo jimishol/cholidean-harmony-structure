@@ -217,7 +217,8 @@ end
 --- Per-frame update.
 -- Advances day/night cycle (when menu closed), polls the note system,
 -- and reassigns labels/materials if notes changed.
--- @tparam number dt  Delta time in seconds since last frame
+-- @tparam number dt     Delta time in seconds since last frame
+-- @tparam[opt=1.0] number speed  Time scale multiplier (default 1.0)
 -- @return nil
 function scene:update(dt, speed)
   local current_speed = speed or 1.0 -- Default to 1.0 if missing
