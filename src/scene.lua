@@ -203,6 +203,9 @@ function scene.load(dream, commandMenu)
   -- initialize key estimation (true)
   scene.showKeyEstimation = true
   scene.estimatedKey = ""
+  scene.stabilityCounter = 0
+  scene.stableCandidate = ""
+  scene.STABILITY_THRESHOLD = constants.key_stability_threshold -- Wait threshold frames to confirm a key
 
   -- Initialize History Queue
   scene.keyHistory = {}
@@ -243,28 +246,44 @@ function scene:update(dt, speed)
   end
 
   if self.showKeyEstimation then
-    local currentKey = KeyEstimation.estimate(self.noteSystem.notes, dt, speed)
-    self.estimatedKey = currentKey -- Always holds the current truth
+    -- 1. Get the Raw Signal (The "Flicker")
+    local rawKey = KeyEstimation.estimate(self.noteSystem.notes, dt, speed)
 
-    -- LOGIC: Manage the Wake
-    if currentKey == "Key:     " then
-        -- Silence: The chimney collapses (History wiped).
-        self.keyHistory = {}
-        self.lastRegisteredKey = ""
+    -- 2. Apply Stability Filter (The "Debounce")
+    if rawKey == self.stableCandidate then
+        -- Signal is consistent. Increase confidence.
+        self.stabilityCounter = self.stabilityCounter + 1
+    else
+        -- Signal changed! Reset confidence and track new candidate.
+        self.stabilityCounter = 0
+        self.stableCandidate = rawKey
+    end
 
-    elseif currentKey ~= self.lastRegisteredKey then
-        -- Change Detected: Push the *previous* valid key to history
-        -- We only record it if it wasn't silence or empty
-        if self.lastRegisteredKey ~= "" and self.lastRegisteredKey ~= "Key:     " then
-            table.insert(self.keyHistory, 1, self.lastRegisteredKey)
+    -- 3. Update Display ONLY if Threshold Reached
+    if self.stabilityCounter > self.STABILITY_THRESHOLD then
+        local validatedKey = self.stableCandidate
 
-            -- Trim history
-            if #self.keyHistory > self.maxHistory then
-                table.remove(self.keyHistory)
+        -- Update the visual anchor
+        self.estimatedKey = validatedKey
+
+        -- 4. Manage the Wake (History) using the VALIDATED key
+        if validatedKey == "Key:     " then
+            -- Silence confirmed: The chimney collapses.
+            self.keyHistory = {}
+            self.lastRegisteredKey = ""
+
+        elseif validatedKey ~= self.lastRegisteredKey then
+            -- Change confirmed: Push previous valid key to history
+            if self.lastRegisteredKey ~= "" and self.lastRegisteredKey ~= "Key:     " then
+                table.insert(self.keyHistory, 1, self.lastRegisteredKey)
+
+                if #self.keyHistory > self.maxHistory then
+                    table.remove(self.keyHistory)
+                end
             end
-        end
 
-        self.lastRegisteredKey = currentKey
+            self.lastRegisteredKey = validatedKey
+        end
     end
   end
 end

@@ -156,4 +156,13 @@ M.topVoiceColor = {1, 1, 1}  -- better nautral color such as white {1,1,1} or gr
 -- Analysis & UI
 M.key_history_length = 6 -- Number of past keys to show in the Harmonic Wake
 
+  --- Stability Threshold (Debounce) for Key Detection.
+  -- The number of consecutive frames a key candidate must be detected
+  -- before updating the display.
+  -- @usage
+  -- Low (3-5): Responsive, catches fast jazz changes, risks glissando flicker.
+  -- High (10-15): Very stable, "Classical" feel, ignores grace notes.
+  -- Recommended: 6 (~100ms at 60fps).
+M.key_stability_threshold = 6
+
 return M
