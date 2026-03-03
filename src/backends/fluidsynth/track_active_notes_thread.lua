@@ -185,6 +185,10 @@ while true do
 
     -- 1. Ensure the port is free from the previous process
     print(">> Checking port " .. shellPort .. " availability...")
+
+    local msg = clearChannel:pop()
+    if msg == "quit" then return end
+
     waitForPortFree(shellPort)
     socket.sleep(0.2) -- Small cushion for OS kernel
 
@@ -192,6 +196,8 @@ while true do
     local cmd = prefix .. sfArg .. " " .. currentSong
     print(">> Fluidsynth starting song [" .. currentIndex .. "]: " .. cmd)
 
+    local msg = clearChannel:pop()
+    if msg == "quit" then return end
     local pipe = assert(io.popen(cmd, "r"))
     local exclude = excludeChannel:peek() or {}
 
@@ -201,9 +207,17 @@ while true do
 
     -- 3. Inner event loop: listens for clear commands and note events
     while true do
-      if clearChannel:pop() == "clear" then
-        active_notes = {}
-        publish_active()
+
+      local msg = clearChannel:pop()
+
+      if msg == "quit" then
+          pipe:close()          -- actively tear down Fluidsynth
+          active_notes = {}
+          publish_active()
+          return
+      elseif msg == "clear" then
+          active_notes = {}
+          publish_active()
       end
 
       local line = pipe:read("*l")
@@ -244,11 +258,14 @@ while true do
 
   else
     -- End of playlist: Wait for a "clear" signal (e.g. Restart) to reset
+
     local msg = clearChannel:demand()
     if msg == "clear" then
       currentIndex = 1
       active_notes = {}
       publish_active()
+    elseif msg == "quit" then
+      return
     end
   end
 end

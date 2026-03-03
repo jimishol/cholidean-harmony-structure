@@ -73,7 +73,7 @@ M.backend             = "fluidsynth" -- "midiport" "udpMidi" "null" "fluidsynth"
 M.windowsBackendPath  = "bin\\"
 M.DEFAULT_MIDI_PORT   = "14:0"
 
-M.soundfonts          = "FluidR3_GM.sf2"
+M.soundfonts          = "soundfonts/FluidR3_GM.sf2" --"FluidR3_GM.sf2"
 M.shellPort           = 9800
 M.shellHost           = "localhost" --"192.168.x.x" IP of TCP server 
 M.excludeChannels     = {9}  -- Exlcude percussion channel. Set to {} to allow all channels

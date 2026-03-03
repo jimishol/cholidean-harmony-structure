@@ -259,7 +259,7 @@ end
 -- @function genericQuit
 -- @return nil
 local function genericQuit()
-  love.timer.sleep(0.3)
+
   if backend ~= "null" then
     local proc = backend:match("([^/\\]+)$"):gsub("%.%w+$", "")
 
@@ -316,6 +316,7 @@ function love.keypressed(key, scancode)
 
   -- Restart application
   if action == A.RESTART then
+    love.thread.getChannel("track_control"):push("quit")
     genericQuit()
     love.event.quit(42)
     return
@@ -329,6 +330,7 @@ function love.keypressed(key, scancode)
 
   -- Quit application
   if action == A.QUIT and ctrlDown() then
+    love.thread.getChannel("track_control"):push("quit")
     genericQuit()
     love.event.quit()
     return
