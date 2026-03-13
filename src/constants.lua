@@ -3,7 +3,7 @@
 -- @field backend               string   The backend engine that outputs heard notes (e.g. `"midiport"`, `"fluidsynth"`) or `"null"` if `active_notes.lua` is edited manually.
 -- @field DEFAULT_MIDI_PORT     string   Default MIDI input port to connect to for active‑note tracking. On Linux (ALSA) this is typically `"14:0"` for the built‑in Midi Through port. On Windows, set this to the exact name of the virtual cable or hardware MIDI input device you want to listen to (e.g. `"loopMIDI Port 1"`). This can be overridden by user configuration.
 -- @field windowsBackendPath    string   The root path of Fluidsynth that will be in the project root and contain the `\bin` subfolder on Windows.
--- @field soundfonts            string   Path to the SoundFont (.sf2/.sf3) file that Fluidsynth will load for audio synthesis. Provide an absolute or project‑relative path; leave empty to skip loading a soundfont.
+-- @field soundfonts            string   Path to the SoundFont (.sf2/.sf3) file that Fluidsynth will load for audio synthesis. Provide a project‑relative path; leave empty to skip loading a soundfont.
 -- @field shellPort             number   TCP port to control the backend (e.g. Fluidsynth with `-s`).
 -- @field shellHost             string   Hostname or IP of the backend.
 -- @field bck_image             string   HDRI image used as the sky background.
@@ -73,7 +73,7 @@ M.backend             = "fluidsynth" -- "midiport" "udpMidi" "null" "fluidsynth"
 M.windowsBackendPath  = "bin\\"
 M.DEFAULT_MIDI_PORT   = "14:0"
 
-M.soundfonts          = "soundfonts/FluidR3_GM.sf2" --"FluidR3_GM.sf2"
+M.soundfonts          = "" -- "soundfonts/FluidR3_GM.sf2" "FluidR3_GM.sf2"
 M.shellPort           = 9800
 M.shellHost           = "localhost" --"192.168.x.x" IP of TCP server 
 M.excludeChannels     = {9}  -- Exlcude percussion channel. Set to {} to allow all channels
