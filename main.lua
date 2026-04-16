@@ -171,7 +171,7 @@ function love.update(dt)
   end
 
   -- 3. Standard Engine Updates
-  if FREEZE then return end
+  if FREEZE then love.timer.sleep(0.03) return end
   dream:update(dt)
   camera:update(dt)
   if scene then
