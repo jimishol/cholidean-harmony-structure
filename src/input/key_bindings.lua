@@ -24,6 +24,7 @@ M.bindings = {
   [A.SHOW_COMMAND_MENU]  = { ":" },
   [A.RESTART]            = { "f10" },
   [A.TOGGLE_KEY_ESTIMATION] = { "k" },
+  [A.TOGGLE_HELP]         = { "f1" },
 }
 
 --- Returns the action constant for a given key or nil.

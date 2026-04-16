@@ -430,7 +430,7 @@ These keybindings fall into two categories:
 - Playback and command-menu commands sent over TCP to the active backend (Fluidsynth by default).
 - Local controls handled entirely by the visualizer core.
 
-Only the h, d, and Ctrl + Q keys are consumed by the visualizer itself. All other bindings below are relayed as TCP messages when using a backend that accepts them (Fluidsynth by default). Future backends can repurpose or extend these.
+Only the h, d, and Ctrl + Q keys are consumed by the visualizer itself. All other bindings below, except hybrid Shift + Return,  are relayed as TCP messages when using a backend that accepts them (Fluidsynth by default). Future backends can repurpose or extend these.
 
 | Key     | Function                                 |
 |---------|-------------------------------------------|
@@ -438,6 +438,7 @@ Only the h, d, and Ctrl + Q keys are consumed by the visualizer itself. All othe
 | k | Toggle Key Estimation display |
 | tab     | Play current song from start              |
 | Enter   | Move to next song                         |
+|Shift + Return |Teacher Mode: Stops MIDI playback, keeps process alive, disables Auto-Advance (Hybrid) |
 | h       | Toggle “instant” vs “offset” note-off mode|
 | d       | Toggle debug overlay (FPS, camera info, note OFF mode)   |
 | Ctrl + Q       | Quit                       |

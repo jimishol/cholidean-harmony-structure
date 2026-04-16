@@ -31,6 +31,7 @@ local camera = require("camera")
 local Input  = require("src.input")
 local A      = require("src.input.actions")
 local Colors = require("src.utils.colors")
+local Help   = require("help_overlay")
 
 local os_detect = require("os_detect")
 local platform = os_detect.getPlatform()
@@ -221,6 +222,8 @@ function love.draw()
       local tw = font:getWidth(text)
       love.graphics.print(text, w - tw - margin, 20)
 
+      Help:draw()
+
       return
   end
 
@@ -251,6 +254,9 @@ function love.draw()
 
   love.graphics.setColor(1, 1, 1, 1)
   love.graphics.pop()
+
+  Help:draw()
+
 end
 
 --- Terminates the external backend process if one was launched.
@@ -313,6 +319,11 @@ function love.keypressed(key, scancode)
   -- Map key to action
   local action = Input:onKey(key)
   if not action then return end
+
+  if action == A.TOGGLE_HELP then
+      Help:toggle()
+      return -- Stop processing so F1 doesn't trigger anything else
+  end
 
   -- Restart application
   if action == A.RESTART then

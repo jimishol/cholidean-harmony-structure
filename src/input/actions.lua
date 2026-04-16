@@ -95,7 +95,9 @@ local A = {}
 --- UI controls: toggle key estimation display.  
 -- @field TOGGLE_KEY_ESTIMATION string
 
--- String values for each action
+--- UI controls: toggle the F1 help overlay.
+-- @field TOGGLE_HELP string
+
 A.QUIT               = "quit"
 A.RESTART            = "restart"
 A.RESET_VIEW         = "reset_view"
@@ -136,5 +138,7 @@ A.NEXT_SONG          = "move_to_next_song"
 A.SHOW_COMMAND_MENU  = "show_command_menu"
 
 A.TOGGLE_KEY_ESTIMATION = "TOGGLE_KEY_ESTIMATION"
+
+A.TOGGLE_HELP        = "toggle_help"
 
 return A
