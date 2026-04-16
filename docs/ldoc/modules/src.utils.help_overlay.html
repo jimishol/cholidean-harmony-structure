@@ -31,10 +31,6 @@
   <li><a href="../index.html">Index</a></li>
 </ul>
 
-<h2>Contents</h2>
-<ul>
-<li><a href="#Functions">Functions</a></li>
-</ul>
 
 
 <h2>Modules</h2>
@@ -61,9 +57,9 @@
   <li><a href="../modules/src.scene.html">src.scene</a></li>
   <li><a href="../modules/src.systems.fundamental.html">src.systems.fundamental</a></li>
   <li><a href="../modules/src.systems.note_system.html">src.systems.note_system</a></li>
-  <li><strong>src.utils.colors</strong></li>
+  <li><a href="../modules/src.utils.colors.html">src.utils.colors</a></li>
   <li><a href="../modules/src.helpers.daycycle.html">src.helpers.daycycle</a></li>
-  <li><a href="../modules/src.utils.help_overlay.html">src.utils.help_overlay</a></li>
+  <li><strong>src.utils.help_overlay</strong></li>
   <li><a href="../modules/src.utils.joint_layout.html">src.utils.joint_layout</a></li>
   <li><a href="../modules/src.utils.key_estimation.html">src.utils.key_estimation</a></li>
   <li><a href="../modules/src.materials.html">src.materials</a></li>
@@ -74,99 +70,17 @@
 
 <div id="content">
 
-<h1>Module <code>src.utils.colors</code></h1>
-<p>Color utilities module.</p>
-<p> Provides a perceptually uniform 12-step HSV palette (derived from HSLuv with L=50)
- for mapping 12 note indices around the circle of fourths to RGB.
- Requires a “dream” object exposing an <code>HSVtoRGB(h, s, v)</code> method.</p>
+<h1>Module <code>src.utils.help_overlay</code></h1>
+<p>Utility module for the F1 Help Overlay.</p>
+<p>
+</p>
 
 
-<h2><a href="#Functions">Functions</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#init">init (dream)</a></td>
-	<td class="summary">Initialize the color module with a Dream instance.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#getNoteColor">getNoteColor (index)</a></td>
-	<td class="summary">Get the RGB color corresponding to a note index.</td>
-	</tr>
-</table>
 
 <br/>
 <br/>
 
 
-    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
-
-    <dl class="function">
-    <dt>
-    <a name = "init"></a>
-    <strong>init (dream)</strong>
-    </dt>
-    <dd>
-    Initialize the color module with a Dream instance.
- The Dream instance must implement <code>HSVtoRGB(h, s, v)</code> which returns
- either three numeric values (r, g, b) or a table <code>{r, g, b}</code>.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">dream</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
-         Object providing <code>HSVtoRGB(h, s, v)</code>
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">nil</span></span>
-
-
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "getNoteColor"></a>
-    <strong>getNoteColor (index)</strong>
-    </dt>
-    <dd>
-    Get the RGB color corresponding to a note index.
- Wraps the index into the range 1..12, looks up the HSV entry,
- and converts it to RGB via the Dream instance.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">index</span>
-            <span class="types"><span class="type">number</span></span>
-         1-based note index (any integer, wraps modulo 12)
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-        <li>
-           <span class="types"><span class="type">number</span></span>
-        r Red channel in [0..1]</li>
-        <li>
-           <span class="types"><span class="type">number</span></span>
-        g Green channel in [0..1]</li>
-        <li>
-           <span class="types"><span class="type">number</span></span>
-        b Blue channel in [0..1]
- or @treturn table rgb Table with keys <code>r</code>,<code>g</code>,<code>b</code> if Dream returns a table.</li>
-    </ol>
-
-
-
-
-</dd>
-</dl>
 
 
 </div> <!-- id="content" -->
